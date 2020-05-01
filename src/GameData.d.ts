@@ -4,7 +4,14 @@ export namespace GameData {
 		offset: [number, number]
 	}
 
-	export interface Sprite {
+	export interface PathData {
+		up?: [number, number][]
+		down?: [number, number][]
+		left?: [number, number][]
+		right?: [number, number][]
+	}
+
+	export interface SpriteData {
 		name: string
 		layers: {
 			fg?: Texture | Texture[]
@@ -12,19 +19,13 @@ export namespace GameData {
 			char?: Texture | Texture[]
 			item?: Texture | Texture[]
 		}
-		paths?: {
-			top?: [number, number][]
-			down?: [number, number][]
-			left?: [number, number][]
-			right?: [number, number][]
-		}
+		paths?: PathData
 		pivot?: [number, number]
 		scale?: number
 		delay?: number
 	}
 
-	export interface Map {
-		fg: number[]
+	export interface MapData {
 		bg: number[]
 		width: number
 		height: number
@@ -32,6 +33,6 @@ export namespace GameData {
 }
 
 export interface GameData {
-	sprites: GameData.Sprite[]
-	map: GameData.Map
+	sprites: GameData.SpriteData[]
+	map: GameData.MapData
 }

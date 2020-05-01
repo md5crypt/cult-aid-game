@@ -1,4 +1,12 @@
 { "columns":0,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"",
+         "target":"."
+        }
+    },
  "grid":
     {
      "height":1,
@@ -20,7 +28,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":9,
              "name":"",
              "objects":[
                     {
@@ -98,7 +105,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -176,7 +182,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -314,7 +319,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -452,7 +456,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -530,7 +533,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -608,7 +610,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":3,
              "name":"",
              "objects":[
                     {
@@ -662,7 +663,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -740,7 +740,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -842,7 +841,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -867,7 +865,7 @@
                 {
                  "name":"delay",
                  "type":"int",
-                 "value":200
+                 "value":100
                 }, 
                 {
                  "name":"scale",
@@ -883,7 +881,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -924,7 +921,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -949,7 +945,7 @@
                 {
                  "name":"delay",
                  "type":"int",
-                 "value":200
+                 "value":100
                 }, 
                 {
                  "name":"scale",
@@ -965,7 +961,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -990,7 +985,7 @@
                 {
                  "name":"delay",
                  "type":"int",
-                 "value":200
+                 "value":100
                 }, 
                 {
                  "name":"scale",
@@ -1006,7 +1001,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -1031,7 +1025,7 @@
                 {
                  "name":"delay",
                  "type":"int",
-                 "value":200
+                 "value":100
                 }, 
                 {
                  "name":"scale",

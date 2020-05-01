@@ -2,18 +2,28 @@ import { RectTileLayer } from "./RectTile/RectTileLayer"
 import * as Stats from "stats.js"
 
 import { GameData } from "./GameData"
+import { GameInput } from "./GameInput"
 import { GameContext } from "./GameContext"
 import { GameMap } from "./GameMap"
 import { Sprite } from "./Sprite"
+import { modulo } from "./utils"
+import { CONST } from "./Constants"
 
-const enum CONST {
-	GRID_BASE = 120,
-	WALK_SPEED = 10
-}
-
-function modulo (a: number, b: number) {
-	const r = a % b
-	return r >= 0 ? r : b + r
+export class Player extends Sprite.Walking {
+	public update(time: number) {
+		super.update(time)
+		if (!this.isMoving()) {
+			if (GameContext.input.keyboard.ArrowUp) {
+				this.walk("up")
+			} else if (GameContext.input.keyboard.ArrowDown) {
+				this.walk("down")
+			} else if (GameContext.input.keyboard.ArrowLeft) {
+				this.walk("left")
+			} else if (GameContext.input.keyboard.ArrowRight) {
+				this.walk("right")
+			}
+		}
+	}
 }
 
 function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, PIXI.LoaderResource>>> {
@@ -47,26 +57,43 @@ window.addEventListener("load", async () => {
 	app.stage.addChild(GameContext.layers.bg)
 	app.stage.addChild(GameContext.layers.mid)
 	app.stage.addChild(GameContext.layers.fg)
+	GameContext.input = new GameInput()
+	GameContext.input.register()
+	GameContext.time = 0
 	GameContext.map = new GameMap()
 	GameContext.map.loadMap(GameContext.data.map)
-	GameContext.map.getCell(0, 0).item.push(new Sprite.Advanced(Sprite.find("khajiit-idle")))
-	GameContext.map.getCell(0, 2).item.push(new Sprite.Advanced(Sprite.find("khajiit-idle")))
-	GameContext.map.getCell(3, 2).item.push(new Sprite.Advanced(Sprite.find("khajiit-idle")))
-	GameContext.time = 0
-	GameContext.camera = [0, 0]
-	app.ticker.add((delta) => {
-		GameContext.time += app.ticker.elapsedMS
+	GameContext.camera = [300, 300]
+	const player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
+	player.enable(2, 1)
+	let scale = 2
+	app.stage.scale.set(scale)
+	app.ticker.add((_delta) => {
 		stats.end()
 		stats.begin()
-		GameContext.camera[0] += delta
-		GameContext.camera[1] += delta
-		const left = modulo(Math.floor(GameContext.camera[0] - (app.view.width / 2)), GameContext.map.xSize)
-		const top = modulo(Math.floor(GameContext.camera[1] - (app.view.height / 2)), GameContext.map.ySize)
+		if (GameContext.input.keyboard["+"]) {
+			scale *= 1.05
+			app.stage.scale.set(scale)
+		}
+		if (GameContext.input.keyboard["-"]) {
+			scale *= 0.95
+			app.stage.scale.set(scale)
+		}
+		if (GameContext.input.keyboard["0"]) {
+			scale = 2
+			app.stage.scale.set(scale)
+		}
+		GameContext.time += app.ticker.elapsedMS
+		player.update(GameContext.time)
+		GameContext.camera = player.getAbsoluteLocation()
+		const screenWidth = app.view.width * (1 / scale)
+		const screenHeight = app.view.height * (1 / scale)
+		const left = modulo(GameContext.camera[0] - (screenWidth /  2), GameContext.map.pixelWidth)
+		const top = modulo(GameContext.camera[1] - (screenHeight /  2), GameContext.map.pixelHeight)
 		GameContext.map.render(
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
-			Math.floor((top + (app.view.height - 1)) / CONST.GRID_BASE),
-			Math.floor((left + (app.view.width - 1)) / CONST.GRID_BASE)
+			Math.floor((top + (screenHeight - 1)) / Math.floor(CONST.GRID_BASE)),
+			Math.floor((left + (screenWidth - 1)) / Math.floor(CONST.GRID_BASE))
 		)
 		app.stage.pivot.set(left, top)
 	})

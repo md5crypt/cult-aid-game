@@ -3,7 +3,7 @@ import { RectTileShader } from "./RectTileShader"
 export class RectTileRenderer extends PIXI.ObjectRenderer {
 	public readonly indexBuffer: PIXI.Buffer
 	public readonly shader: RectTileShader
-	public static MAX_TEXTURES = 16
+	public static MAX_TEXTURES = 4
 	private indexBufferSize: number
 
 	constructor(renderer: PIXI.Renderer) {

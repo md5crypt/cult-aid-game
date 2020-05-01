@@ -2,10 +2,8 @@ import { RectTileLayer } from "./RectTile/RectTileLayer"
 import { GameData } from "./GameData"
 import { GameContext } from "./GameContext"
 import { Path, SimplePath } from "./Path"
-
-const enum CONST {
-	FALLBACK_DELAY = 100
-}
+import { modulo } from "./utils"
+import { CONST } from "./Constants"
 
 export namespace Sprite {
 	export class Basic implements Sprite {
@@ -21,22 +19,22 @@ export namespace Sprite {
 
 	export class Advanced implements Sprite {
 		private textures: GameData.Texture[]
-		private lastTime: number
+		private lastRender: number
 		private frame: number
 		private scale: number
 		private delay: number
 		private pivot: [number, number]
-		private data: GameData.Sprite
+		private data: GameData.SpriteData
 		protected offset: [number, number]
 
-		constructor(data: GameData.Sprite) {
+		constructor(data: GameData.SpriteData) {
 			this.offset = [0, 0]
 			if (!Array.isArray(data.layers.char)) {
 				throw new Error(data.name)
 			}
 			this.textures = data.layers.char
 			this.frame = 0
-			this.lastTime = Math.floor(GameContext.time)
+			this.lastRender = Math.floor(GameContext.time)
 			this.scale = data.scale || 1
 			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
 			this.delay = data.delay || CONST.FALLBACK_DELAY
@@ -45,7 +43,7 @@ export namespace Sprite {
 
 		public setFrame(n: number) {
 			this.frame = n
-			this.lastTime = Math.floor(GameContext.time)
+			this.lastRender = Math.floor(GameContext.time)
 		}
 
 		public setOffset(x: number, y: number) {
@@ -53,14 +51,14 @@ export namespace Sprite {
 			this.offset[1] = y
 		}
 
-		public loadData(data: GameData.Sprite) {
+		public setSpriteData(data: GameData.SpriteData) {
 			if (this.data != data) {
 				if (!Array.isArray(data.layers.char)) {
 					throw new Error(data.name)
 				}
 				this.textures = data.layers.char
 				this.frame = 0
-				this.lastTime = Math.floor(GameContext.time)
+				this.lastRender = Math.floor(GameContext.time)
 				this.scale = data.scale || 1
 				if (data.pivot) {
 					this.pivot[0] = data.pivot[0]
@@ -74,10 +72,10 @@ export namespace Sprite {
 			}
 		}
 
-		public render(layer: RectTileLayer, x: number, y: number) {
-			const steps = Math.floor((GameContext.time - this.lastTime) / this.delay)
+		public render(layer: RectTileLayer, x: number, y: number, time: number) {
+			const steps = Math.floor((time - this.lastRender) / this.delay)
 			this.frame = (this.frame + steps) % this.textures.length
-			this.lastTime += steps * this.delay
+			this.lastRender += steps * this.delay
 			const texture = this.textures[this.frame]
 			layer.addRect(
 				0,
@@ -93,11 +91,11 @@ export namespace Sprite {
 	}
 
 	export interface WalkSequence {
-		idle: GameData.Sprite
-		up: GameData.Sprite
-		down: GameData.Sprite
-		left: GameData.Sprite
-		right: GameData.Sprite
+		idle: GameData.SpriteData
+		up: GameData.SpriteData
+		down: GameData.SpriteData
+		left: GameData.SpriteData
+		right: GameData.SpriteData
 	}
 
 	export namespace WalkSequence {
@@ -114,12 +112,148 @@ export namespace Sprite {
 
 	export class Walking extends Advanced {
 		private walkSequence: WalkSequence
-		private position: number
+		private position: [number, number]
+		private enabled: boolean
+		private pathStack: Path[]
+		private positionStack: number[][]
+		private lastUpdate: number
+		public speed: number
 
-		public constructor(walkSequence: WalkSequence) {
+		public isMoving() {
+			return this.pathStack.length != 0
+		}
+
+		public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 			super(walkSequence.idle)
 			this.walkSequence = walkSequence
-			this.position = -1
+			this.position = [0, 0]
+			this.enabled = false
+			this.pathStack = []
+			this.positionStack = []
+			this.speed = speed
+			this.lastUpdate = 0
+		}
+
+		public enable(x: number, y: number, offset?: [number, number]) {
+			this.position[0] = x
+			this.position[1] = y
+			this.enabled = true
+			this.setSpriteData(this.walkSequence.idle)
+			const cell = GameContext.map.getCell(x, y)
+			cell.addItem(this)
+			if (offset) {
+				this.offset[0] = offset[0]
+				this.offset[1] = offset[1]
+			} else {
+				if (!cell.paths) {
+					throw new Error("can not place a Walking sprite on a tile without path data")
+				}
+				const path = cell.paths.up || cell.paths.down || cell.paths.left || cell.paths.right!
+				const point = path[path.length - 1]
+				this.offset[0] = point[0]
+				this.offset[1] = point[1]
+			}
+			this.lastUpdate = GameContext.time
+		}
+
+		public disable() {
+			if (this.enabled) {
+				this.enabled = false
+				if (this.pathStack.length != 0) {
+					this.pathStack = []
+				}
+				if (this.positionStack.length != 0) {
+					this.positionStack = []
+				}
+				GameContext.map.getCell(this.position[0], this.position[1]).removeItem(this)
+			}
+		}
+
+		public setLocation(x: number, y: number, offset?: [number, number]) {
+			this.disable()
+			const map = GameContext.map
+			this.enable(modulo(x, map.tileWidth), modulo(y, map.tileHeight), offset)
+		}
+
+		public getAbsoluteLocation(): [number, number] {
+			return [
+				(this.position[0] * CONST.GRID_BASE) + this.offset[0],
+				(this.position[1] * CONST.GRID_BASE) + this.offset[1]
+			]
+		}
+
+		public walk(direction: "up" | "down" | "left" | "right") {
+			if (!this.enabled || (this.pathStack.length != 0)) {
+				return false
+			}
+			const map = GameContext.map
+			const exitPath = map
+				.getCell(this.position[0], this.position[1])
+				.getExitPath(direction, this.offset[0], this.offset[1])
+			if (!exitPath) {
+				return false
+			}
+			let newX = 0
+			let newY = 0
+			switch (direction) {
+				case "up":
+					newY = -1
+					break
+				case "down":
+					newY = 1
+					break
+				case "left":
+					newX = -1
+					break
+				case "right":
+					newX = 1
+					break
+			}
+			newX = modulo(this.position[0] + newX, map.tileWidth)
+			newY = modulo(this.position[1] + newY, map.tileHeight)
+			const enterPath = map
+				.getCell(newX, newY)
+				.getEnterPath(direction)
+			if (!enterPath) {
+				return false
+			}
+			this.positionStack.push([newX, newY])
+			this.pathStack.push(
+				new SimplePath(enterPath, this.speed),
+				new SimplePath(exitPath, this.speed)
+			)
+			this.setSpriteData(this.walkSequence[this.pathStack[1].direction])
+			return true
+		}
+
+		public update(time: number) {
+			if (!this.enabled) {
+				return
+			}
+			if (this.pathStack.length) {
+				let delta = time - this.lastUpdate
+				while (true) {
+					const path = this.pathStack[this.pathStack.length - 1]
+					delta = path.update(delta)
+					if (delta < 0) {
+						this.offset[0] = path.x
+						this.offset[1] = path.y
+						this.setSpriteData(this.walkSequence[path.direction])
+						break
+					}
+					this.pathStack.pop()
+					if (this.pathStack.length == 0) {
+						this.offset[0] = path.x
+						this.offset[1] = path.y
+						this.setSpriteData(this.walkSequence.idle)
+						break
+					}
+					GameContext.map.getCell(this.position[0], this.position[1]).removeItem(this)
+					this.position = this.positionStack.pop() as [number, number]
+					GameContext.map.getCell(this.position[0], this.position[1]).addItem(this)
+				}
+			}
+			this.lastUpdate = time
 		}
 	}
 
@@ -133,5 +267,5 @@ export namespace Sprite {
 }
 
 export interface Sprite {
-	render(layer: RectTileLayer, x: number, y: number): void
+	render(layer: RectTileLayer, x: number, y: number, time: number): void
 }

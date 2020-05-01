@@ -19,8 +19,8 @@ const path = require("path");
 		const dest = path.resolve(__dirname, base + ".png")
 		if (layer == "bg") {
 			const fgFile = [
-				path.resolve(__dirname, "../atlas", base + "-bg.png"),
-				path.resolve(__dirname, "../atlas", base + "-bg-0000.png"),
+				path.resolve(__dirname, "../atlas", base + "-fg.png"),
+				path.resolve(__dirname, "../atlas", base + "-fg-0000.png"),
 			].filter(file => fs.existsSync(file))
 			if (fgFile.length == 1) {
 				await jimp.read(file)

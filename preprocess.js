@@ -131,7 +131,6 @@ function buildMap(sprites, mapFile, tilesetFile) {
 	const convert = (id, layer) => id ? (sprites[tileMap.get(id - 1)].layers[layer] ? tileMap.get(id - 1) + 1 : 0) : 0
 	return {
 		bg: map.layers[0].data.map(id => convert(id, "bg")),
-		fg: map.layers[0].data.map(id => convert(id, "fg")),
 		height: map.layers[0].height,
 		width: map.layers[0].width
 	}

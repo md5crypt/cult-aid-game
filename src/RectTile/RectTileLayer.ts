@@ -8,7 +8,7 @@ export class RectTileLayer extends PIXI.Container {
 	private textures: Array<PIXI.Texture>
 	private buffer: Float32Array
 	private offset: number
-	private dirt: boolean
+	private dirty: boolean
 	private geometry: RectTileRenderer.Geometry | null
 
 	constructor(textures: PIXI.Texture | PIXI.Texture[]) {
@@ -17,11 +17,11 @@ export class RectTileLayer extends PIXI.Container {
 		this.buffer = new Float32Array(RectTileRenderer.CONST.STRIDE * CONST.VECTOR_BUFFER_INITIAL_SIZE)
 		this.offset = 0
 		this.geometry = null
-		this.dirt = true
+		this.dirty = true
 	}
 
 	public clear() {
-		this.dirt = true
+		this.dirty = true
 		this.offset = 0
 	}
 
@@ -87,11 +87,11 @@ export class RectTileLayer extends PIXI.Container {
 		renderer.shader.bind(plugin.shader, false)
 		if (this.geometry == null) {
 			this.geometry = new RectTileRenderer.Geometry(plugin)
-			this.dirt = true
+			this.dirty = true
 		}
-		if (this.dirt) {
-			this.geometry.getBuffer("aVertexPosition").update(this.buffer)
-			this.dirt = false
+		if (this.dirty) {
+			this.geometry.getBuffer("aVertexPosition").update(this.buffer.subarray(0, this.offset))
+			this.dirty = false
 		}
 		renderer.geometry.bind(this.geometry, plugin.shader)
 		renderer.geometry.draw(PIXI.DRAW_MODES.TRIANGLES, rects * 6, 0)
