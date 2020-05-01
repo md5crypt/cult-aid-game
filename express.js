@@ -1,0 +1,7 @@
+const express = require("express")
+const app = express()
+app.use('/js', express.static('build'))
+app.use('/data.json', express.static('build/data.json'))
+app.use('/atlas.png', express.static('build/atlas.png'))
+app.use(express.static('static'))
+app.listen(80, '0.0.0.0', () => console.log('express up and running'))

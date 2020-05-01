@@ -1,0 +1,142 @@
+const fs = require("fs")
+const assert = require("assert")
+
+function buildSprites(atlasFile) {
+	const layers = ["fg", "bg", "char", "item"]
+	const atlas = JSON.parse(fs.readFileSync(atlasFile))
+	const sprites = {}
+	const array = []
+	const list = Object.keys(atlas.frames).map(filename => {
+		const match = filename.match(/^(.+?)-([^-]+)(?:-(\d+))?$/)
+		assert(match, filename)
+		assert(layers.includes(match[2]), filename)
+		const o = atlas.frames[filename]
+		const data = {
+			frame: [o.frame.x, o.frame.y, o.frame.w, o.frame.h],
+			offset: [o.spriteSourceSize.x, o.spriteSourceSize.y]
+		}
+		return {base: match[1], layer: match[2], frame: match[3] == undefined ? undefined : parseInt(match[3], 10), data}
+	}).sort((a, b) => (a.base == b.base) ? ((a.layer == b.layer) ? a.frame - b.frame : a.layer.localeCompare(b.layer)) : a.base.localeCompare(b.base))
+	for (const item of list) {
+		let sprite = sprites[item.base]
+		if (!sprite) {
+			sprite = {name: item.base, layers:{}}
+			array.push(sprite)
+			sprites[item.base] = sprite
+		}
+		if (item.frame == undefined) {
+			assert(!sprite.layers[item.layer])
+			sprite.layers[item.layer] = item.data
+		} else {
+			if (!sprite.layers[item.layer]) {
+				sprite.layers[item.layer] = []
+			}
+			assert(Array.isArray(sprite.layers[item.layer]))
+			sprite.layers[item.layer].push(item.data)
+		}
+	}
+	return array
+}
+
+const objectParsers = [
+	(objects, sprite) => {
+		const paths = {up:[], down:[], left:[], right:[]}
+		const leftover = []
+		for (const object of objects) {
+			if (!object.point) {
+				leftover.push(object)
+				continue
+			}
+			const pathMatch = object.name.match(/^(up|down|left|right)-(\d+)$/)
+			if (pathMatch) {
+				paths[pathMatch[1]].push({n: parseInt(pathMatch[2], 10), point: [object.x, object.y]})
+			} else {
+				const centerMatch = object.name.match(/^center\((.+)\)$/)
+				if (!centerMatch) {
+					leftover.push(object)
+					continue
+				}
+				const dirs = centerMatch[1].split(',')
+				for (const dir of dirs) {
+					assert(dir.match(/^(?:up|down|left|right)$/), sprite.name)
+					paths[dir].push({n: Infinity, point: [object.x, object.y]})
+				}
+			}
+		}
+		const pathsFinal = {}
+		for (const [key, value] of Object.entries(paths)) {
+			if (!value.length) {
+				continue;
+			}
+			assert(value.length > 1, sprite.name)
+			pathsFinal[key] = value.sort((a, b) => a.n - b.n).map((step, i, array) => {
+				assert(((i == (array.length - 1)) && (step.n == Infinity)) || ((i != array.length - 1) && (step.n == i)), sprite.name)
+				return step.point
+			})
+		}
+		if (Object.keys(pathsFinal).length > 0) {
+			sprite.paths = pathsFinal
+		}
+		return leftover
+	},
+	(objects, sprite) => {
+		const leftover = []
+		for (const object of objects) {
+			if (!object.point || object.name != "pivot") {
+				leftover.push(object)
+			} else {
+				sprite.pivot = [object.x, object.y]
+			}
+		}
+		return leftover
+	}
+]
+
+function parseProperties(properties, sprite) {
+	const props = {
+		scale: "float",
+		delay: "int"
+	}
+	for (const prop of properties) {
+		assert(prop.name in props && (props[prop.name] == prop.type), sprite.name)
+		sprite[prop.name] = prop.value
+	}
+}
+
+function buildMap(sprites, mapFile, tilesetFile) {
+	const map = JSON.parse(fs.readFileSync(mapFile))
+	const tileset = JSON.parse(fs.readFileSync(tilesetFile))
+	const tileMap = new Map()
+	const spriteMap = new Map()
+	for (let i = 0; i < sprites.length; i++) {
+		spriteMap.set(sprites[i].name, i)
+	}
+	for (const tile of tileset.tiles) {
+		const name = tile.image.match(/^[^.]+/)[0]
+		const spriteIndex = spriteMap.get(name)
+		assert(spriteIndex !== undefined)
+		const sprite = sprites[spriteIndex]
+		tileMap.set(tile.id, spriteIndex) 
+		if (tile.objectgroup && tile.objectgroup.objects) {
+			let data = tile.objectgroup.objects
+			for (parser of objectParsers) {
+				data = parser(data, sprite)
+			}
+			assert(data.length == 0, tile.image)
+		}
+		if (tile.properties) {
+			parseProperties(tile.properties, sprite)
+		}
+	}
+	const convert = (id, layer) => id ? (sprites[tileMap.get(id - 1)].layers[layer] ? tileMap.get(id - 1) + 1 : 0) : 0
+	return {
+		bg: map.layers[0].data.map(id => convert(id, "bg")),
+		fg: map.layers[0].data.map(id => convert(id, "fg")),
+		height: map.layers[0].height,
+		width: map.layers[0].width
+	}
+}
+
+const sprites = buildSprites("atlas/atlas.json")
+const map = buildMap(sprites, "map/map.json", "tileset/tileset.json")
+fs.writeFileSync("build/data.json", JSON.stringify({sprites,map}))

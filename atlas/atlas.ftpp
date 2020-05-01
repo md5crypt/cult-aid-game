@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "version": "0.6.5"
+  },
+  "savePath": ".",
+  "images": [
+    {
+      "name": "khajiit-down-char-0000.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-down-char-0000.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-down-char-0001.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-down-char-0001.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-idle-char-0000.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-idle-char-0000.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-idle-char-0001.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-idle-char-0001.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-idle-char-0002.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-idle-char-0002.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-idle-char-0003.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-idle-char-0003.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-left-char-0000.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-left-char-0000.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-left-char-0001.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-left-char-0001.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-right-char-0000.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-right-char-0000.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-right-char-0001.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-right-char-0001.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-up-char-0000.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-up-char-0000.png",
+      "folder": ""
+    },
+    {
+      "name": "khajiit-up-char-0001.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/khajiit-up-char-0001.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-bottom-left-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-bottom-left-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-bottom-left-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-bottom-left-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-bottom-right-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-bottom-right-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-bottom-right-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-bottom-right-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-double-clockwise-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-double-clockwise-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-double-clockwise-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-double-clockwise-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-double-counter-clockwise-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-double-counter-clockwise-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-double-counter-clockwise-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-double-counter-clockwise-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-upper-left-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-upper-left-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-upper-left-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-upper-left-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-upper-right-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-upper-right-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-corner-upper-right-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-corner-upper-right-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-horizontal-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-horizontal-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-horizontal-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-horizontal-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-room-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-room-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-room-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-room-fg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-vertical-bg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-vertical-bg.png",
+      "folder": ""
+    },
+    {
+      "name": "maze-vertical-fg.png",
+      "path": "C:/Users/Administrator/Desktop/cult-aid-game/atlas/maze-vertical-fg.png",
+      "folder": ""
+    }
+  ],
+  "folders": [],
+  "packOptions": {
+    "textureName": "atlas",
+    "textureFormat": "png",
+    "removeFileExtension": true,
+    "prependFolderName": false,
+    "base64Export": false,
+    "tinify": false,
+    "tinifyKey": "",
+    "scale": 1,
+    "disableSmoothing": true,
+    "filter": "none",
+    "exporter": "JSON (hash)",
+    "fileName": "pack-result",
+    "savePath": ".",
+    "width": 2048,
+    "height": 2048,
+    "fixedSize": false,
+    "powerOfTwo": false,
+    "padding": 0,
+    "extrude": 0,
+    "allowRotation": false,
+    "allowTrim": true,
+    "trimMode": "trim",
+    "alphaThreshold": "0",
+    "detectIdentical": true,
+    "packer": "MaxRectsPacker",
+    "packerMethod": "SmartSquare"
+  }
+}
