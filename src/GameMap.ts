@@ -67,34 +67,49 @@ export namespace GameMap {
 		public readonly x: number
 		public readonly y: number
 		private background: Sprite.Background | null = null
+		private composite?: Sprite.Background[]
 		private items: Sprite[] = []
 		private paths?: GameData.PathData
 		private visibility: number
 
 		get visible() {
-			return this.visibility >= 16
+			return this.visibility >= 128
 		}
 
-		set visible(value: boolean) {
-			if (value) {
-				this.visibility |= 16
-				if (this.paths) {
-					const map = GameContext.map
-					if (this.paths.down) {
-						map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).showPlug("down")
-					}
-					if (this.paths.up) {
-						map.getCell(this.x, (this.y + 1) % map.tileHeight).showPlug("up")
-					}
-					if (this.paths.right) {
-						map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).showPlug("right")
-					}
-					if (this.paths.left) {
-						map.getCell((this.x + 1) % map.tileWidth, this.y).showPlug("left")
-					}
+		public setVisible(direction?: "up" | "down" | "left" | "right") {
+			if (this.composite && direction) {
+				const paths = this.composite[0].data.paths!
+				if (paths[direction]) {
+					this.visibility |= 16
+					this.updateConntected(paths)
+				} else {
+					this.visibility |= 32
+					this.updateConntected(this.composite[1].data.paths!)
+				}
+				if ((this.visibility & (16 + 32)) == (16 + 32)) {
+					this.visibility |= 128
 				}
 			} else {
-				this.visibility &= ~16
+				this.visibility |= 128
+				if (this.paths) {
+					this.updateConntected(this.paths)
+				}
+			}
+		}
+
+		private updateConntected(paths: GameData.PathData) {
+			const map = GameContext.map
+			if (paths.down) {
+				map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).showPlug("down")
+			}
+			if (paths.up) {
+				map.getCell(this.x, (this.y + 1) % map.tileHeight).showPlug("up")
+			}
+			if (paths.right) {
+				map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).showPlug("right")
+			}
+			if (paths.left) {
+				map.getCell((this.x + 1) % map.tileWidth, this.y).showPlug("left")
 			}
 		}
 
@@ -126,10 +141,14 @@ export namespace GameMap {
 		public applyMapData(sprite: GameData.SpriteData) {
 			this.background = Sprite.Background.create(sprite)
 			this.paths = sprite.paths
+			if (sprite.composite) {
+				this.composite = sprite.composite
+					.map(name => Sprite.Background.create(Sprite.find(name)))
+			}
 		}
 
 		public render(x: number, y: number) {
-			if (this.visibility >= 16) {
+			if (this.visibility >= 128) {
 				if (this.background) {
 					this.background.render(x, y)
 				}
@@ -138,8 +157,21 @@ export namespace GameMap {
 						this.items[i].render(x, y)
 					}
 				}
-			} else if ((this.visibility > 0) && this.background) {
+			} else if ((this.visibility < 16) && this.background) {
 				this.background.renderPlugs(x, y, this.visibility)
+			} else if (this.composite && (this.visibility >= 16)) {
+				if ((this.visibility & 16) == 16) {
+					this.composite[0].render(x, y)
+					this.composite[1].renderPlugs(x, y, this.visibility)
+				} else {
+					this.composite[1].render(x, y)
+					this.composite[0].renderPlugs(x, y, this.visibility)
+				}
+				if (this.items.length) {
+					for (let i = 0; i < this.items.length; i++) {
+						this.items[i].render(x, y)
+					}
+				}
 			}
 		}
 

@@ -95,11 +95,18 @@ function parseProperties(properties, sprite) {
 	const props = {
 		scale: "float",
 		delay: "int",
-		plugGroup: "string"
+		plugGroup: "string",
+		composite: "json"
 	}
 	for (const prop of properties) {
-		assert(prop.name in props && (props[prop.name] == prop.type), sprite.name)
-		sprite[prop.name] = prop.value
+		assert(prop.name in props, sprite.name)
+		if (props[prop.name] == "json") {
+			assert(prop.type == "string", sprite.name)
+			sprite[prop.name] = JSON.parse(prop.value)
+		} else {
+			assert(prop.type == props[prop.name], sprite.name)
+			sprite[prop.name] = prop.value
+		}
 	}
 }
 

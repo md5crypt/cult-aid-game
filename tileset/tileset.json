@@ -324,6 +324,11 @@
             },
          "properties":[
                 {
+                 "name":"composite",
+                 "type":"string",
+                 "value":"[\"maze-corner-bottom-left\",\"maze-corner-upper-right\"]"
+                }, 
+                {
                  "name":"plugGroup",
                  "type":"string",
                  "value":"maze"
@@ -466,6 +471,11 @@
              "y":0
             },
          "properties":[
+                {
+                 "name":"composite",
+                 "type":"string",
+                 "value":"[\"maze-corner-bottom-right\",\"maze-corner-upper-left\"]"
+                }, 
                 {
                  "name":"plugGroup",
                  "type":"string",

@@ -13,13 +13,14 @@ export namespace GameData {
 
 	export interface SpriteData {
 		name: string
-		texture: Texture | Texture[]
+		texture?: Texture | Texture[]
 		fgTexture?: Texture | Texture[]
 		paths?: PathData
 		pivot?: [number, number]
 		scale?: number
 		delay?: number
 		plugGroup?: string
+		composite?: string[]
 	}
 
 	export interface MapData {

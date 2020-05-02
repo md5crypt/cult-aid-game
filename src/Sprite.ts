@@ -8,7 +8,7 @@ import { GameMap } from "./GameMap"
 
 export namespace Sprite {
 	export class Background implements Sprite {
-		private data: GameData.SpriteData
+		public readonly data: GameData.SpriteData
 		private plugs?: (Background | undefined)[]
 
 		private static cache: Map<GameData.SpriteData, Background> = new Map()
@@ -196,6 +196,7 @@ export namespace Sprite {
 	export class Character extends Item {
 		private walkSequence: WalkSequence
 		protected cell: GameMap.Cell | null
+		protected moveDirection?: "up" | "down" | "left" | "right"
 		private pathStack: Path[]
 		private cellStack: GameMap.Cell[]
 		private lastUpdate: number
@@ -245,6 +246,7 @@ export namespace Sprite {
 				if (this.cellStack.length != 0) {
 					this.cellStack = []
 				}
+				this.moveDirection = undefined
 				const cell = this.cell
 				cell.removeItem(this)
 				this.cell = null
@@ -300,6 +302,7 @@ export namespace Sprite {
 			if (!enterPath) {
 				return false
 			}
+			this.moveDirection = direction
 			this.cellStack.push(newCell)
 			this.pathStack.push(
 				new SimplePath(enterPath, this.speed),
@@ -328,6 +331,7 @@ export namespace Sprite {
 					if (this.pathStack.length == 0) {
 						this.offset[0] = path.x
 						this.offset[1] = path.y
+						this.moveDirection = undefined
 						this.setSpriteData(this.walkSequence.idle)
 						break
 					}

@@ -12,7 +12,7 @@ import { CONST } from "./Constants"
 export class Player extends Sprite.Character {
 	protected onCellChange() {
 		if (this.cell) {
-			this.cell.visible = true
+			this.cell.setVisible(this.moveDirection)
 		}
 	}
 
