@@ -95,7 +95,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":1,
@@ -172,7 +178,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":2,
@@ -309,7 +321,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":3,
@@ -446,7 +464,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":4,
@@ -523,7 +547,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":5,
@@ -600,7 +630,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":6,
@@ -653,7 +689,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":7,
@@ -730,7 +772,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":8,
@@ -831,7 +879,13 @@
              "visible":true,
              "x":0,
              "y":0
-            }
+            },
+         "properties":[
+                {
+                 "name":"plugGroup",
+                 "type":"string",
+                 "value":"maze"
+                }]
         }, 
         {
          "id":10,

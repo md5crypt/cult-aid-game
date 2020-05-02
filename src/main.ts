@@ -13,7 +13,6 @@ export class Player extends Sprite.Character {
 	protected onCellChange() {
 		if (this.cell) {
 			this.cell.visible = true
-			this.cell.showConnectedPlugs()
 		}
 	}
 

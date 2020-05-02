@@ -19,6 +19,7 @@ export namespace GameData {
 		pivot?: [number, number]
 		scale?: number
 		delay?: number
+		plugGroup?: string
 	}
 
 	export interface MapData {

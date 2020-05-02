@@ -94,7 +94,8 @@ const objectParsers = [
 function parseProperties(properties, sprite) {
 	const props = {
 		scale: "float",
-		delay: "int"
+		delay: "int",
+		plugGroup: "string"
 	}
 	for (const prop of properties) {
 		assert(prop.name in props && (props[prop.name] == prop.type), sprite.name)

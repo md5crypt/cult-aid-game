@@ -9,6 +9,7 @@ import { GameMap } from "./GameMap"
 export namespace Sprite {
 	export class Background implements Sprite {
 		private data: GameData.SpriteData
+		private plugs?: (Background | undefined)[]
 
 		private static cache: Map<GameData.SpriteData, Background> = new Map()
 
@@ -21,8 +22,38 @@ export namespace Sprite {
 			return sprite
 		}
 
+		private static createPlug(name: string) {
+			const data = Sprite.find(name, true)
+			return data ? Background.create(data) : undefined
+		}
+
 		private constructor(data: GameData.SpriteData) {
 			this.data = data
+			if (data.plugGroup) {
+				this.plugs = [
+					Background.createPlug(data.plugGroup + "-plug-up"),
+					Background.createPlug(data.plugGroup + "-plug-down"),
+					Background.createPlug(data.plugGroup + "-plug-left"),
+					Background.createPlug(data.plugGroup + "-plug-right")
+				]
+			}
+		}
+
+		public renderPlugs(x: number, y: number, state: number) {
+			if (this.plugs) {
+				if ((state & Background.Plug.UP) && this.plugs[0]) {
+					this.plugs[0].render(x, y)
+				}
+				if ((state & Background.Plug.DOWN) && this.plugs[1]) {
+					this.plugs[1].render(x, y)
+				}
+				if ((state & Background.Plug.LEFT) && this.plugs[2]) {
+					this.plugs[2].render(x, y)
+				}
+				if ((state & Background.Plug.RIGHT) && this.plugs[3]) {
+					this.plugs[3].render(x, y)
+				}
+			}
 		}
 
 		public render(x: number, y: number) {
@@ -56,6 +87,15 @@ export namespace Sprite {
 				texture.frame[2],
 				texture.frame[3]
 			)
+		}
+	}
+
+	export namespace Background {
+		export const enum Plug {
+			UP = 1,
+			DOWN = 2,
+			LEFT = 4,
+			RIGHT = 8
 		}
 	}
 
@@ -302,9 +342,15 @@ export namespace Sprite {
 		}
 	}
 
-	export function find(name: string) {
-		const sprite = GameContext.data.sprites.find(x => x.name == name)
-		if (!sprite) {
+	const spriteCache: Map<string, GameData.SpriteData> = new Map()
+	export function find(name: string): GameData.SpriteData
+	export function find(name: string, noThrow: boolean): GameData.SpriteData | undefined
+	export function find(name: string, noThrow = false) {
+		if (spriteCache.size == 0) {
+			GameContext.data.sprites.forEach(x => spriteCache.set(x.name, x))
+		}
+		const sprite = spriteCache.get(name)
+		if (!sprite && !noThrow) {
 			throw new Error(`sprite '${name}' not found`)
 		}
 		return sprite

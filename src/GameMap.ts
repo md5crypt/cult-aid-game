@@ -28,19 +28,12 @@ export class GameMap {
 	}
 
 	public loadMap(map: GameData.MapData) {
-		const plugs = [
-			Sprite.find("maze-plug-up").texture as GameData.Texture,
-			Sprite.find("maze-plug-down").texture as GameData.Texture,
-			Sprite.find("maze-plug-left").texture as GameData.Texture,
-			Sprite.find("maze-plug-right").texture as GameData.Texture
-		]
 		const cells: GameMap.Cell[] = new Array(map.width * map.height)
 			.fill(null)
 			.map((_, i) => new GameMap.Cell(i % map.width, Math.floor(i / map.width)))
 		for (let i = 0; i < map.bg.length; i++) {
 			if (map.bg[i] != 0) {
 				cells[i].applyMapData(GameContext.data.sprites[map.bg[i] - 1])
-				cells[i].plugs = plugs
 			}
 		}
 		this.cells = cells
@@ -73,10 +66,9 @@ export namespace GameMap {
 	export class Cell {
 		public readonly x: number
 		public readonly y: number
-		private background: Sprite | null = null
+		private background: Sprite.Background | null = null
 		private items: Sprite[] = []
 		private paths?: GameData.PathData
-		public plugs?: GameData.Texture[]
 		private visibility: number
 
 		get visible() {
@@ -86,6 +78,21 @@ export namespace GameMap {
 		set visible(value: boolean) {
 			if (value) {
 				this.visibility |= 16
+				if (this.paths) {
+					const map = GameContext.map
+					if (this.paths.down) {
+						map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).showPlug("down")
+					}
+					if (this.paths.up) {
+						map.getCell(this.x, (this.y + 1) % map.tileHeight).showPlug("up")
+					}
+					if (this.paths.right) {
+						map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).showPlug("right")
+					}
+					if (this.paths.left) {
+						map.getCell((this.x + 1) % map.tileWidth, this.y).showPlug("left")
+					}
+				}
 			} else {
 				this.visibility &= ~16
 			}
@@ -101,16 +108,16 @@ export namespace GameMap {
 			if (this.paths) {
 				switch (direction) {
 					case "up":
-						this.visibility |= 1
+						this.visibility |= Sprite.Background.Plug.UP
 						break
 					case "down":
-						this.visibility |= 2
+						this.visibility |= Sprite.Background.Plug.DOWN
 						break
 					case "left":
-						this.visibility |= 4
+						this.visibility |= Sprite.Background.Plug.LEFT
 						break
 					case "right":
-						this.visibility |= 8
+						this.visibility |= Sprite.Background.Plug.RIGHT
 						break
 				}
 			}
@@ -131,40 +138,8 @@ export namespace GameMap {
 						this.items[i].render(x, y)
 					}
 				}
-			} else if ((this.visibility > 0) && this.plugs) {
-				const layers = GameContext.layers
-				for (let i = 0; i < 4; i++) {
-					if (this.visibility & (1 << i)) {
-						const texture = this.plugs[i]
-						layers.bg.addRect(
-							0,
-							texture.frame[0],
-							texture.frame[1],
-							x + texture.offset[0],
-							y + texture.offset[1],
-							texture.frame[2],
-							texture.frame[3]
-						)
-					}
-				}
-			}
-		}
-
-		public showConnectedPlugs() {
-			if (this.paths) {
-				const map = GameContext.map
-				if (this.paths.down) {
-					map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).showPlug("down")
-				}
-				if (this.paths.up) {
-					map.getCell(this.x, (this.y + 1) % map.tileHeight).showPlug("up")
-				}
-				if (this.paths.right) {
-					map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).showPlug("right")
-				}
-				if (this.paths.left) {
-					map.getCell((this.x + 1) % map.tileWidth, this.y).showPlug("left")
-				}
+			} else if ((this.visibility > 0) && this.background) {
+				this.background.renderPlugs(x, y, this.visibility)
 			}
 		}
 
