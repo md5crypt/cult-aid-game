@@ -9,7 +9,14 @@ import { Sprite } from "./Sprite"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
 
-export class Player extends Sprite.Walking {
+export class Player extends Sprite.Character {
+	protected onCellChange() {
+		if (this.cell) {
+			this.cell.visible = true
+			this.cell.showConnectedPlugs()
+		}
+	}
+
 	public update(time: number) {
 		super.update(time)
 		if (!this.isMoving()) {
@@ -41,8 +48,8 @@ window.addEventListener("load", async () => {
 	document.body.appendChild(stats.dom)
 	PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
 	const app = new PIXI.Application({
-		width: 801,
-		height: 601,
+		width: 800,
+		height: 600,
 		backgroundColor: 0,
 		resolution: 1
 	})
@@ -70,12 +77,15 @@ window.addEventListener("load", async () => {
 	app.ticker.add((_delta) => {
 		stats.end()
 		stats.begin()
+		let snap = true
 		if (GameContext.input.keyboard["+"]) {
 			scale *= 1.05
+			snap = false
 			app.stage.scale.set(scale)
 		}
 		if (GameContext.input.keyboard["-"]) {
 			scale *= 0.95
+			snap = false
 			app.stage.scale.set(scale)
 		}
 		if (GameContext.input.keyboard["0"]) {
@@ -92,9 +102,13 @@ window.addEventListener("load", async () => {
 		GameContext.map.render(
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
-			Math.floor((top + (screenHeight - 1)) / Math.floor(CONST.GRID_BASE)),
-			Math.floor((left + (screenWidth - 1)) / Math.floor(CONST.GRID_BASE))
+			Math.floor((top + (screenHeight - 1)) / CONST.GRID_BASE),
+			Math.floor((left + (screenWidth - 1)) / CONST.GRID_BASE)
 		)
-		app.stage.pivot.set(left, top)
+		if (snap) {
+			app.stage.pivot.set(Math.floor(left), Math.floor(top))
+		} else {
+			app.stage.pivot.set(left, top)
+		}
 	})
 })

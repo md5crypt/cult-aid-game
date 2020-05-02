@@ -8,10 +8,14 @@ export class GameContext {
 	public static map: GameMap
 	public static data: GameData
 	public static input: GameInput
-	public static layers: {
+	public static layers: GameContext.Layers
+	public static camera: [number, number]
+}
+
+export namespace GameContext {
+	export interface Layers {
 		bg: RectTileLayer
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
-	public static camera: [number, number]
 }

@@ -4,20 +4,62 @@ import { GameContext } from "./GameContext"
 import { Path, SimplePath } from "./Path"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
+import { GameMap } from "./GameMap"
 
 export namespace Sprite {
-	export class Basic implements Sprite {
-		private texture: GameData.Texture
-		constructor(texture: GameData.Texture) {
-			this.texture = texture
+	export class Background implements Sprite {
+		private data: GameData.SpriteData
+
+		private static cache: Map<GameData.SpriteData, Background> = new Map()
+
+		public static create(data: GameData.SpriteData) {
+			let sprite = Background.cache.get(data)
+			if (!sprite) {
+				sprite = new Background(data)
+				Background.cache.set(data, sprite)
+			}
+			return sprite
 		}
-		public render(layer: RectTileLayer, x: number, y: number) {
-			const texture = this.texture
-			layer.addRect(0, texture.frame[0], texture.frame[1], x + texture.offset[0], y + texture.offset[1], texture.frame[2], texture.frame[3])
+
+		private constructor(data: GameData.SpriteData) {
+			this.data = data
+		}
+
+		public render(x: number, y: number) {
+			const layers = GameContext.layers
+			const data = this.data
+			if (data.texture) {
+				if (Array.isArray(data.texture)) {
+					const frame = Math.floor(GameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.texture.length
+					Background.renderTexture(layers.bg, data.texture[frame], x, y)
+				} else {
+					Background.renderTexture(layers.bg, data.texture, x, y)
+				}
+			}
+			if (data.fgTexture) {
+				if (Array.isArray(data.fgTexture)) {
+					const frame = Math.floor(GameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.fgTexture.length
+					Background.renderTexture(layers.fg, data.fgTexture[frame], x, y)
+				} else {
+					Background.renderTexture(layers.fg, data.fgTexture, x, y)
+				}
+			}
+		}
+
+		private static renderTexture(layer: RectTileLayer, texture: GameData.Texture, x: number, y: number) {
+			layer.addRect(
+				0,
+				texture.frame[0],
+				texture.frame[1],
+				x + texture.offset[0],
+				y + texture.offset[1],
+				texture.frame[2],
+				texture.frame[3]
+			)
 		}
 	}
 
-	export class Advanced implements Sprite {
+	export class Item implements Sprite {
 		private textures: GameData.Texture[]
 		private lastRender: number
 		private frame: number
@@ -29,10 +71,10 @@ export namespace Sprite {
 
 		constructor(data: GameData.SpriteData) {
 			this.offset = [0, 0]
-			if (!Array.isArray(data.layers.char)) {
+			if (!Array.isArray(data.texture)) {
 				throw new Error(data.name)
 			}
-			this.textures = data.layers.char
+			this.textures = data.texture
 			this.frame = 0
 			this.lastRender = Math.floor(GameContext.time)
 			this.scale = data.scale || 1
@@ -53,10 +95,10 @@ export namespace Sprite {
 
 		public setSpriteData(data: GameData.SpriteData) {
 			if (this.data != data) {
-				if (!Array.isArray(data.layers.char)) {
+				if (!Array.isArray(data.texture)) {
 					throw new Error(data.name)
 				}
-				this.textures = data.layers.char
+				this.textures = data.texture
 				this.frame = 0
 				this.lastRender = Math.floor(GameContext.time)
 				this.scale = data.scale || 1
@@ -72,12 +114,13 @@ export namespace Sprite {
 			}
 		}
 
-		public render(layer: RectTileLayer, x: number, y: number, time: number) {
-			const steps = Math.floor((time - this.lastRender) / this.delay)
+		public render(x: number, y: number) {
+			const layers = GameContext.layers
+			const steps = Math.floor((GameContext.time - this.lastRender) / this.delay)
 			this.frame = (this.frame + steps) % this.textures.length
 			this.lastRender += steps * this.delay
 			const texture = this.textures[this.frame]
-			layer.addRect(
+			layers.mid.addRect(
 				0,
 				texture.frame[0],
 				texture.frame[1],
@@ -110,12 +153,11 @@ export namespace Sprite {
 		}
 	}
 
-	export class Walking extends Advanced {
+	export class Character extends Item {
 		private walkSequence: WalkSequence
-		private position: [number, number]
-		private enabled: boolean
+		protected cell: GameMap.Cell | null
 		private pathStack: Path[]
-		private positionStack: number[][]
+		private cellStack: GameMap.Cell[]
 		private lastUpdate: number
 		public speed: number
 
@@ -123,49 +165,50 @@ export namespace Sprite {
 			return this.pathStack.length != 0
 		}
 
+		protected onCellChange(_prev: GameMap.Cell | null) {
+		}
+
 		public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 			super(walkSequence.idle)
 			this.walkSequence = walkSequence
-			this.position = [0, 0]
-			this.enabled = false
+			this.cell = null
 			this.pathStack = []
-			this.positionStack = []
+			this.cellStack = []
 			this.speed = speed
 			this.lastUpdate = 0
 		}
 
 		public enable(x: number, y: number, offset?: [number, number]) {
-			this.position[0] = x
-			this.position[1] = y
-			this.enabled = true
 			this.setSpriteData(this.walkSequence.idle)
-			const cell = GameContext.map.getCell(x, y)
-			cell.addItem(this)
+			this.cell = GameContext.map.getCell(x, y)
+			this.cell.addItem(this)
+			this.onCellChange(null)
 			if (offset) {
 				this.offset[0] = offset[0]
 				this.offset[1] = offset[1]
 			} else {
-				if (!cell.paths) {
+				const center = this.cell.getCenter()
+				if (!center) {
 					throw new Error("can not place a Walking sprite on a tile without path data")
 				}
-				const path = cell.paths.up || cell.paths.down || cell.paths.left || cell.paths.right!
-				const point = path[path.length - 1]
-				this.offset[0] = point[0]
-				this.offset[1] = point[1]
+				this.offset[0] = center[0]
+				this.offset[1] = center[1]
 			}
 			this.lastUpdate = GameContext.time
 		}
 
 		public disable() {
-			if (this.enabled) {
-				this.enabled = false
+			if (this.cell) {
 				if (this.pathStack.length != 0) {
 					this.pathStack = []
 				}
-				if (this.positionStack.length != 0) {
-					this.positionStack = []
+				if (this.cellStack.length != 0) {
+					this.cellStack = []
 				}
-				GameContext.map.getCell(this.position[0], this.position[1]).removeItem(this)
+				const cell = this.cell
+				cell.removeItem(this)
+				this.cell = null
+				this.onCellChange(cell)
 			}
 		}
 
@@ -176,20 +219,21 @@ export namespace Sprite {
 		}
 
 		public getAbsoluteLocation(): [number, number] {
+			if (this.cell == null) {
+				throw new Error("called getAbsoluteLocation on disabled sprite")
+			}
 			return [
-				(this.position[0] * CONST.GRID_BASE) + this.offset[0],
-				(this.position[1] * CONST.GRID_BASE) + this.offset[1]
+				(this.cell.x * CONST.GRID_BASE) + this.offset[0],
+				(this.cell.y * CONST.GRID_BASE) + this.offset[1]
 			]
 		}
 
 		public walk(direction: "up" | "down" | "left" | "right") {
-			if (!this.enabled || (this.pathStack.length != 0)) {
+			if (!this.cell || (this.pathStack.length != 0)) {
 				return false
 			}
 			const map = GameContext.map
-			const exitPath = map
-				.getCell(this.position[0], this.position[1])
-				.getExitPath(direction, this.offset[0], this.offset[1])
+			const exitPath = this.cell.getExitPath(direction, this.offset[0], this.offset[1])
 			if (!exitPath) {
 				return false
 			}
@@ -209,15 +253,14 @@ export namespace Sprite {
 					newX = 1
 					break
 			}
-			newX = modulo(this.position[0] + newX, map.tileWidth)
-			newY = modulo(this.position[1] + newY, map.tileHeight)
-			const enterPath = map
-				.getCell(newX, newY)
-				.getEnterPath(direction)
+			newX = modulo(this.cell.x + newX, map.tileWidth)
+			newY = modulo(this.cell.y + newY, map.tileHeight)
+			const newCell = map.getCell(newX, newY)
+			const enterPath = newCell.getEnterPath(direction)
 			if (!enterPath) {
 				return false
 			}
-			this.positionStack.push([newX, newY])
+			this.cellStack.push(newCell)
 			this.pathStack.push(
 				new SimplePath(enterPath, this.speed),
 				new SimplePath(exitPath, this.speed)
@@ -227,7 +270,7 @@ export namespace Sprite {
 		}
 
 		public update(time: number) {
-			if (!this.enabled) {
+			if (!this.cell) {
 				return
 			}
 			if (this.pathStack.length) {
@@ -248,9 +291,11 @@ export namespace Sprite {
 						this.setSpriteData(this.walkSequence.idle)
 						break
 					}
-					GameContext.map.getCell(this.position[0], this.position[1]).removeItem(this)
-					this.position = this.positionStack.pop() as [number, number]
-					GameContext.map.getCell(this.position[0], this.position[1]).addItem(this)
+					const prevCell = this.cell
+					this.cell.removeItem(this)
+					this.cell = this.cellStack.pop()!
+					this.cell.addItem(this)
+					this.onCellChange(prevCell)
 				}
 			}
 			this.lastUpdate = time
@@ -267,5 +312,5 @@ export namespace Sprite {
 }
 
 export interface Sprite {
-	render(layer: RectTileLayer, x: number, y: number, time: number): void
+	render(x: number, y: number): void
 }

@@ -13,12 +13,8 @@ export namespace GameData {
 
 	export interface SpriteData {
 		name: string
-		layers: {
-			fg?: Texture | Texture[]
-			bg?: Texture | Texture[]
-			char?: Texture | Texture[]
-			item?: Texture | Texture[]
-		}
+		texture: Texture | Texture[]
+		fgTexture?: Texture | Texture[]
 		paths?: PathData
 		pivot?: [number, number]
 		scale?: number

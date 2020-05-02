@@ -2,37 +2,36 @@ const fs = require("fs")
 const assert = require("assert")
 
 function buildSprites(atlasFile) {
-	const layers = ["fg", "bg", "char", "item"]
 	const atlas = JSON.parse(fs.readFileSync(atlasFile))
 	const sprites = {}
 	const array = []
 	const list = Object.keys(atlas.frames).map(filename => {
-		const match = filename.match(/^(.+?)-([^-]+)(?:-(\d+))?$/)
+		const match = filename.match(/^(.+?)(-fg)?(?:-(\d+))?$/)
 		assert(match, filename)
-		assert(layers.includes(match[2]), filename)
 		const o = atlas.frames[filename]
 		const data = {
 			frame: [o.frame.x, o.frame.y, o.frame.w, o.frame.h],
 			offset: [o.spriteSourceSize.x, o.spriteSourceSize.y]
 		}
-		return {base: match[1], layer: match[2], frame: match[3] == undefined ? undefined : parseInt(match[3], 10), data}
-	}).sort((a, b) => (a.base == b.base) ? ((a.layer == b.layer) ? a.frame - b.frame : a.layer.localeCompare(b.layer)) : a.base.localeCompare(b.base))
+		return {base: match[1], isFg: !!match[2], frame: match[3] == undefined ? undefined : parseInt(match[3], 10), data}
+	}).sort((a, b) => (a.base == b.base) ? ((a.isFg == b.isFg) ? a.frame - b.frame : b.isFg) : a.base.localeCompare(b.base))
 	for (const item of list) {
+		const key = item.isFg ? 'fgTexture' : 'texture'
 		let sprite = sprites[item.base]
 		if (!sprite) {
-			sprite = {name: item.base, layers:{}}
+			sprite = {name: item.base}
 			array.push(sprite)
 			sprites[item.base] = sprite
 		}
 		if (item.frame == undefined) {
-			assert(!sprite.layers[item.layer])
-			sprite.layers[item.layer] = item.data
+			assert(!sprite[key])
+			sprite[key] = item.data
 		} else {
-			if (!sprite.layers[item.layer]) {
-				sprite.layers[item.layer] = []
+			if (!sprite[key]) {
+				sprite[key] = []
 			}
-			assert(Array.isArray(sprite.layers[item.layer]))
-			sprite.layers[item.layer].push(item.data)
+			assert(Array.isArray(sprite[key]))
+			sprite[key].push(item.data)
 		}
 	}
 	return array
@@ -128,9 +127,8 @@ function buildMap(sprites, mapFile, tilesetFile) {
 			parseProperties(tile.properties, sprite)
 		}
 	}
-	const convert = (id, layer) => id ? (sprites[tileMap.get(id - 1)].layers[layer] ? tileMap.get(id - 1) + 1 : 0) : 0
 	return {
-		bg: map.layers[0].data.map(id => convert(id, "bg")),
+		bg: map.layers[0].data.map(id => id ? (sprites[tileMap.get(id - 1)].texture ? tileMap.get(id - 1) + 1 : 0) : 0),
 		height: map.layers[0].height,
 		width: map.layers[0].width
 	}
