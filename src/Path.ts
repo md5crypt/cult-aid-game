@@ -57,8 +57,8 @@ export class SimplePath implements Path {
 				this.y = this.points[this.current + 1][1]
 				return value
 			}
-			this.prepareNext()
 			this.current += 1
+			this.prepareNext()
 		}
 		this.accumulator = value
 		const p1 = this.points[this.current]
