@@ -1,5 +1,7 @@
 const fs = require("fs")
+const path = require("path")
 const assert = require("assert")
+const child_process = require("child_process")
 
 function buildSprites(atlasFile) {
 	const atlas = JSON.parse(fs.readFileSync(atlasFile))
@@ -142,6 +144,19 @@ function buildMap(sprites, mapFile, tilesetFile) {
 	}
 }
 
+let rebuildAtlas = true
+
+if (fs.existsSync("./build/atlas.json")) {
+	if (fs.statSync("./build/atlas.json").mtimeMs > fs.statSync("./atlas").mtimeMs) {
+		rebuildAtlas = false
+	}
+}
+
+if (rebuildAtlas) {
+	const cmd = path.resolve("node_modules/.bin/free-tex-packer-cli")
+	child_process.execSync(cmd + " --project atlas.ftpp --output build", {stdio: 'inherit'})
+}
+
 const sprites = buildSprites("build/atlas.json")
 const map = buildMap(sprites, "map/map.json", "tileset/tileset.json")
-fs.writeFileSync("build/data.json", JSON.stringify({sprites,map}))
+fs.writeFileSync("build/data.json", JSON.stringify({sprites, map}))
