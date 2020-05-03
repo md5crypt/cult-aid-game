@@ -142,6 +142,6 @@ function buildMap(sprites, mapFile, tilesetFile) {
 	}
 }
 
-const sprites = buildSprites("atlas/atlas.json")
+const sprites = buildSprites("build/atlas.json")
 const map = buildMap(sprites, "map/map.json", "tileset/tileset.json")
 fs.writeFileSync("build/data.json", JSON.stringify({sprites,map}))

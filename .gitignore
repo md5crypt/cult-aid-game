@@ -1,5 +1,4 @@
 *.png
 node_modules
 build
-atlas/atlas.json
 static/pixi.js
