@@ -1,21 +1,33 @@
 import { GameMap } from "./GameMap"
 import { GameData } from "./GameData"
 import { GameInput } from "./GameInput"
+import { SimplePath } from "./Path"
+import { Sprite } from "./Sprite"
 import { RectTileLayer } from "./RectTile/RectTileLayer"
 
-export class GameContext {
-	public static time: number
-	public static map: GameMap
-	public static data: GameData
-	public static input: GameInput
-	public static layers: GameContext.Layers
-	public static camera: [number, number]
-}
-
-export namespace GameContext {
-	export interface Layers {
+export interface GameContext {
+	time: number
+	map: GameMap
+	data: GameData
+	input: GameInput
+	layers: {
 		bg: RectTileLayer
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
+	camera: [number, number]
+	player: Sprite.Character
+	class: {
+		Sprite: typeof Sprite
+		GameMap: typeof GameMap
+		SimplePath: typeof SimplePath
+	}
 }
+
+export const gameContext = {
+	class: {
+		Sprite,
+		GameMap,
+		SimplePath
+	}
+} as GameContext

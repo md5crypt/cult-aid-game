@@ -1,16 +1,20 @@
 import { CONST } from "./Constants"
+import { Listener } from "./Listener"
+
+export type Direction = "up" | "down" | "left" | "right"
 
 export interface Path {
 	x: number
 	y: number
-	direction: "up" | "down" | "left" | "right"
+	direction: Direction
 	update(delta: number): number
 }
 
 export class SimplePath implements Path {
 	public x: number
 	public y: number
-	public direction!: "up" | "down" | "left" | "right"
+	public direction!: Direction
+	public readonly onEnd: Listener<SimplePath>
 	private points: number[][]
 	private delta!: number
 	private accumulator: number
@@ -25,6 +29,7 @@ export class SimplePath implements Path {
 		this.speed = speed / CONST.WALK_SPEED_SCALE
 		this.accumulator = 0
 		this.prepareNext()
+		this.onEnd = new Listener()
 	}
 
 	private prepareNext() {
@@ -55,6 +60,7 @@ export class SimplePath implements Path {
 			if (this.current == (this.points.length - 2)) {
 				this.x = this.points[this.current + 1][0]
 				this.y = this.points[this.current + 1][1]
+				this.onEnd.invoke(this)
 				return value
 			}
 			this.current += 1

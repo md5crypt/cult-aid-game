@@ -20,9 +20,45 @@
          "width":5,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"scripts",
+         "objects":[
+                {
+                 "height":19,
+                 "id":5,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"onCenter",
+                         "type":"string",
+                         "value":"test"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"script",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":42,
+                 "x":278,
+                 "y":174
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":2,
- "nextobjectid":1,
+ "nextlayerid":3,
+ "nextobjectid":7,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.3.4",

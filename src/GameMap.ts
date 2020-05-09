@@ -1,7 +1,8 @@
 import { GameData } from "./GameData"
 import { Sprite } from "./Sprite"
-import { GameContext } from "./GameContext"
 import { CONST } from "./Constants"
+import { Direction } from "./Path"
+import { gameContext } from "./GameContext"
 
 export class GameMap {
 	private cells: GameMap.Cell[] = []
@@ -33,7 +34,7 @@ export class GameMap {
 			.map((_, i) => new GameMap.Cell(i % map.width, Math.floor(i / map.width)))
 		for (let i = 0; i < map.bg.length; i++) {
 			if (map.bg[i] != 0) {
-				cells[i].applyMapData(GameContext.data.sprites[map.bg[i] - 1])
+				cells[i].applyMapData(gameContext.data.sprites[map.bg[i] - 1])
 			}
 		}
 		this.cells = cells
@@ -42,7 +43,7 @@ export class GameMap {
 	}
 
 	public render(top: number, left: number, bottom: number, right: number) {
-		const layers = GameContext.layers
+		const layers = gameContext.layers
 		layers.bg.clear()
 		layers.mid.clear()
 		layers.fg.clear()
@@ -76,7 +77,7 @@ export namespace GameMap {
 			return this.visibility >= 128
 		}
 
-		public setVisible(direction?: "up" | "down" | "left" | "right") {
+		public setVisible(direction?: Direction) {
 			if (this.composite && direction) {
 				const paths = this.composite[0].data.paths!
 				if (paths[direction]) {
@@ -98,7 +99,7 @@ export namespace GameMap {
 		}
 
 		private updateConntected(paths: GameData.PathData) {
-			const map = GameContext.map
+			const map = gameContext.map
 			if (paths.down) {
 				map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).showPlug("down")
 			}
@@ -119,7 +120,7 @@ export namespace GameMap {
 			this.visibility = 0
 		}
 
-		public showPlug(direction: "up" | "down" | "left" | "right") {
+		public showPlug(direction: Direction) {
 			if (this.paths) {
 				switch (direction) {
 					case "up":
@@ -183,14 +184,14 @@ export namespace GameMap {
 			return undefined
 		}
 
-		public getEnterPath(direction: "up" | "down" | "left" | "right") {
+		public getEnterPath(direction: Direction) {
 			if (this.paths) {
 				return this.paths[direction]
 			}
 			return undefined
 		}
 
-		public getExitPath(direction: "up" | "down" | "left" | "right", x: number, y: number) {
+		public getExitPath(direction: Direction, x: number, y: number) {
 			if (this.paths) {
 				let path: number[][] | undefined
 				switch (direction) {

@@ -1,10 +1,10 @@
 import { RectTileLayer } from "./RectTile/RectTileLayer"
 import { GameData } from "./GameData"
-import { GameContext } from "./GameContext"
-import { Path, SimplePath } from "./Path"
+import { Path, SimplePath, Direction } from "./Path"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
 import { GameMap } from "./GameMap"
+import { gameContext } from "./GameContext"
 
 export namespace Sprite {
 	export class Background implements Sprite {
@@ -57,11 +57,11 @@ export namespace Sprite {
 		}
 
 		public render(x: number, y: number) {
-			const layers = GameContext.layers
+			const layers = gameContext.layers
 			const data = this.data
 			if (data.texture) {
 				if (Array.isArray(data.texture)) {
-					const frame = Math.floor(GameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.texture.length
+					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.texture.length
 					Background.renderTexture(layers.bg, data.texture[frame], x, y)
 				} else {
 					Background.renderTexture(layers.bg, data.texture, x, y)
@@ -69,7 +69,7 @@ export namespace Sprite {
 			}
 			if (data.fgTexture) {
 				if (Array.isArray(data.fgTexture)) {
-					const frame = Math.floor(GameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.fgTexture.length
+					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.fgTexture.length
 					Background.renderTexture(layers.fg, data.fgTexture[frame], x, y)
 				} else {
 					Background.renderTexture(layers.fg, data.fgTexture, x, y)
@@ -100,32 +100,43 @@ export namespace Sprite {
 	}
 
 	export class Item implements Sprite {
-		private textures: GameData.Texture[]
+		private textures?: GameData.Texture[] | GameData.Texture
 		private lastRender: number
 		private frame: number
 		private scale: number
 		private delay: number
 		private pivot: [number, number]
-		private data: GameData.SpriteData
+		private frameOffset: number
+		private frameCount: number
+		protected data: GameData.SpriteData
 		protected offset: [number, number]
 
 		constructor(data: GameData.SpriteData) {
 			this.offset = [0, 0]
-			if (!Array.isArray(data.texture)) {
-				throw new Error(data.name)
-			}
 			this.textures = data.texture
 			this.frame = 0
-			this.lastRender = Math.floor(GameContext.time)
+			this.lastRender = Math.floor(gameContext.time)
 			this.scale = data.scale || 1
 			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
 			this.delay = data.delay || CONST.FALLBACK_DELAY
 			this.data = data
+			this.frameOffset = 0
+			this.frameCount = Array.isArray(this.textures) ? this.textures.length : 0
 		}
 
-		public setFrame(n: number) {
-			this.frame = n
-			this.lastRender = Math.floor(GameContext.time)
+		public setFrameRange(offset: number, count?: number) {
+			if (Array.isArray(this.textures)) {
+				if (offset >= this.textures.length) {
+					throw new Error("frame offset out of range")
+				}
+				if (count && ((count + offset) > this.textures.length)) {
+					throw new Error("frame count out of range")
+				}
+				this.frameOffset = offset
+				this.frameCount = count || (this.textures.length - offset)
+				this.frame = offset
+				this.lastRender = Math.floor(gameContext.time)
+			}
 		}
 
 		public setOffset(x: number, y: number) {
@@ -135,12 +146,7 @@ export namespace Sprite {
 
 		public setSpriteData(data: GameData.SpriteData) {
 			if (this.data != data) {
-				if (!Array.isArray(data.texture)) {
-					throw new Error(data.name)
-				}
 				this.textures = data.texture
-				this.frame = 0
-				this.lastRender = Math.floor(GameContext.time)
 				this.scale = data.scale || 1
 				if (data.pivot) {
 					this.pivot[0] = data.pivot[0]
@@ -150,26 +156,33 @@ export namespace Sprite {
 					this.pivot[1] = 0
 				}
 				this.delay = data.delay || CONST.FALLBACK_DELAY
+				this.setFrameRange(0)
 				this.data = data
 			}
 		}
 
 		public render(x: number, y: number) {
-			const layers = GameContext.layers
-			const steps = Math.floor((GameContext.time - this.lastRender) / this.delay)
-			this.frame = (this.frame + steps) % this.textures.length
-			this.lastRender += steps * this.delay
-			const texture = this.textures[this.frame]
-			layers.mid.addRect(
-				0,
-				texture.frame[0],
-				texture.frame[1],
-				x + this.offset[0] + (texture.offset[0] - this.pivot[0]) * this.scale,
-				y + this.offset[1] + (texture.offset[1] - this.pivot[1]) * this.scale,
-				texture.frame[2],
-				texture.frame[3],
-				this.scale
-			)
+			let texture
+			if (Array.isArray(this.textures)) {
+				const steps = Math.floor((gameContext.time - this.lastRender) / this.delay)
+				this.frame = (this.frame + steps) % this.frameCount
+				this.lastRender += steps * this.delay
+				texture = this.textures[this.frame + this.frameOffset]
+			} else {
+				texture = this.textures
+			}
+			if (texture) {
+				gameContext.layers.mid.addRect(
+					0,
+					texture.frame[0],
+					texture.frame[1],
+					x + this.offset[0] + (texture.offset[0] - this.pivot[0]) * this.scale,
+					y + this.offset[1] + (texture.offset[1] - this.pivot[1]) * this.scale,
+					texture.frame[2],
+					texture.frame[3],
+					this.scale
+				)
+			}
 		}
 	}
 
@@ -196,7 +209,7 @@ export namespace Sprite {
 	export class Character extends Item {
 		private walkSequence: WalkSequence
 		protected cell: GameMap.Cell | null
-		protected moveDirection?: "up" | "down" | "left" | "right"
+		protected moveDirection?: Direction
 		private pathStack: Path[]
 		private cellStack: GameMap.Cell[]
 		private lastUpdate: number
@@ -221,7 +234,7 @@ export namespace Sprite {
 
 		public enable(x: number, y: number, offset?: [number, number]) {
 			this.setSpriteData(this.walkSequence.idle)
-			this.cell = GameContext.map.getCell(x, y)
+			this.cell = gameContext.map.getCell(x, y)
 			this.cell.addItem(this)
 			this.onCellChange(null)
 			if (offset) {
@@ -235,7 +248,7 @@ export namespace Sprite {
 				this.offset[0] = center[0]
 				this.offset[1] = center[1]
 			}
-			this.lastUpdate = GameContext.time
+			this.lastUpdate = gameContext.time
 		}
 
 		public disable() {
@@ -256,7 +269,7 @@ export namespace Sprite {
 
 		public setLocation(x: number, y: number, offset?: [number, number]) {
 			this.disable()
-			const map = GameContext.map
+			const map = gameContext.map
 			this.enable(modulo(x, map.tileWidth), modulo(y, map.tileHeight), offset)
 		}
 
@@ -270,11 +283,11 @@ export namespace Sprite {
 			]
 		}
 
-		public walk(direction: "up" | "down" | "left" | "right") {
+		public walk(direction: Direction) {
 			if (!this.cell || (this.pathStack.length != 0)) {
 				return false
 			}
-			const map = GameContext.map
+			const map = gameContext.map
 			const exitPath = this.cell.getExitPath(direction, this.offset[0], this.offset[1])
 			if (!exitPath) {
 				return false
@@ -351,7 +364,7 @@ export namespace Sprite {
 	export function find(name: string, noThrow: boolean): GameData.SpriteData | undefined
 	export function find(name: string, noThrow = false) {
 		if (spriteCache.size == 0) {
-			GameContext.data.sprites.forEach(x => spriteCache.set(x.name, x))
+			gameContext.data.sprites.forEach(x => spriteCache.set(x.name, x))
 		}
 		const sprite = spriteCache.get(name)
 		if (!sprite && !noThrow) {
