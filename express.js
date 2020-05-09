@@ -1,6 +1,7 @@
 const express = require("express")
 const app = express()
-app.use('/app.js', express.static('build/app.js'))
+app.use('/scripts.js', express.static('scripts/build/bundle.js'))
+app.use('/engine.js', express.static('build/engine.js'))
 app.use('/data.json', express.static('build/data.json'))
 app.use('/atlas.png', express.static('build/atlas.png'))
 app.use(express.static('static'))

@@ -1,0 +1,11 @@
+{
+	"env": {
+		"browser": false,
+		"es6": true
+	},
+	"parserOptions": {
+		"project": "tsconfig.json",
+		"sourceType": "module"
+	},
+	"extends": "../.eslintrc.json"
+}

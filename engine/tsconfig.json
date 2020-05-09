@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig.json",
+	"include": [
+		"src/**/*.ts"
+	],
+	"compilerOptions": {
+		"target": "ESNext",                       /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
+		"module": "commonjs",                     /* Specify module code generation: 'none', commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+		"outDir": "./build",                      /* Redirect output structure to the directory. */
+		"declaration": true,                      /* Generates corresponding '.d.ts' file. */
+		"inlineSourceMap": true,                  /* Emit a single file with source maps instead of having a separate file. */
+		"inlineSources": true                     /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+	}
+}
