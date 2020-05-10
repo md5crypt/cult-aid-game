@@ -9,29 +9,45 @@ import { modulo } from "./utils"
 import { CONST } from "./Constants"
 import { gameContext } from "./GameContext"
 import { ScriptStorage } from "./ScriptStorage"
+import { Direction } from "./Path"
 
 // inject gameContext into window
 (window as any).gameContext = gameContext
 
 export class Player extends Sprite.Character {
-	protected onCellChange() {
-		if (this.cell) {
-			this.cell.setVisible(this.moveDirection)
+
+	public constructor(walkSequence: Sprite.WalkSequence, speed = CONST.WALK_BASE_SPEED) {
+		super(walkSequence, speed)
+		this.onUpdate.add(() => {
+			if (!this.moving) {
+				this.checkInput()
+			}
+		})
+	}
+
+	private checkInput() {
+		if (gameContext.input.keyboard.ArrowUp) {
+			this.walk("up")
+		} else if (gameContext.input.keyboard.ArrowDown) {
+			this.walk("down")
+		} else if (gameContext.input.keyboard.ArrowLeft) {
+			this.walk("left")
+		} else if (gameContext.input.keyboard.ArrowRight) {
+			this.walk("right")
 		}
 	}
 
-	public update(time: number) {
-		super.update(time)
-		if (!this.isMoving()) {
-			if (gameContext.input.keyboard.ArrowUp) {
-				this.walk("up")
-			} else if (gameContext.input.keyboard.ArrowDown) {
-				this.walk("down")
-			} else if (gameContext.input.keyboard.ArrowLeft) {
-				this.walk("left")
-			} else if (gameContext.input.keyboard.ArrowRight) {
-				this.walk("right")
-			}
+	public walk(direction: Direction) {
+		const value = super.walk(direction)
+		if (value) {
+			value.onEnd.add(() => this.checkInput())
+		}
+		return value
+	}
+
+	protected onCellChange() {
+		if (this.cell) {
+			this.cell.setVisible(this.moveDirection)
 		}
 	}
 }
@@ -99,20 +115,22 @@ window.addEventListener("load", async () => {
 			app.stage.scale.set(scale)
 		}
 		gameContext.time += app.ticker.elapsedMS
-		gameContext.player.update(gameContext.time)
 		gameContext.camera = gameContext.player.getAbsoluteLocation()
 		const screenWidth = app.view.width * (1 / scale)
 		const screenHeight = app.view.height * (1 / scale)
 		const left = modulo(gameContext.camera[0] - (screenWidth /  2), gameContext.map.pixelWidth)
 		const top = modulo(gameContext.camera[1] - (screenHeight /  2), gameContext.map.pixelHeight)
-		gameContext.map.render(
+		const bounds = [
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
 			Math.floor((top + (screenHeight - 1)) / CONST.GRID_BASE),
 			Math.floor((left + (screenWidth - 1)) / CONST.GRID_BASE)
-		)
+		] as const
+		gameContext.map.update(app.ticker.elapsedMS, ...bounds)
+		gameContext.map.render(...bounds)
 		if (snap) {
-			app.stage.pivot.set(Math.floor(left), Math.floor(top))
+			//app.stage.pivot.set(Math.floor(left), Math.floor(top))
+			app.stage.pivot.set(left, top)
 		} else {
 			app.stage.pivot.set(left, top)
 		}

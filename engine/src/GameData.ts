@@ -1,3 +1,5 @@
+import { Animation } from "./Animation"
+
 export namespace GameData {
 	export interface Texture {
 		frame: [number, number, number, number]
@@ -21,6 +23,8 @@ export namespace GameData {
 		delay?: number
 		plugGroup?: string
 		composite?: string[]
+		scripts?: Record<string, string>
+		animation?: Animation.Defenition
 	}
 
 	export interface MapData {

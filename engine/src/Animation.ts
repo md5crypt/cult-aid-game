@@ -11,12 +11,10 @@ export class Animation {
 	public frame: number
 	public readonly onEnd: Listener<Animation>
 	public readonly onInvoke: Listener<[Animation, string]>
-	private delay: number
 	private stack: StackFrame[]
 	private timer: number
 
-	constructor(defenition: Animation.Defenition, defaultDelay = CONST.FALLBACK_DELAY) {
-		this.delay = defaultDelay
+	constructor(defenition: Animation.Defenition) {
 		this.stack = [{data: defenition, position: 0, counter: 0}]
 		this.onEnd = new Listener()
 		this.onInvoke = new Listener()
@@ -24,7 +22,7 @@ export class Animation {
 		this.timer = 0
 	}
 
-	public update(delta: number) {
+	public update(delta: number, baseDelay: number) {
 		const stack = this.stack
 		this.timer += Math.min(delta, CONST.MAX_ANIMATION_DELTA)
 		if (stack.length == 0) {
@@ -54,7 +52,7 @@ export class Animation {
 						}
 						break
 					case "frame": {
-						const delay = (item[2] === undefined ? this.delay : item[2])
+						const delay = (item[2] === undefined ? baseDelay : item[2])
 						if (delay <= this.timer) {
 							this.timer -= delay
 							frame.position += 1
@@ -79,13 +77,13 @@ export class Animation {
 						break
 					case "sequence": {
 						const len = Math.abs(item[2] - item[1]) + 1
-						const delay = (item[3] === undefined ? this.delay : item[3]) * len
+						const delay = item[3] === undefined ? baseDelay : item[3]
 						if ((len * delay) <= this.timer) {
-							this.timer -= delay
+							this.timer -= len * delay
 							frame.position += 1
 						} else {
-							const diff = Math.floor(this.timer / len)
-							this.frame = item[2] + ((item[2] > item[1]) ? diff : -diff)
+							const diff = Math.floor(this.timer / delay)
+							this.frame = item[1] + ((item[2] > item[1]) ? diff : -diff)
 							break loop
 						}
 						break

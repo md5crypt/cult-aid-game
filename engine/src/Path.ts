@@ -8,13 +8,17 @@ export interface Path {
 	y: number
 	direction: Direction
 	update(delta: number): number
+	// onEnd.invoke is called the object owner as it has to be
+	// called after the owner updates its position...
+	// ugly, I know
+	readonly onEnd: Listener<Path>
 }
 
 export class SimplePath implements Path {
 	public x: number
 	public y: number
 	public direction!: Direction
-	public readonly onEnd: Listener<SimplePath>
+	public readonly onEnd: Listener<Path>
 	private points: number[][]
 	private delta!: number
 	private accumulator: number
@@ -60,7 +64,7 @@ export class SimplePath implements Path {
 			if (this.current == (this.points.length - 2)) {
 				this.x = this.points[this.current + 1][0]
 				this.y = this.points[this.current + 1][1]
-				this.onEnd.invoke(this)
+				//this.onEnd.invoke(this)
 				return value
 			}
 			this.current += 1

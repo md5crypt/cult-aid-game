@@ -3,22 +3,16 @@ import { Direction } from "./Path"
 import { Sprite } from "./Sprite"
 import { GameContext } from "./GameContext"
 
-export type cellQueryCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => boolean
-export type cellDynamicCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void | Promise<void>
-export type cellStaticCallback = (context: GameContext, cell: GameMap.Cell) => void | Promise<void>
-
-export type itemCallback = (context: GameContext, item: Sprite.Item) => void | Promise<void>
-
 interface Mapping {
-	"cellMove": cellQueryCallback
-	"cellEnter": cellDynamicCallback
-	"cellExit": cellDynamicCallback
-	"cellCenter": cellStaticCallback
-	"cellUse": cellStaticCallback
-	"itemUpdate": itemCallback
-	"itemEnterView": itemCallback
-	"itemExitView": itemCallback
-	"itemInitiate": itemCallback
+	"cellMove": ScriptStorage.cellQueryCallback
+	"cellEnter": ScriptStorage.cellDynamicCallback
+	"cellExit": ScriptStorage.cellDynamicCallback
+	"cellCenter": ScriptStorage.cellStaticCallback
+	"cellUse": ScriptStorage.cellStaticCallback
+	"itemUpdate": ScriptStorage.itemCallback
+	"itemEnterView": ScriptStorage.itemCallback
+	"itemExitView": ScriptStorage.itemCallback
+	"itemInit": ScriptStorage.itemCallback
 }
 
 export class ScriptStorage {
@@ -37,6 +31,13 @@ export class ScriptStorage {
 	}
 
 	public load(source: string) {
-		(new Function(`"use strict";return function(storage){${source}}`))()(this)
+		(new Function(`"use strict";return function(scripts){${source}}`))()(this)
 	}
+}
+
+export namespace ScriptStorage {
+	export type cellQueryCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => boolean
+	export type cellDynamicCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void | Promise<void>
+	export type cellStaticCallback = (context: GameContext, cell: GameMap.Cell) => void | Promise<void>
+	export type itemCallback = (context: GameContext, item: Sprite.Item) => void | Promise<void>
 }

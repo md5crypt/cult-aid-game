@@ -42,6 +42,21 @@ export class GameMap {
 		this.height = map.height
 	}
 
+	public update(delta: number, top: number, left: number, bottom: number, right: number) {
+		bottom = Math.min(bottom, top + (this.height - 1))
+		right = Math.min(right, left + (this.width - 1))
+		const items: Sprite.Item[] = []
+		for (let row = top; row <= bottom; row++) {
+			const offset = (row % this.height) * this.width
+			for (let column = left; column <= right; column++) {
+				this.cells[offset + (column % this.width)].collect(items)
+			}
+		}
+		for (let i = 0; i < items.length; i++) {
+			items[i].update(delta)
+		}
+	}
+
 	public render(top: number, left: number, bottom: number, right: number) {
 		const layers = gameContext.layers
 		layers.bg.clear()
@@ -69,7 +84,7 @@ export namespace GameMap {
 		public readonly y: number
 		private background: Sprite.Background | null = null
 		private composite?: Sprite.Background[]
-		private items: Sprite[] = []
+		private items: Sprite.Item[] = []
 		private paths?: GameData.PathData
 		private visibility: number
 
@@ -148,6 +163,14 @@ export namespace GameMap {
 			}
 		}
 
+		public collect(result: Sprite.Item[]) {
+			if (this.items.length) {
+				for (let i = 0; i < this.items.length; i++) {
+					result.push(this.items[i])
+				}
+			}
+		}
+
 		public render(x: number, y: number) {
 			if (this.visibility >= 128) {
 				if (this.background) {
@@ -218,11 +241,15 @@ export namespace GameMap {
 			return undefined
 		}
 
-		public addItem(item: Sprite) {
+		public addItem(item: Sprite.Item) {
+			if (item._cell) {
+				item._cell.removeItem(item)
+			}
+			item._cell = this
 			this.items.push(item)
 		}
 
-		public removeItem(item: Sprite) {
+		public removeItem(item: Sprite.Item) {
 			if (this.items.length == 0) {
 				return false
 			} else if (this.items[this.items.length - 1] == item) {
