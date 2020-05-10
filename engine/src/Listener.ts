@@ -1,11 +1,13 @@
-export class Listener<T = void> {
-	private list: ((arg: T) => void)[] = []
+type Callback<T> = T extends Array<any> ? (...args: T) => void : (arg: T) => void
 
-	public add(listener: (arg: T) => void) {
+export class Listener<T = void> {
+	private list: Callback<T>[] = []
+
+	public add(listener: Callback<T>) {
 		this.list.push(listener)
 	}
 
-	public remove(listener: (arg: T) => void) {
+	public remove(listener: Callback<T>) {
 		const i = this.list.indexOf(listener)
 		if (i >= 0) {
 			this.list.splice(i, 1)
@@ -18,9 +20,9 @@ export class Listener<T = void> {
 		this.list = []
 	}
 
-	public invoke(arg: T) {
+	public invoke(...args: T extends Array<any> ? T : [T]) {
 		for (let i = 0; i < this.list.length; i++) {
-			this.list[i](arg)
+			(this.list[i] as Function)(...args)
 		}
 	}
 }

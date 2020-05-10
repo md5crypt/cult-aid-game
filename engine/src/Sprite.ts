@@ -110,6 +110,7 @@ export namespace Sprite {
 		private frameCount: number
 		protected data: GameData.SpriteData
 		protected offset: [number, number]
+		public readonly userData: Record<string, any>
 
 		constructor(data: GameData.SpriteData) {
 			this.offset = [0, 0]
@@ -122,6 +123,7 @@ export namespace Sprite {
 			this.data = data
 			this.frameOffset = 0
 			this.frameCount = Array.isArray(this.textures) ? this.textures.length : 0
+			this.userData = {}
 		}
 
 		public setFrameRange(offset: number, count?: number) {

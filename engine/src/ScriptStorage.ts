@@ -1,36 +1,42 @@
 import { GameMap } from "./GameMap"
 import { Direction } from "./Path"
+import { Sprite } from "./Sprite"
 import { GameContext } from "./GameContext"
 
-export type onMoveCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => boolean
-export type onEnterCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void
-export type onExitCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void
-export type onCenterCallback = (context: GameContext, cell: GameMap.Cell) => void
-export type onUseCallback = (context: GameContext, cell: GameMap.Cell) => void
+export type cellQueryCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => boolean
+export type cellDynamicCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void | Promise<void>
+export type cellStaticCallback = (context: GameContext, cell: GameMap.Cell) => void | Promise<void>
 
+export type itemCallback = (context: GameContext, item: Sprite.Item) => void | Promise<void>
+
+interface Mapping {
+	"cellMove": cellQueryCallback
+	"cellEnter": cellDynamicCallback
+	"cellExit": cellDynamicCallback
+	"cellCenter": cellStaticCallback
+	"cellUse": cellStaticCallback
+	"itemUpdate": itemCallback
+	"itemEnterView": itemCallback
+	"itemExitView": itemCallback
+	"itemInitiate": itemCallback
+}
 
 export class ScriptStorage {
 	private map: Map<string, Function> = new Map()
 
-	public register(event: "move", name: string, callback: onMoveCallback): void
-	public register(event: "enter", name: string, callback: onEnterCallback): void
-	public register(event: "exit", name: string, callback: onExitCallback): void
-	public register(event: "center", name: string, callback: onExitCallback): void
-	public register(event: "use", name: string, callback: onExitCallback): void
-	public register(event: string, name: any, callback: any) {
+	public register<T extends keyof Mapping>(name: string, event: T, callback: Mapping[T]) {
 		this.map.set(name + "." + event, callback)
 	}
 
-	public resolve(event: "move", name: string): onMoveCallback
-	public resolve(event: "enter", name: string): onEnterCallback
-	public resolve(event: "exit", name: string): onExitCallback
-	public resolve(event: "center", name: string): onExitCallback
-	public resolve(event: "use", name: string): onExitCallback
-	public resolve(event: string, name: any): any {
-		const callback = this.map.get(name + "." + event)
+	public resolve<T extends keyof Mapping>(name: string, event: T): Mapping[T] {
+		const callback = this.map.get(name + "." + event) as Mapping[T]
 		if (!callback) {
 			throw new Error(`could not find script ${name}.${event}`)
 		}
 		return callback
+	}
+
+	public load(source: string) {
+		(new Function(`"use strict";return function(storage){${source}}`))()(this)
 	}
 }

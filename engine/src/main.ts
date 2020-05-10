@@ -8,9 +8,10 @@ import { Sprite } from "./Sprite"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
 import { gameContext } from "./GameContext"
+import { ScriptStorage } from "./ScriptStorage"
 
 // inject gameContext into window
-(window as any).gameContext = {}
+(window as any).gameContext = gameContext
 
 export class Player extends Sprite.Character {
 	protected onCellChange() {
@@ -39,6 +40,7 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 	return new Promise((resolve, reject) => app.loader
 		.add("atlas", "atlas.png")
 		.add("data", "data.json")
+		.add("scripts", "scripts.js")
 		.load((_loader, resources) => resolve(resources))
 		.on("error", error => reject(error))
 	)
@@ -74,6 +76,8 @@ window.addEventListener("load", async () => {
 	gameContext.camera = [300, 300]
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.player.enable(2, 1)
+	gameContext.scripts = new ScriptStorage()
+	gameContext.scripts.load(resources.scripts!.data)
 	let scale = 2
 	app.stage.scale.set(scale)
 	app.ticker.add((_delta) => {

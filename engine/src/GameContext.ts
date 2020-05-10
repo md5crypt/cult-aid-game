@@ -3,6 +3,7 @@ import { GameData } from "./GameData"
 import { GameInput } from "./GameInput"
 import { SimplePath } from "./Path"
 import { Sprite } from "./Sprite"
+import { ScriptStorage } from "./ScriptStorage"
 import { RectTileLayer } from "./RectTile/RectTileLayer"
 
 export interface GameContext {
@@ -22,6 +23,7 @@ export interface GameContext {
 		GameMap: typeof GameMap
 		SimplePath: typeof SimplePath
 	}
+	scripts: ScriptStorage
 }
 
 export const gameContext = {
