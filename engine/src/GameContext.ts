@@ -1,6 +1,7 @@
 import { GameMap } from "./GameMap"
 import { GameData } from "./GameData"
 import { GameInput } from "./GameInput"
+import { GameCamera } from "./GameCamera"
 import { SimplePath } from "./Path"
 import { Sprite } from "./Sprite"
 import { ScriptStorage } from "./ScriptStorage"
@@ -16,7 +17,7 @@ export interface GameContext {
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
-	camera: [number, number]
+	camera: GameCamera
 	player: Sprite.Character
 	class: {
 		Sprite: typeof Sprite

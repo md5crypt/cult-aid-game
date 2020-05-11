@@ -33,7 +33,7 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 	public resizeIndexBuffer(size: number) {
 		const required = size * 6
 		if (required > this.indexBufferSize) {
-			while ((size * 6) >= this.indexBufferSize) {
+			while (required >= this.indexBufferSize) {
 				this.indexBufferSize *= 2
 			}
 			this.indexBuffer.update(PIXI.utils.createIndicesForQuads(this.indexBufferSize))

@@ -8,8 +8,15 @@ export class GameMap {
 	private cells: GameMap.Cell[] = []
 	private width: number = 0
 	private height: number = 0
+	private inViewList: Sprite.Item[]
+	/** @internal */
+	public readonly alwaysActiveList: Set<Sprite.Item>
+	protected frame: number
 
 	constructor() {
+		this.inViewList = []
+		this.frame = 1
+		this.alwaysActiveList = new Set()
 	}
 
 	public get tileWidth() {
@@ -52,9 +59,25 @@ export class GameMap {
 				this.cells[offset + (column % this.width)].collect(items)
 			}
 		}
+		const frame = this.frame
 		for (let i = 0; i < items.length; i++) {
-			items[i].update(delta)
+			const item = items[i]
+			item.inView = true
+			item.paint = frame
+			item.update(delta)
 		}
+		for (let i = 0; i < this.inViewList.length; i++) {
+			if (this.inViewList[i].paint != frame) {
+				items[i].inView = false
+			}
+		}
+		for (const item of this.alwaysActiveList) {
+			if (!item.inView) {
+				item.update(delta)
+			}
+		}
+		items.sort((a, b) => a.zIndex - b.zIndex)
+		this.inViewList = items
 	}
 
 	public render(top: number, left: number, bottom: number, right: number) {
@@ -69,6 +92,12 @@ export class GameMap {
 					column * CONST.GRID_BASE,
 					row * CONST.GRID_BASE
 				)
+			}
+		}
+		for (let i = 0; i < this.inViewList.length; i++) {
+			const item = this.inViewList[i]
+			if (item._cell) {
+				item._cell.renderItem(item)
 			}
 		}
 	}
@@ -87,6 +116,14 @@ export namespace GameMap {
 		private items: Sprite.Item[] = []
 		private paths?: GameData.PathData
 		private visibility: number
+		private pointCache: [number, number][]
+
+		public constructor(x: number, y: number) {
+			this.x = x
+			this.y = y
+			this.visibility = 0
+			this.pointCache = []
+		}
 
 		get visible() {
 			return this.visibility >= 128
@@ -129,12 +166,7 @@ export namespace GameMap {
 			}
 		}
 
-		public constructor(x: number, y: number) {
-			this.x = x
-			this.y = y
-			this.visibility = 0
-		}
-
+		/** @internal */
 		public showPlug(direction: Direction) {
 			if (this.paths) {
 				switch (direction) {
@@ -163,7 +195,11 @@ export namespace GameMap {
 			}
 		}
 
+		/** @internal */
 		public collect(result: Sprite.Item[]) {
+			if (this.pointCache.length) {
+				this.pointCache = []
+			}
 			if (this.items.length) {
 				for (let i = 0; i < this.items.length; i++) {
 					result.push(this.items[i])
@@ -171,6 +207,15 @@ export namespace GameMap {
 			}
 		}
 
+		/** @internal */
+		public renderItem(item: Sprite.Item) {
+			const cache = this.pointCache
+			for (let i = 0; i < this.pointCache.length; i++) {
+				item.render(cache[i][0], cache[i][1])
+			}
+		}
+
+		/** @internal */
 		public render(x: number, y: number) {
 			if (this.visibility >= 128) {
 				if (this.background) {
@@ -192,9 +237,7 @@ export namespace GameMap {
 					this.composite[0].renderPlugs(x, y, this.visibility)
 				}
 				if (this.items.length) {
-					for (let i = 0; i < this.items.length; i++) {
-						this.items[i].render(x, y)
-					}
+					this.pointCache.push([x, y])
 				}
 			}
 		}

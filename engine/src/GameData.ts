@@ -25,6 +25,7 @@ export namespace GameData {
 		composite?: string[]
 		scripts?: Record<string, string>
 		animation?: Animation.Defenition
+		zIndex?: number
 	}
 
 	export interface MapData {

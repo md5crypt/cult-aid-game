@@ -3,6 +3,30 @@ import { Listener } from "./Listener"
 
 export type Direction = "up" | "down" | "left" | "right"
 
+export namespace Path {
+	export function updateArray(delta: number, paths: Path[], target: [number, number]) {
+		let diff = delta
+		let path = paths[0]
+		while (true) {
+			diff = path.update(diff)
+			if (diff >= 0) {
+				paths.shift()
+				target[0] = path.x
+				target[1] = path.y
+				path.onEnd.invoke(path)
+				if (paths.length > 0) {
+					path = paths[0]
+					continue
+				}
+			}
+			break
+		}
+		target[0] = path.x
+		target[1] = path.y
+		return path
+	}
+}
+
 export interface Path {
 	x: number
 	y: number

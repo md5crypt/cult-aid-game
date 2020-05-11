@@ -41,6 +41,7 @@ export namespace Sprite {
 			}
 		}
 
+		/** @internal */
 		public renderPlugs(x: number, y: number, state: number) {
 			if (this.plugs) {
 				if ((state & Background.Plug.UP) && this.plugs[0]) {
@@ -58,6 +59,7 @@ export namespace Sprite {
 			}
 		}
 
+		/** @internal */
 		public render(x: number, y: number) {
 			const layers = gameContext.layers
 			const data = this.data
@@ -109,6 +111,7 @@ export namespace Sprite {
 		private currentSpriteData?: GameData.SpriteData
 		private _inView: boolean
 		private _frame: number
+		private _alwaysUpdate: boolean
 		/** @internal */
 		public _cell?: GameMap.Cell
 		protected offset: [number, number]
@@ -117,25 +120,28 @@ export namespace Sprite {
 		protected direction?: Direction
 		public readonly name: string
 		public readonly userData: Record<string, any>
-		public alwaysUpdate: boolean
 		public onUpdate: Listener<Item>
 		public onEnterView: Listener<Item>
 		public onExitView: Listener<Item>
+		/** @internal */
+		public paint: number
+		public zIndex: number
 
 		constructor(data: GameData.SpriteData, name = "") {
-			this.alwaysUpdate = false
-			this.inView = false
 			this.offset = [0, 0]
 			this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
 			this.path = []
 			this.scale = data.scale || 1
 			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
 			this.delay = data.delay || CONST.FALLBACK_DELAY
+			this._alwaysUpdate = false
 			this._inView = false
 			this._frame = 0
 			this.onUpdate = new Listener()
 			this.onEnterView = new Listener()
 			this.onExitView = new Listener()
+			this.paint = 0
+			this.zIndex = data.zIndex || 0
 			this.name = name || data.name
 			this.userData = {}
 
@@ -157,6 +163,21 @@ export namespace Sprite {
 			}
 		}
 
+		public get alwaysUpdate() {
+			return this._alwaysUpdate
+		}
+
+		public set alwaysUpdate(value: boolean) {
+			if (value) {
+				this._alwaysUpdate = true
+				gameContext.map.alwaysActiveList.add(this)
+			} else {
+				this._alwaysUpdate = true
+				gameContext.map.alwaysActiveList.delete(this)
+			}
+		}
+
+		/** @internal */
 		public set inView(value: boolean) {
 			if (!this._inView && value) {
 				this._inView = true
@@ -254,6 +275,7 @@ export namespace Sprite {
 			}
 		}
 
+		/** @internal */
 		public update(delta: number) {
 			this.onUpdate.invoke(this)
 			if (this.animation) {
@@ -261,24 +283,7 @@ export namespace Sprite {
 				this.frame = this.animation.frame
 			}
 			if (this.path.length > 0) {
-				let diff = delta
-				let path = this.path[0]
-				while (true) {
-					diff = path.update(diff)
-					if (diff >= 0) {
-						this.path.shift()
-						this.offset[0] = path.x
-						this.offset[1] = path.y
-						path.onEnd.invoke(path)
-						if (this.path.length > 0) {
-							path = this.path[0]
-							continue
-						}
-					}
-					break
-				}
-				this.offset[0] = path.x
-				this.offset[1] = path.y
+				const path = Path.updateArray(delta, this.path, this.offset)
 				if (this.path.length == 0) {
 					this.directionChanged(undefined)
 				} else if (this.direction != path.direction) {
@@ -291,6 +296,15 @@ export namespace Sprite {
 			this.direction = direction
 		}
 
+		public getAbsoluteLocation(): [number, number] {
+			const cell = this.cell
+			return [
+				(cell.x * CONST.GRID_BASE) + this.offset[0],
+				(cell.y * CONST.GRID_BASE) + this.offset[1]
+			]
+		}
+
+		/** @internal */
 		public render(x: number, y: number) {
 			if (!this.textures) {
 				return
@@ -331,7 +345,6 @@ export namespace Sprite {
 
 	export class Character extends Item {
 		private walkSequence: WalkSequence
-		protected moveDirection?: Direction
 		public speed: number
 
 		protected onCellChange(_prev: GameMap.Cell | null) {
@@ -362,20 +375,12 @@ export namespace Sprite {
 		public disable() {
 			this.clearAnimation()
 			this.clearPath()
-			this.moveDirection = undefined
 			this.cell.removeItem(this)
 		}
 
 		public setLocation(x: number, y: number, offset?: [number, number]) {
 			const map = gameContext.map
 			this.enable(modulo(x, map.tileWidth), modulo(y, map.tileHeight), offset)
-		}
-
-		public getAbsoluteLocation(): [number, number] {
-			return [
-				(this.cell.x * CONST.GRID_BASE) + this.offset[0],
-				(this.cell.y * CONST.GRID_BASE) + this.offset[1]
-			]
 		}
 
 		public walk(direction: Direction): Path | null {
@@ -441,5 +446,6 @@ export namespace Sprite {
 }
 
 export interface Sprite {
+	/** @internal */
 	render(x: number, y: number): void
 }
