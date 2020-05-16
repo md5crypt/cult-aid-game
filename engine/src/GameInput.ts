@@ -6,12 +6,13 @@ export class GameInput {
 	public register() {
 		const keyDown = (event: KeyboardEvent) => {
 			this.keyboard[event.key] = true
+			event.preventDefault()
 		}
-
 		window.addEventListener("keydown", keyDown)
 		this.handlers.push(["keydown", keyDown as EventListener])
 		const keyUp = (event: KeyboardEvent) => {
 			this.keyboard[event.key] = false
+			event.preventDefault()
 		}
 		window.addEventListener("keyup", keyUp)
 		this.handlers.push(["keyup", keyUp as EventListener])

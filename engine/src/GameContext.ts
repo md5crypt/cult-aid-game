@@ -6,6 +6,7 @@ import { SimplePath } from "./Path"
 import { Sprite } from "./Sprite"
 import { ScriptStorage } from "./ScriptStorage"
 import { RectTileLayer } from "./RectTile/RectTileLayer"
+import { ScriptTimer } from "./ScriptTimer"
 
 export interface GameContext {
 	time: number
@@ -25,6 +26,7 @@ export interface GameContext {
 		SimplePath: typeof SimplePath
 	}
 	scripts: ScriptStorage
+	timer: ScriptTimer
 }
 
 export const gameContext = {

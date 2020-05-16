@@ -43,13 +43,13 @@ export class SimplePath implements Path {
 	public y: number
 	public direction!: Direction
 	public readonly onEnd: Listener<Path>
-	private points: number[][]
+	private points: readonly (readonly number[])[]
 	private delta!: number
 	private accumulator: number
 	private current: number
 	private speed: number
 
-	constructor(points: number[][], speed: number) {
+	constructor(points: readonly (readonly number[])[], speed: number) {
 		this.points = points
 		this.x = points[0][0]
 		this.y = points[0][1]
@@ -88,7 +88,9 @@ export class SimplePath implements Path {
 			if (this.current == (this.points.length - 2)) {
 				this.x = this.points[this.current + 1][0]
 				this.y = this.points[this.current + 1][1]
-				//this.onEnd.invoke(this)
+				// the update invoker is responsible for calling
+				// onEnd.invoke, ugly I know
+				// this.onEnd.invoke(this)
 				return value
 			}
 			this.current += 1

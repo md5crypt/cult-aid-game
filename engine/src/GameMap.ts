@@ -3,6 +3,9 @@ import { Sprite } from "./Sprite"
 import { CONST } from "./Constants"
 import { Direction } from "./Path"
 import { gameContext } from "./GameContext"
+import { ScriptTimer } from "./ScriptTimer"
+import { ScriptStorage } from "./ScriptStorage"
+import { Listener } from "./Listener"
 
 export class GameMap {
 	private cells: GameMap.Cell[] = []
@@ -39,14 +42,59 @@ export class GameMap {
 		const cells: GameMap.Cell[] = new Array(map.width * map.height)
 			.fill(null)
 			.map((_, i) => new GameMap.Cell(i % map.width, Math.floor(i / map.width)))
-		for (let i = 0; i < map.bg.length; i++) {
-			if (map.bg[i] != 0) {
-				cells[i].applyMapData(gameContext.data.sprites[map.bg[i] - 1])
+		for (let i = 0; i < map.tiles.length; i++) {
+			if (map.tiles[i] != 0) {
+				cells[i].applyMapData(gameContext.data.sprites[map.tiles[i] - 1])
 			}
 		}
+
 		this.cells = cells
 		this.width = map.width
 		this.height = map.height
+
+		const defer: {
+			cell: GameMap.Cell
+			callback: ScriptStorage.cellStaticCallback
+		}[] = []
+
+		for (const object of map.objects) {
+			// type asserts seem to be broken with readonly fields
+			// hance the casts...
+			if ((object as GameData.ItemData).sprite) {
+				Sprite.Item.createFromItemData(object as GameData.ItemData)
+			} else {
+				const scripts = (object as GameData.ScriptData)
+				const storage = gameContext.scripts
+				const cell = this.getCell(scripts.cell[0], scripts.cell[1])
+				if (scripts.onCreate) {
+					defer.push({
+						cell,
+						callback: storage.resolve(scripts.onCreate, "cellCreate")
+					})
+				}
+				if (scripts.onMove) {
+					const callback = storage.resolve(scripts.onMove, "cellMove")
+					cell.onMove.add((cell, direction) => callback(gameContext, cell, direction))
+				}
+				if (scripts.onEnter) {
+					const callback = storage.resolve(scripts.onEnter, "cellEnter")
+					cell.onEnter.add((cell, direction) => callback(gameContext, cell, direction))
+				}
+				if (scripts.onExit) {
+					const callback = storage.resolve(scripts.onExit, "cellExit")
+					cell.onExit.add((cell, direction) => callback(gameContext, cell, direction))
+				}
+				if (scripts.onCenter) {
+					const callback = storage.resolve(scripts.onCenter, "cellCenter")
+					cell.onCenter.add(cell => callback(gameContext, cell))
+				}
+				if (scripts.onUse) {
+					const callback = storage.resolve(scripts.onUse, "cellUse")
+					cell.onUse.add(cell => callback(gameContext, cell))
+				}
+			}
+		}
+		defer.forEach(item => item.callback(gameContext, item.cell))
 	}
 
 	public update(delta: number, top: number, left: number, bottom: number, right: number) {
@@ -56,7 +104,9 @@ export class GameMap {
 		for (let row = top; row <= bottom; row++) {
 			const offset = (row % this.height) * this.width
 			for (let column = left; column <= right; column++) {
-				this.cells[offset + (column % this.width)].collect(items)
+				const cell = this.cells[offset + (column % this.width)]
+				cell.collect(items)
+				cell.timer.update(delta)
 			}
 		}
 		const frame = this.frame
@@ -111,6 +161,8 @@ export namespace GameMap {
 	export class Cell {
 		public readonly x: number
 		public readonly y: number
+		public readonly timer: ScriptTimer
+
 		private background: Sprite.Background | null = null
 		private composite?: Sprite.Background[]
 		private items: Sprite.Item[] = []
@@ -118,11 +170,25 @@ export namespace GameMap {
 		private visibility: number
 		private pointCache: [number, number][]
 
+		private _onMove?: Listener<[Cell, Direction], boolean>
+		private _onEnter?: Listener<[Cell, Direction]>
+		private _onExit?: Listener<[Cell, Direction]>
+		private _onCenter?: Listener<Cell>
+		private _onUse?: Listener<Cell>
+
+		// ugly lazy loaders
+		public get onMove()   { return this._onMove   || (this._onMove = new Listener())   }
+		public get onEnter()  { return this._onEnter  || (this._onEnter = new Listener())  }
+		public get onExit()   { return this._onExit   || (this._onExit = new Listener())   }
+		public get onCenter() { return this._onCenter || (this._onCenter = new Listener()) }
+		public get onUse()    { return this._onUse    || (this._onUse = new Listener())    }
+
 		public constructor(x: number, y: number) {
 			this.x = x
 			this.y = y
 			this.visibility = 0
 			this.pointCache = []
+			this.timer = new ScriptTimer()
 		}
 
 		get visible() {
@@ -193,6 +259,9 @@ export namespace GameMap {
 				this.composite = sprite.composite
 					.map(name => Sprite.Background.create(Sprite.find(name)))
 			}
+			if (this.background.onCreate) {
+				void this.background.onCreate(gameContext, this)
+			}
 		}
 
 		/** @internal */
@@ -222,9 +291,7 @@ export namespace GameMap {
 					this.background.render(x, y)
 				}
 				if (this.items.length) {
-					for (let i = 0; i < this.items.length; i++) {
-						this.items[i].render(x, y)
-					}
+					this.pointCache.push([x, y])
 				}
 			} else if ((this.visibility < 16) && this.background) {
 				this.background.renderPlugs(x, y, this.visibility)
@@ -259,7 +326,7 @@ export namespace GameMap {
 
 		public getExitPath(direction: Direction, x: number, y: number) {
 			if (this.paths) {
-				let path: number[][] | undefined
+				let path
 				switch (direction) {
 					case "up":
 						path = this.paths.down

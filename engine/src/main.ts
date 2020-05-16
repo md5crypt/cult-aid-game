@@ -11,6 +11,7 @@ import { gameContext } from "./GameContext"
 import { ScriptStorage } from "./ScriptStorage"
 import { Player } from "./Player"
 import { GameCamera } from "./GameCamera"
+import { ScriptTimer } from "./ScriptTimer"
 
 // inject gameContext into window
 (window as any).gameContext = gameContext
@@ -47,6 +48,8 @@ window.addEventListener("load", async () => {
 	app.stage.addChild(gameContext.layers.bg)
 	app.stage.addChild(gameContext.layers.mid)
 	app.stage.addChild(gameContext.layers.fg)
+	gameContext.scripts = new ScriptStorage()
+	gameContext.scripts.load(resources.scripts!.data)
 	gameContext.input = new GameInput()
 	gameContext.input.register()
 	gameContext.time = 0
@@ -55,16 +58,15 @@ window.addEventListener("load", async () => {
 	gameContext.camera = new GameCamera()
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.player.enable(2, 1)
-	gameContext.scripts = new ScriptStorage()
-	gameContext.scripts.load(resources.scripts!.data)
+	gameContext.timer = new ScriptTimer()
 	gameContext.camera.lockOn(gameContext.player)
-	app.ticker.add((_delta) => {
-		stats.end()
+	app.ticker.add(() => {
 		stats.begin()
-		gameContext.time += app.ticker.elapsedMS
-		gameContext.camera.update(app.ticker.elapsedMS)
-		const zoom = gameContext.camera.zoom * CONST.BASE_ZOOM
-		const pivot = gameContext.camera.pivot
+		const delta = app.ticker.elapsedMS
+		gameContext.time += delta
+		gameContext.camera.update(delta)
+		const zoom = gameContext.camera.zoom * CONST.STAGE_BASE_ZOOM
+		const pivot = gameContext.camera.position
 		const screenWidth = app.view.width * (1 / zoom)
 		const screenHeight = app.view.height * (1 / zoom)
 		const left = modulo(pivot[0] - (screenWidth /  2), gameContext.map.pixelWidth)
@@ -75,9 +77,11 @@ window.addEventListener("load", async () => {
 			Math.floor((top + (screenHeight - 1)) / CONST.GRID_BASE),
 			Math.floor((left + (screenWidth - 1)) / CONST.GRID_BASE)
 		] as const
-		gameContext.map.update(app.ticker.elapsedMS, ...bounds)
+		gameContext.timer.update(delta)
+		gameContext.map.update(delta, ...bounds)
 		gameContext.map.render(...bounds)
 		app.stage.scale.set(zoom)
 		app.stage.pivot.set(left, top)
+		stats.end()
 	})
 })

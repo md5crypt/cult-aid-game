@@ -7,10 +7,13 @@ import { GameMap } from "./GameMap"
 import { gameContext } from "./GameContext"
 import { Animation } from "./Animation"
 import { Listener } from "./Listener"
+import { ScriptTimer } from "./ScriptTimer"
+import { ScriptStorage } from "./ScriptStorage"
 
 export namespace Sprite {
 	export class Background implements Sprite {
 		public readonly data: GameData.SpriteData
+		public readonly onCreate?: ScriptStorage.cellStaticCallback
 		private plugs?: (Background | undefined)[]
 
 		private static cache: Map<GameData.SpriteData, Background> = new Map()
@@ -38,6 +41,9 @@ export namespace Sprite {
 					Background.createPlug(data.plugGroup + "-plug-left"),
 					Background.createPlug(data.plugGroup + "-plug-right")
 				]
+			}
+			if (data.onCreate) {
+				this.onCreate = gameContext.scripts.resolve(data.onCreate, "cellCreate")
 			}
 		}
 
@@ -68,7 +74,7 @@ export namespace Sprite {
 					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.texture.length
 					Background.renderTexture(layers.bg, data.texture[frame], x, y)
 				} else {
-					Background.renderTexture(layers.bg, data.texture, x, y)
+					Background.renderTexture(layers.bg, data.texture as GameData.Texture, x, y)
 				}
 			}
 			if (data.fgTexture) {
@@ -76,7 +82,7 @@ export namespace Sprite {
 					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.fgTexture.length
 					Background.renderTexture(layers.fg, data.fgTexture[frame], x, y)
 				} else {
-					Background.renderTexture(layers.fg, data.fgTexture, x, y)
+					Background.renderTexture(layers.fg, data.fgTexture as GameData.Texture, x, y)
 				}
 			}
 		}
@@ -108,7 +114,7 @@ export namespace Sprite {
 		private scale: number
 		private delay: number
 		private pivot: [number, number]
-		private currentSpriteData?: GameData.SpriteData
+		private currentSpriteData?: string
 		private _inView: boolean
 		private _frame: number
 		private _alwaysUpdate: boolean
@@ -120,12 +126,28 @@ export namespace Sprite {
 		protected direction?: Direction
 		public readonly name: string
 		public readonly userData: Record<string, any>
+		public readonly timer: ScriptTimer
 		public onUpdate: Listener<Item>
 		public onEnterView: Listener<Item>
 		public onExitView: Listener<Item>
 		/** @internal */
 		public paint: number
 		public zIndex: number
+
+		public static createFromItemData(data: GameData.ItemData) {
+			const sprite = Sprite.find(data.sprite)
+			const merged = {...sprite, ...data}
+			const item = new Item(merged, data.name)
+			gameContext.map.getCell(data.cell[0], data.cell[1]).addItem(item)
+			if (data.offset) {
+				item.setOffset(data.offset)
+			}
+			if (merged.onCreate) {
+				const callback = gameContext.scripts.resolve(merged.onCreate, "itemCreate")
+				void callback(gameContext, item)
+			}
+			return item
+		}
 
 		constructor(data: GameData.SpriteData, name = "") {
 			this.offset = [0, 0]
@@ -144,22 +166,21 @@ export namespace Sprite {
 			this.zIndex = data.zIndex || 0
 			this.name = name || data.name
 			this.userData = {}
+			this.timer = new ScriptTimer()
 
 			this.setTexture(data)
 
-			if (data.scripts) {
-				if (data.scripts.onUpdate) {
-					const callback = gameContext.scripts.resolve(data.scripts.onUpdate, "itemUpdate")
-					this.onUpdate.add((item) => callback(gameContext, item))
-				}
-				if (data.scripts.onEnterView) {
-					const callback = gameContext.scripts.resolve(data.scripts.onUpdate, "itemEnterView")
-					this.onEnterView.add((item) => callback(gameContext, item))
-				}
-				if (data.scripts.onExitView) {
-					const callback = gameContext.scripts.resolve(data.scripts.onUpdate, "itemExitView")
-					this.onExitView.add((item) => callback(gameContext, item))
-				}
+			if (data.onUpdate) {
+				const callback = gameContext.scripts.resolve(data.onUpdate, "itemUpdate")
+				this.onUpdate.add(item => callback(gameContext, item))
+			}
+			if (data.onEnterView) {
+				const callback = gameContext.scripts.resolve(data.onEnterView, "itemEnterView")
+				this.onEnterView.add(item => callback(gameContext, item))
+			}
+			if (data.onExitView) {
+				const callback = gameContext.scripts.resolve(data.onExitView, "itemExitView")
+				this.onExitView.add(item => callback(gameContext, item))
 			}
 		}
 
@@ -214,7 +235,7 @@ export namespace Sprite {
 			return this._cell
 		}
 
-		public setOffset(offset: number[]): void
+		public setOffset(offset: readonly number[]): void
 		public setOffset(x: number, y: number): void
 		public setOffset(arg1: any, arg2?: number) {
 			if (arg2) {
@@ -252,8 +273,8 @@ export namespace Sprite {
 		}
 
 		public setTexture(data: GameData.SpriteData, updateAnimation = true) {
-			if (this.currentSpriteData != data) {
-				this.currentSpriteData = data
+			if (this.currentSpriteData != data.name) {
+				this.currentSpriteData = data.name
 				this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
 				this.scale = data.scale || 1
 				if (data.pivot) {
@@ -290,6 +311,7 @@ export namespace Sprite {
 					this.directionChanged(path.direction)
 				}
 			}
+			this.timer.update(delta)
 		}
 
 		protected directionChanged(direction: Direction | undefined) {
@@ -302,6 +324,31 @@ export namespace Sprite {
 				(cell.x * CONST.GRID_BASE) + this.offset[0],
 				(cell.y * CONST.GRID_BASE) + this.offset[1]
 			]
+		}
+
+		public getNeighborCell(direction: Direction) {
+			let offsetX = 0
+			let offsetY = 0
+			switch (direction) {
+				case "up":
+					offsetY = -1
+					break
+				case "down":
+					offsetY = 1
+					break
+				case "left":
+					offsetX = -1
+					break
+				case "right":
+					offsetX = 1
+					break
+			}
+			const map = gameContext.map
+			const cell = this.cell
+			return map.getCell(
+				modulo(cell.x + offsetX, map.tileWidth),
+				modulo(cell.y + offsetY, map.tileHeight)
+			)
 		}
 
 		/** @internal */
@@ -383,32 +430,20 @@ export namespace Sprite {
 			this.enable(modulo(x, map.tileWidth), modulo(y, map.tileHeight), offset)
 		}
 
+		public canWalk(direction: Direction): boolean {
+			return (
+				!!this.cell.getExitPath(direction, this.offset[0], this.offset[1]) &&
+				!!this.getNeighborCell(direction).getEnterPath(direction)
+			)
+		}
+
 		public walk(direction: Direction): Path | null {
-			const map = gameContext.map
 			const cell = this.cell
 			const exitPath = cell.getExitPath(direction, this.offset[0], this.offset[1])
 			if (!exitPath) {
 				return null
 			}
-			let newX = 0
-			let newY = 0
-			switch (direction) {
-				case "up":
-					newY = -1
-					break
-				case "down":
-					newY = 1
-					break
-				case "left":
-					newX = -1
-					break
-				case "right":
-					newX = 1
-					break
-			}
-			newX = modulo(cell.x + newX, map.tileWidth)
-			newY = modulo(cell.y + newY, map.tileHeight)
-			const newCell = map.getCell(newX, newY)
+			const newCell = this.getNeighborCell(direction)
 			const enterPath = newCell.getEnterPath(direction)
 			if (!enterPath) {
 				return null

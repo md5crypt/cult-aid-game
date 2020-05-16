@@ -9,10 +9,11 @@ interface Mapping {
 	"cellExit": ScriptStorage.cellDynamicCallback
 	"cellCenter": ScriptStorage.cellStaticCallback
 	"cellUse": ScriptStorage.cellStaticCallback
+	"cellCreate": ScriptStorage.cellStaticCallback
 	"itemUpdate": ScriptStorage.itemCallback
 	"itemEnterView": ScriptStorage.itemCallback
 	"itemExitView": ScriptStorage.itemCallback
-	"itemInit": ScriptStorage.itemCallback
+	"itemCreate": ScriptStorage.itemCallback
 }
 
 export class ScriptStorage {

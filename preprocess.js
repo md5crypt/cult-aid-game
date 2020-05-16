@@ -93,12 +93,9 @@ const objectParsers = [
 	}
 ]
 
-function parseProperties(properties, sprite) {
-	const props = {
-		scale: "float",
-		delay: "int",
-		plugGroup: "string",
-		composite: "json"
+function parseProperties(properties, sprite, props) {
+	if (!properties) {
+		return sprite
 	}
 	for (const prop of properties) {
 		assert(prop.name in props, sprite.name)
@@ -110,6 +107,7 @@ function parseProperties(properties, sprite) {
 			sprite[prop.name] = prop.value
 		}
 	}
+	return sprite
 }
 
 function buildMap(sprites, mapFile, tilesetFile) {
@@ -134,11 +132,51 @@ function buildMap(sprites, mapFile, tilesetFile) {
 			assert(data.length == 0, tile.image)
 		}
 		if (tile.properties) {
-			parseProperties(tile.properties, sprite)
+			parseProperties(tile.properties, sprite, {
+				scale: "float",
+				delay: "int",
+				plugGroup: "string",
+				composite: "json",
+				onCreate: "string"
+			})
+		}
+	}
+	const gidMapper = id => sprites[tileMap.get(id - 1)]
+	const baseSize = map.tileheight
+	const objects = []
+	for (const object of map.layers[1].objects) {
+		const cell = [
+			Math.floor(object.x / baseSize),
+			Math.floor((object.y - (object.text ? 0 : object.height)) / baseSize)
+		]
+		const offset = [
+			object.x % baseSize,
+			object.y % baseSize
+		]
+		if (object.text) {
+			objects.push(parseProperties(object.properties, {cell}, {
+				onCreate: "string",
+				onMove: "string",
+				onUse: "string",
+				onCenter: "string",
+				onExit: "string",
+				onEnter: "string",
+			}))
+		} else {
+			const sprite = gidMapper(object.gid).name
+			objects.push(parseProperties(object.properties, {cell, offset, sprite}, {
+				animation: "json",
+				zIndex: "number",
+				onCreate: "string",
+				onUpdate: "string",
+				onEnterView: "string",
+				onExitView: "string",
+			}))
 		}
 	}
 	return {
-		bg: map.layers[0].data.map(id => id ? (sprites[tileMap.get(id - 1)].texture ? tileMap.get(id - 1) + 1 : 0) : 0),
+		tiles: map.layers[0].data.map(id => id ? (gidMapper(id).texture ? tileMap.get(id - 1) + 1 : 0) : 0),
+		objects,
 		height: map.layers[0].height,
 		width: map.layers[0].width
 	}

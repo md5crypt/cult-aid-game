@@ -2,40 +2,67 @@ import { Animation } from "./Animation"
 
 export namespace GameData {
 	export interface Texture {
-		frame: [number, number, number, number]
-		offset: [number, number]
+		readonly frame: readonly [number, number, number, number]
+		readonly offset: readonly [number, number]
 	}
 
 	export interface PathData {
-		up?: [number, number][]
-		down?: [number, number][]
-		left?: [number, number][]
-		right?: [number, number][]
+		readonly up?: readonly (readonly [number, number])[]
+		readonly down?: readonly (readonly [number, number])[]
+		readonly left?: readonly (readonly [number, number])[]
+		readonly right?: readonly (readonly [number, number])[]
 	}
 
 	export interface SpriteData {
-		name: string
-		texture?: Texture | Texture[]
-		fgTexture?: Texture | Texture[]
-		paths?: PathData
-		pivot?: [number, number]
-		scale?: number
-		delay?: number
-		plugGroup?: string
-		composite?: string[]
-		scripts?: Record<string, string>
-		animation?: Animation.Defenition
-		zIndex?: number
+		readonly name: string
+		readonly texture?: Texture | readonly Texture[]
+		readonly fgTexture?: Texture | readonly Texture[]
+		readonly paths?: PathData
+		readonly pivot?: readonly [number, number]
+		readonly scale?: number
+		readonly delay?: number
+		readonly plugGroup?: string
+		readonly composite?: readonly string[]
+		readonly animation?: Animation.Defenition
+		readonly zIndex?: number
+		readonly onCreate?: string
+		readonly onUpdate?: string
+		readonly onEnterView?: string
+		readonly onExitView?: string
+	}
+
+	export interface ScriptData {
+		readonly cell: readonly [number, number]
+		readonly onEnter?: string
+		readonly onExit?: string
+		readonly onMove?: string
+		readonly onUse?: string
+		readonly onCenter?: string
+		readonly onCreate?: string
+	}
+
+	export interface ItemData {
+		readonly sprite: string
+		readonly cell: readonly [number, number]
+		readonly name?: string
+		readonly animation?: Animation.Defenition
+		readonly zIndex?: number
+		readonly offset?: readonly [number, number]
+		readonly onCreate?: string
+		readonly onUpdate?: string
+		readonly onEnterView?: string
+		readonly onExitView?: string
 	}
 
 	export interface MapData {
-		bg: number[]
-		width: number
-		height: number
+		readonly tiles: readonly number[]
+		readonly objects: readonly (ItemData | ScriptData)[]
+		readonly width: number
+		readonly height: number
 	}
 }
 
 export interface GameData {
-	sprites: GameData.SpriteData[]
-	map: GameData.MapData
+	readonly sprites: readonly GameData.SpriteData[]
+	readonly map: GameData.MapData
 }
