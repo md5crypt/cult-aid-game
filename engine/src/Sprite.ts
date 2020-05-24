@@ -112,9 +112,7 @@ export namespace Sprite {
 	export class Item implements Sprite {
 		private textures?: GameData.Texture[]
 		private scale: number
-		private delay: number
 		private pivot: [number, number]
-		private currentSpriteData?: string
 		private _inView: boolean
 		private _frame: number
 		private _alwaysUpdate: boolean
@@ -133,6 +131,10 @@ export namespace Sprite {
 		/** @internal */
 		public paint: number
 		public zIndex: number
+
+		public static create(sprite: string, name?: string) {
+			return new Item(Sprite.find(sprite), name)
+		}
 
 		public static createFromItemData(data: GameData.ItemData) {
 			const sprite = Sprite.find(data.sprite)
@@ -155,7 +157,6 @@ export namespace Sprite {
 			this.path = []
 			this.scale = data.scale || 1
 			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
-			this.delay = data.delay || CONST.FALLBACK_DELAY
 			this._alwaysUpdate = false
 			this._inView = false
 			this._frame = 0
@@ -247,11 +248,9 @@ export namespace Sprite {
 			}
 		}
 
-		public setAnimation(animation: Animation, data?: GameData.SpriteData) {
+		public setAnimation(animation: Animation) {
 			this.animation = animation
-			if (data) {
-				this.setTexture(data, false)
-			}
+			return animation
 		}
 
 		public clearAnimation(frame = 0) {
@@ -272,27 +271,25 @@ export namespace Sprite {
 			this.directionChanged(undefined)
 		}
 
-		public setTexture(data: GameData.SpriteData, updateAnimation = true) {
-			if (this.currentSpriteData != data.name) {
-				this.currentSpriteData = data.name
-				this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
-				this.scale = data.scale || 1
-				if (data.pivot) {
-					this.pivot[0] = data.pivot[0]
-					this.pivot[1] = data.pivot[1]
-				} else {
-					this.pivot[0] = 0
-					this.pivot[1] = 0
-				}
-				this.delay = data.delay || CONST.FALLBACK_DELAY
-				this.frame = 0
-				if (updateAnimation) {
-					if (this.textures && (this.textures.length > 1)) {
-						this.animation = new Animation(data.animation || [["sequence", 0, this.textures.length - 1], ["loop"]])
-					} else {
-						this.animation = undefined
-					}
-				}
+		public setTexture(data: GameData.SpriteData, animation?: Animation | null) {
+			this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
+			this.scale = data.scale || 1
+			if (data.pivot) {
+				this.pivot[0] = data.pivot[0]
+				this.pivot[1] = data.pivot[1]
+			} else {
+				this.pivot[0] = 0
+				this.pivot[1] = 0
+			}
+			this.animation = undefined
+			this.frame = 0
+			if ((animation === undefined) && this.textures && (this.textures.length > 1)) {
+				this.animation = new Animation(
+					data.animation || [["sequence", 0, this.textures.length - 1], ["loop"]],
+					data.delay
+				)
+			} else if (animation) {
+				this.animation = animation
 			}
 		}
 
@@ -300,7 +297,7 @@ export namespace Sprite {
 		public update(delta: number) {
 			this.onUpdate.invoke(this)
 			if (this.animation) {
-				this.animation.update(delta, this.delay)
+				this.animation.update(delta)
 				this.frame = this.animation.frame
 			}
 			if (this.path.length > 0) {
@@ -391,7 +388,8 @@ export namespace Sprite {
 	}
 
 	export class Character extends Item {
-		private walkSequence: WalkSequence
+		public readonly walkSequence: WalkSequence
+		private preventWalkSequenceChange: boolean
 		public speed: number
 
 		protected onCellChange(_prev: GameMap.Cell | null) {
@@ -401,6 +399,17 @@ export namespace Sprite {
 			super(walkSequence.idle)
 			this.walkSequence = walkSequence
 			this.speed = speed
+			this.preventWalkSequenceChange = false
+		}
+
+		public setTexture(data: GameData.SpriteData, animation?: Animation | null) {
+			this.preventWalkSequenceChange = true
+			super.setTexture(data, animation)
+		}
+
+		public clearAnimation(frame = 0) {
+			this.preventWalkSequenceChange = true
+			super.clearAnimation(frame)
 		}
 
 		public enable(x: number, y: number, offset?: [number, number]) {
@@ -453,15 +462,26 @@ export namespace Sprite {
 				newCell.addItem(this)
 				this.onCellChange(cell)
 			})
+			this.preventWalkSequenceChange = false
 			this.pushPath(path1)
 			const path2 = new SimplePath(enterPath, this.speed)
 			this.pushPath(path2)
 			return path2
 		}
 
+		public waitWalkEnd() {
+			if (this.path.length == 0) {
+				return Promise.resolve()
+			}
+			return new Promise(resolve => this.path[this.path.length - 1].onEnd.add(resolve))
+		}
+
 		protected directionChanged(direction: Direction | undefined) {
 			super.directionChanged(direction)
-			this.setTexture(direction ? this.walkSequence[direction] :this.walkSequence.idle)
+			if (!this.preventWalkSequenceChange) {
+				super.setTexture(direction ? this.walkSequence[direction] :this.walkSequence.idle)
+			}
+			this.preventWalkSequenceChange = false
 		}
 	}
 

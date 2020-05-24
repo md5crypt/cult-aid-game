@@ -1,5 +1,6 @@
 import { SimplePath, Path } from "./Path"
 import { Sprite } from "./Sprite"
+import { gameContext } from "./GameContext"
 import { CONST } from "./Constants"
 
 interface Shaker {
@@ -19,6 +20,8 @@ export class GameCamera {
 	private _pivot: [number, number]
 	private _zoom: [number, number]
 
+	private _screen: readonly [number, number]
+
 	private lock: Sprite.Item | null
 
 	private shaker?: Shaker
@@ -29,6 +32,24 @@ export class GameCamera {
 		this._pivot = [0, 0]
 		this._zoom = [1, 0]
 		this.lock = null
+		this._screen = [0, 0]
+	}
+
+	public get screenSize() {
+		return this._screen
+	}
+
+	/** @internal */
+	public updateScreenSize(width: number, height: number) {
+		this._screen = [width, height]
+	}
+
+	public set enabled(value: boolean) {
+		gameContext.stage.tile.visible = value
+	}
+
+	public get enabled() {
+		return gameContext.stage.tile.visible
 	}
 
 	public shake(
@@ -96,7 +117,7 @@ export class GameCamera {
 	}
 
 	public set pivot(value: [number, number]) {
-		if (this.pivotPaths.length != 0) {
+		if (this.pivotPaths.length == 0) {
 			this.lock = null
 			this._pivot[0] = value[0]
 			this._pivot[1] = value[1]
@@ -123,13 +144,13 @@ export class GameCamera {
 	public update(delta: number) {
 		if (this.lock) {
 			this._pivot = this.lock.getAbsoluteLocation()
-			if (this.zoomPaths.length > 0) {
-				Path.updateArray(delta, this.zoomPaths, this._zoom)
-			}
 		} else {
 			if (this.pivotPaths.length > 0) {
 				Path.updateArray(delta, this.pivotPaths, this._pivot)
 			}
+		}
+		if (this.zoomPaths.length > 0) {
+			Path.updateArray(delta, this.zoomPaths, this._zoom)
 		}
 		const shaker = this.shaker
 		if (shaker) {

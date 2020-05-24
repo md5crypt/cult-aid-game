@@ -1,1 +1,2 @@
-declare type PIXI = typeof import("pixi.js")
+/// <reference types="pixi.js" />
+/// <reference types="pixi-sound" />

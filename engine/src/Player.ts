@@ -6,6 +6,8 @@ import { GameMap } from "./GameMap"
 
 export class Player extends Sprite.Character {
 
+	public inputEnabled: boolean
+
 	public constructor(walkSequence: Sprite.WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 		super(walkSequence, speed)
 		this.onUpdate.add(() => {
@@ -14,9 +16,13 @@ export class Player extends Sprite.Character {
 			}
 		})
 		this.alwaysUpdate = true
+		this.inputEnabled = true
 	}
 
 	private checkInput() {
+		if (!this.inputEnabled) {
+			return
+		}
 		if (gameContext.input.keyboard.ArrowUp) {
 			this.walk("up")
 		} else if (gameContext.input.keyboard.ArrowDown) {
@@ -40,13 +46,13 @@ export class Player extends Sprite.Character {
 
 	public walk(direction: Direction) {
 		if (this.canWalk(direction)) {
-			const next = this.getNeighborCell(direction)
-			if (!next.onMove || next.onMove.collect<boolean>((a, b) => a && b, true, next, direction)) {
+			if (!this.cell.onMove || this.cell.onMove.collect<boolean>((a, b) => a && b, true, this.cell, direction)) {
 				const value = super.walk(direction)
 				if (value) {
 					value.onEnd.add(() => {
-						if (next.onCenter) {
-							next.onCenter.invoke(next)
+						const cell = this.cell
+						if (cell.onCenter) {
+							cell.onCenter.invoke(cell)
 						}
 						this.checkInput()
 					})

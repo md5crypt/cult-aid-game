@@ -137,7 +137,8 @@ function buildMap(sprites, mapFile, tilesetFile) {
 				delay: "int",
 				plugGroup: "string",
 				composite: "json",
-				onCreate: "string"
+				onCreate: "string",
+				animation: "json"
 			})
 		}
 	}
@@ -153,8 +154,12 @@ function buildMap(sprites, mapFile, tilesetFile) {
 			object.x % baseSize,
 			object.y % baseSize
 		]
-		if (object.text) {
-			objects.push(parseProperties(object.properties, {cell}, {
+		if (!object.gid) {
+			const o = {cell}
+			if (object.name) {
+				o.name = object.name
+			}
+			objects.push(parseProperties(object.properties, o, {
 				onCreate: "string",
 				onMove: "string",
 				onUse: "string",

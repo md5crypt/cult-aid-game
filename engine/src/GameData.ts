@@ -33,6 +33,7 @@ export namespace GameData {
 
 	export interface ScriptData {
 		readonly cell: readonly [number, number]
+		readonly name?: string
 		readonly onEnter?: string
 		readonly onExit?: string
 		readonly onMove?: string
@@ -42,8 +43,8 @@ export namespace GameData {
 	}
 
 	export interface ItemData {
-		readonly sprite: string
 		readonly cell: readonly [number, number]
+		readonly sprite: string
 		readonly name?: string
 		readonly animation?: Animation.Defenition
 		readonly zIndex?: number

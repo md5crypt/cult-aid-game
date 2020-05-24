@@ -5,6 +5,7 @@ export class Listener<T = void, K = void> {
 
 	public add(listener: Callback<T, K>) {
 		this.list.push(listener)
+		return listener
 	}
 
 	public remove(listener: Callback<T, K>) {
@@ -24,6 +25,14 @@ export class Listener<T = void, K = void> {
 		for (let i = 0; i < this.list.length; i++) {
 			(this.list[i] as Function)(...args)
 		}
+	}
+
+	public collectBoolean(...args: T extends Array<any> ? T : [T]) {
+		let result = false
+		for (let i = 0; i < this.list.length; i++) {
+			result = result || (this.list[i] as Function)(...args)
+		}
+		return result
 	}
 
 	public collect<V = K>(

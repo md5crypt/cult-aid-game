@@ -10,19 +10,21 @@ interface StackFrame {
 export class Animation {
 	public frame: number
 	public readonly onEnd: Listener<Animation>
-	public readonly onInvoke: Listener<[Animation, string]>
+	public readonly onInvoke: Listener<[Animation, string], boolean>
 	private stack: StackFrame[]
 	private timer: number
+	private delay: number
 
-	constructor(defenition: Animation.Defenition) {
+	constructor(defenition: Animation.Defenition, delay = CONST.FALLBACK_DELAY) {
 		this.stack = [{data: defenition, position: 0, counter: 0}]
 		this.onEnd = new Listener()
 		this.onInvoke = new Listener()
 		this.frame = 0
 		this.timer = 0
+		this.delay = delay
 	}
 
-	public update(delta: number, baseDelay: number) {
+	public update(delta: number) {
 		const stack = this.stack
 		this.timer += Math.min(delta, CONST.MAX_ANIMATION_DELTA)
 		if (stack.length == 0) {
@@ -30,14 +32,14 @@ export class Animation {
 			return
 		}
 		let cnt = 0
-		let frame: StackFrame | undefined = stack[this.stack.length - 1]
-		loop: while (frame) {
+		loop: while (stack.length) {
+			const frame = stack[this.stack.length - 1]
 			if (cnt > CONST.MAX_ANIMATION_STEPS) {
 				throw new Error("maximum animation steps exceeded, endless loop?")
 			}
 			cnt += 1
 			if (frame.position >= frame.data.length) {
-				frame = stack.pop()
+				stack.pop()
 				continue
 			}
 			const item = frame.data[frame.position]
@@ -52,32 +54,32 @@ export class Animation {
 						}
 						break
 					case "frame": {
-						const delay = (item[2] === undefined ? baseDelay : item[2])
+						const delay = (item[2] === undefined ? this.delay : item[2])
+						this.frame = item[1]
 						if (delay <= this.timer) {
 							this.timer -= delay
 							frame.position += 1
 						} else {
-							this.frame = item[1]
 							break loop
 						}
 						break
 					} case "invoke":
 						frame.position += 1
-						this.onInvoke.invoke(this, item[1])
-						// this can be probably be done better but... meh
-						// will fix it when it becomes an issue
-						break loop
+						if (this.onInvoke.collectBoolean(this, item[1])) {
+							break loop
+						}
+						break
 					case "loop":
 						if (!item[1] || (item[1] > frame.counter)) {
 							frame.counter += 1
 							frame.position = 0
 						} else {
-							frame = stack.pop()
+							stack.pop()
 						}
 						break
 					case "sequence": {
 						const len = Math.abs(item[2] - item[1]) + 1
-						const delay = item[3] === undefined ? baseDelay : item[3]
+						const delay = item[3] === undefined ? this.delay : item[3]
 						if ((len * delay) <= this.timer) {
 							this.timer -= len * delay
 							frame.position += 1
@@ -91,6 +93,7 @@ export class Animation {
 						throw new Error("corrutped animation: " + JSON.stringify(item))
 				}
 			} else {
+				frame.position += 1
 				stack.push({data: item as Animation.Defenition, position: 0, counter: 0})
 			}
 		}
