@@ -2,6 +2,8 @@ const fs = require("fs")
 const path = require("path")
 const assert = require("assert")
 const child_process = require("child_process")
+const glob = require("glob")
+const fntparser = require("./fntparser")
 
 function buildSprites(atlasFile) {
 	const atlas = JSON.parse(fs.readFileSync(atlasFile))
@@ -187,6 +189,11 @@ function buildMap(sprites, mapFile, tilesetFile) {
 	}
 }
 
+function parseFonts(fontsPath) {
+	return glob.sync(path.resolve(fontsPath, "*.fnt"))
+		.map(file => fntparser(fs.readFileSync(file), "ascii"))
+}
+
 let rebuildAtlas = true
 
 if (fs.existsSync("./build/atlas.json")) {
@@ -203,3 +210,4 @@ if (rebuildAtlas) {
 const sprites = buildSprites("build/atlas.json")
 const map = buildMap(sprites, "map/map.json", "tileset/tileset.json")
 fs.writeFileSync("build/data.json", JSON.stringify({sprites, map}))
+fs.writeFileSync("build/fonts.json", JSON.stringify(parseFonts("fonts")))
