@@ -14,6 +14,7 @@ import { GameCamera } from "./GameCamera"
 import { ScriptTimer } from "./ScriptTimer"
 import { SimplePath } from "./Path"
 import { Animation } from "./Animation"
+import { BitmapText } from "./BitmapText"
 
 declare global {
 	interface Window {
@@ -34,6 +35,7 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 	return new Promise((resolve, reject) => app.loader
 		.add("atlas", "atlas.png")
 		.add("data", "data.json")
+		.add("fonts", "fonts.json")
 		.add("scripts", "scripts.js")
 		.load((_loader, resources) => resolve(resources))
 		.on("error", error => reject(error))
@@ -80,7 +82,9 @@ window.addEventListener("load", async () => {
 	})
 	document.body.appendChild(app.view)
 	const resources = await loadResources(app)
-	bootstrap(app, resources.data!.data, resources.atlas!.texture)
+	bootstrap(app, resources.data!.data, resources.atlas!.texture);
+	(resources.fonts!.data as BitmapText.FontData[])
+		.forEach(font => BitmapText.Font.register(font, resources.atlas!.texture))
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts!.data)
 	gameContext.map.loadMap(gameContext.data.map)
@@ -88,6 +92,7 @@ window.addEventListener("load", async () => {
 		app.view.width / CONST.STAGE_BASE_ZOOM,
 		app.view.height / CONST.STAGE_BASE_ZOOM
 	)
+
 	app.ticker.add(() => {
 		stats.begin()
 		const delta = app.ticker.elapsedMS
