@@ -1,3 +1,40 @@
+export class LayoutElement extends PIXI.Container {
+	private _width: number
+	private _height: number
+
+	public constructor(rect?: PIXI.Rectangle) {
+		super()
+		this._width = 0
+		this._height = 0
+		if (rect) {
+			this.setRectTransform(rect)
+		}
+	}
+
+	public setRectTransform(rect: PIXI.Rectangle) {
+		this._width = rect.width
+		this._height = rect.height
+		this.x = rect.x
+		this.y = rect.y
+	}
+
+	public set width(value: number) {
+		this._width = value
+	}
+
+	public get width() {
+		return this._width
+	}
+
+	public set height(value: number) {
+		this._height = value
+	}
+
+	public get height() {
+		return this._height
+	}
+}
+
 export interface LayoutConfig {
 	readonly anchor: (
 		readonly [readonly [number, number], readonly [number, number]] |
@@ -30,9 +67,7 @@ function defaultUpdate(element: PIXI.Container, rect: PIXI.Rectangle) {
 }
 
 function defaultCreate(rect: PIXI.Rectangle) {
-	const container = new PIXI.Container()
-	defaultUpdate(container, rect)
-	return container
+	return new LayoutElement(rect)
 }
 
 export class Layout {
