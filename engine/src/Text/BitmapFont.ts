@@ -50,7 +50,7 @@ export class BitmapFont {
 	public static get(name: string) {
 		const font = BitmapFont.registeredFonts.get(name)
 		if (!font) {
-			throw new Error(`font '${font}' not found`)
+			throw new Error(`font '${name}' not found`)
 		}
 		return font
 	}

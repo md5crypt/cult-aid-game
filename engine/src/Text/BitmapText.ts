@@ -171,7 +171,7 @@ export class BitmapText extends PIXI.Container {
 		let xOffset
 		if ((options.xAlign == "center") && (this.width > width)) {
 			xOffset = Math.floor((this.width - width) / 2)
-		} else if ((options.xAlign == "right") && (this.width < width)) {
+		} else if ((options.xAlign == "right") && (this.width > width)) {
 			xOffset = this.width - width
 		} else {
 			xOffset = 0
