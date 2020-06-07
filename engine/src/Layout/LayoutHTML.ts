@@ -1,7 +1,8 @@
 import { LayoutElement, LayoutFactory } from "./LayoutBase"
-export { LayoutFactory } from "./LayoutBase"
 
-export abstract class BaseElement extends LayoutElement {
+export const layoutFactory = new LayoutFactory<BaseElement>()
+
+abstract class BaseElement extends LayoutElement {
 	public abstract readonly handle: HTMLDivElement
 
 	protected get contentHeight() {
@@ -51,4 +52,4 @@ export class DivElement extends BaseElement {
 	}
 }
 
-LayoutFactory.register("div", (name, config) => new DivElement(name, config))
+layoutFactory.register("div", (name, config) => new DivElement(name, config))

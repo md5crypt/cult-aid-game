@@ -1,15 +1,14 @@
-import { LayoutFactory } from "../LayoutBase"
-import { BaseElement } from "./BaseElement"
+import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
 import { BitmapText, TextOptions, RichText } from "../../Text/BitmapText"
 
-export interface TextElementConfig {
+export interface TextElementConfig extends BaseConfig {
 	text?: string
-	options?: TextOptions
+	style?: TextOptions
 	rich?: boolean
 }
 
 export class TextElement extends BaseElement {
-	public readonly handle: BitmapText
+	public readonly handle!: BitmapText
 
 	private text: string | RichText
 	private _offsetNext: number
@@ -18,15 +17,14 @@ export class TextElement extends BaseElement {
 	private textRect: [number, number] | null
 
 	public constructor(name?: string, config?: TextElementConfig) {
-		super(name)
-		this.handle = new BitmapText()
+		super(new BitmapText(), name, config)
 		this.textRect = null
 		this._offsetNext = 0
 		this._offsetCurrent = 0
 		this.options = {font: "default"}
 		this.text = ""
 		if (config) {
-			config.options && (this.options = config.options)
+			config.style && (this.options = config.style)
 			config.text && (this.text = config.rich ? new RichText(config.text, this.options) : config.text)
 		}
 	}
@@ -63,7 +61,7 @@ export class TextElement extends BaseElement {
 	}
 
 	protected onUpdate() {
-		this.handle.position.set(this.top, this.left)
+		super.onUpdate()
 		this.handle.width = this.width
 		this.handle.height = this.height
 		if (typeof this.text == "string") {
@@ -95,4 +93,4 @@ export class TextElement extends BaseElement {
 	}
 }
 
-LayoutFactory.register("text", (name, config) => new TextElement(name, config))
+layoutFactory.register("text", (name, config) => new TextElement(name, config))

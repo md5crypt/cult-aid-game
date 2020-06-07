@@ -1,11 +1,11 @@
-import { LayoutFactory } from "../LayoutBase"
-import { BaseElement } from "./BaseElement"
+import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
 
 export class ContainerElement extends BaseElement {
-	public readonly handle: PIXI.Container = new PIXI.Container()
-	protected onUpdate() {
-		this.handle.position.set(this.top, this.left)
+	public readonly handle!: PIXI.Container
+
+	constructor(name?: string, config?: BaseConfig) {
+		super(new PIXI.Container(), name, config)
 	}
 }
 
-LayoutFactory.register("container", name => new ContainerElement(name))
+layoutFactory.register("container", (name, config) => new ContainerElement(name, config))

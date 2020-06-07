@@ -108,7 +108,6 @@ export abstract class LayoutElement {
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
 				if (this.config.flexVerticalAlign != "top") {
-					console.log(height, element)
 					const diff = height - element.outerHeight
 					element._top = this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
 				} else {
@@ -262,8 +261,8 @@ export abstract class LayoutElement {
 
 	public insertElement(element: LayoutElement, before?: LayoutElement | string) {
 		if (before) {
-			const serachResult = this.children.indexOf(typeof before == "string" ? this.getElement(before) : before)
-			const index = serachResult >= 0 ? serachResult : this.children.length
+			const searchResult = this.children.indexOf(typeof before == "string" ? this.getElement(before) : before)
+			const index = searchResult >= 0 ? searchResult : this.children.length
 			this.children.splice(index, 0, element)
 			this.onInsertElement(element, index)
 		} else {
@@ -286,28 +285,28 @@ export abstract class LayoutElement {
 
 type LayoutConstructor = (name?: string, config?: Record<string, any>) => LayoutElement
 
-export class LayoutFactory {
-	private static constructors: Map<string, LayoutConstructor> = new Map()
+export class LayoutFactory<T extends LayoutElement> {
+	private constructors: Map<string, LayoutConstructor> = new Map()
 
-	public static register(type: string, constructor: LayoutConstructor) {
-		LayoutFactory.constructors.set(type, constructor)
+	public register(type: string, constructor: LayoutConstructor) {
+		this.constructors.set(type, constructor)
 	}
 
-	public static createElement(type: string, name?: string, config?: Record<string, any>) {
-		const constructor = LayoutFactory.constructors.get(type)
+	public createElement(type: string, name?: string, config?: Record<string, any>): T {
+		const constructor = this.constructors.get(type)
 		if (!constructor) {
 			throw new Error(`unknown layout type '${type}'`)
 		}
-		return constructor(name, config)
+		return constructor(name, config) as T
 	}
 
-	public static create(json: LayoutElementJson, parent?: LayoutElement) {
-		const root = LayoutFactory.createElement(json.type, json.name, json.config)
+	public create(json: LayoutElementJson, parent?: LayoutElement): T {
+		const root = this.createElement(json.type, json.name, json.config)
 		if (json.layout) {
 			root.updateConfig(json.layout)
 		}
 		if (json.children) {
-			json.children.forEach(element => LayoutFactory.create(element, root))
+			json.children.forEach(element => this.create(element, root))
 		}
 		parent?.insertElement(root)
 		return root
