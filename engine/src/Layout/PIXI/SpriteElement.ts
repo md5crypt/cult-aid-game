@@ -1,9 +1,11 @@
 import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
 import { gameContext } from "../../GameContext"
 
+type ScalingType = "none" | "fixed" | "stretch" | "repeat"
+
 export interface SpriteElementConfig extends BaseConfig {
 	image?: PIXI.Texture
-	scaling?: "none" | "fixed" | "stretch"
+	scaling?: ScalingType
 	tint?: number
 	alpha?: number
 	container?: boolean
@@ -11,14 +13,14 @@ export interface SpriteElementConfig extends BaseConfig {
 
 export class SpriteElement extends BaseElement {
 	private sprite: PIXI.Sprite
-	private scaling: "none" | "fixed" | "stretch"
+	private scaling: ScalingType
 
 	constructor(name?: string, config?: SpriteElementConfig) {
 		let texture = PIXI.Texture.WHITE
 		if (typeof config?.image == "string") {
 			texture = (typeof config.image == "string") ? gameContext.textures.ui.getTexture(config.image) : config.image
 		}
-		const sprite = new PIXI.Sprite(texture)
+		const sprite = (config?.scaling == "repeat") ? new PIXI.TilingSprite(texture) : new PIXI.Sprite(texture)
 		let handle: PIXI.Container = sprite
 		if (config?.container) {
 			handle = new PIXI.Container()
@@ -37,7 +39,7 @@ export class SpriteElement extends BaseElement {
 
 	protected onUpdate() {
 		super.onUpdate()
-		if (this.scaling == "stretch") {
+		if ((this.scaling == "stretch") || (this.scaling == "repeat")) {
 			this.sprite.width = this.width
 			this.sprite.height = this.height
 		} else if (this.scaling == "fixed") {
@@ -57,11 +59,11 @@ export class SpriteElement extends BaseElement {
 		}
 	}
 
-	protected get contentHeight() {
+	public get contentHeight() {
 		return this.sprite.texture.height
 	}
 
-	protected get contentWidth() {
+	public get contentWidth() {
 		return this.sprite.texture.width
 	}
 }

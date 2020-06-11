@@ -5,11 +5,11 @@ export const layoutFactory = new LayoutFactory<BaseElement>()
 abstract class BaseElement extends LayoutElement<BaseElement> {
 	public abstract readonly handle: HTMLDivElement
 
-	protected get contentHeight() {
+	public get contentHeight() {
 		return this.handle.clientHeight
 	}
 
-	protected get contentWidth() {
+	public get contentWidth() {
 		return this.handle.clientWidth
 	}
 

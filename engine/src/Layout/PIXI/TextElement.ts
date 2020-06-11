@@ -41,14 +41,14 @@ export class TextElement extends BaseElement {
 		}
 	}
 
-	protected get contentHeight() {
+	public get contentHeight() {
 		if (!this.textRect) {
 			this.meausreText()
 		}
 		return this.textRect![1]
 	}
 
-	protected get contentWidth() {
+	public get contentWidth() {
 		if (!this.textRect) {
 			this.meausreText()
 		}

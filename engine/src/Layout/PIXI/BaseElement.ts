@@ -22,11 +22,11 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 		}
 	}
 
-	protected get contentHeight() {
+	public get contentHeight() {
 		return this.handle.width
 	}
 
-	protected get contentWidth() {
+	public get contentWidth() {
 		return this.handle.height
 	}
 

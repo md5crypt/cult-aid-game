@@ -1,10 +1,10 @@
 
-export interface LayoutElementJson {
+export interface LayoutElementJson<T extends LayoutElement<any>> {
 	type: string
 	name?: string
-	layout?: LayoutConfig
+	layout?: LayoutConfig<T>
 	config?: Record<string, any>
-	children?: LayoutElementJson[]
+	children?: LayoutElementJson<T>[]
 }
 
 interface InternalPositioningBox {
@@ -14,30 +14,31 @@ interface InternalPositioningBox {
 	right: number
 }
 
-interface InternalLayoutConfig {
-	top: number
-	left: number
-	width: number | ((parent: number) => number)
-	height: number | ((parent: number) => number)
+interface InternalLayoutConfig<T extends LayoutElement<any>> {
+	top: number | ((element: LayoutElement<T>) => number)
+	left: number | ((element: LayoutElement<T>) => number)
+	width: number | ((parent: number, element: LayoutElement<T>) => number)
+	height: number | ((parent: number, element: LayoutElement<T>) => number)
 	padding: InternalPositioningBox
 	margin: InternalPositioningBox
 	flexMode: "none" | "horizontal" | "vertical"
 	flexHorizontalAlign: "left" | "right" | "center"
 	flexVerticalAlign: "top" | "bottom" | "middle"
 	flexGrow: number
+	ignoreLayout: boolean
 }
 
 type PositioningBox = Readonly<(Partial<InternalPositioningBox> & {vertical?: number, horizontal?: number}) | number>
 
-export interface LayoutConfig extends Readonly<Partial<Omit<InternalLayoutConfig, "padding" | "margin">>> {
+export interface LayoutConfig<T extends LayoutElement<any>> extends Readonly<Partial<Omit<InternalLayoutConfig<T>, "padding" | "margin">>> {
 	readonly padding?: PositioningBox
 	readonly margin?: PositioningBox
 }
 
 export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public readonly name?: string
-	protected readonly config: InternalLayoutConfig
-	protected parent: T | null
+	protected readonly config: InternalLayoutConfig<T>
+	protected _parent: T | null
 	protected children: T[]
 	private readonly childrenMap: Map<string, T>
 	private dirty: boolean
@@ -57,9 +58,10 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			flexMode: "none",
 			flexHorizontalAlign: "left",
 			flexVerticalAlign: "top",
-			flexGrow: 0
+			flexGrow: 0,
+			ignoreLayout: false
 		}
-		this.parent = null
+		this._parent = null
 		this._top = null
 		this._left = null
 		this._width = null
@@ -96,6 +98,24 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		return false
 	}
 
+	private get childrenHeight(): number {
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout ? 0 : element.outerHeight), 0)
+	}
+
+	private get childrenWidth(): number {
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout ? 0 : element.outerWidth), 0)
+	}
+
+	protected get configTop() {
+		const value = this.config.top
+		return typeof value == "function" ? value(this) : value
+	}
+
+	protected get configLeft() {
+		const value = this.config.left
+		return typeof value == "function" ? value(this) : value
+	}
+
 	protected onRemoveElement(_index: number) {
 		// no-op by default
 	}
@@ -116,14 +136,17 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		const height = this.innerHeight
 		let growCount = this.children.reduce((value, element) => value + element.config.flexGrow, 0)
 		if (this.config.flexMode == "horizontal") {
-			let growPool = width - this.children.reduce((value, element) => value + element.outerWidth, 0)
+			let growPool = width - this.childrenWidth
 			let xOffset = this.config.padding.left
 			if (!growCount && (this.config.flexHorizontalAlign != "left")) {
 				xOffset += this.config.flexHorizontalAlign == "center" ? Math.floor(growPool / 2) : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
-				element._top = this.config.padding.top + element.config.top
+				if (element.config.ignoreLayout) {
+					continue
+				}
+				element._top = this.config.padding.top + element.configTop
 				if (this.config.flexVerticalAlign != "top") {
 					const diff = height - element.outerHeight
 					element._top += this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
@@ -134,19 +157,22 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 					growPool -= amount
 					element._width = element.width + amount
 				}
-				element._left = xOffset + element.config.left
+				element._left = xOffset + element.configLeft
 				xOffset += element.outerWidth
 				console.log(element)
 			}
 		} else {
-			let growPool = height - this.children.reduce((value, element) => value + element.outerHeight, 0)
+			let growPool = height - this.childrenHeight
 			let yOffset = this.config.padding.top
 			if (!growCount && (this.config.flexVerticalAlign != "top")) {
 				yOffset += this.config.flexVerticalAlign == "middle" ? Math.floor(growPool / 2) : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
-				element._left = element.config.left + this.config.padding.left
+				if (element.config.ignoreLayout) {
+					continue
+				}
+				element._left = element.configLeft + this.config.padding.left
 				if (this.config.flexHorizontalAlign != "left") {
 					const diff = width - element.outerWidth
 					element._left += this.config.flexHorizontalAlign == "center" ? Math.floor(diff / 2) : diff
@@ -157,17 +183,24 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 					growPool -= amount
 					element._height = element.height + amount
 				}
-				element._top = yOffset + element.config.top
+				element._top = yOffset + element.configTop
 				yOffset += element.outerHeight
 			}
 		}
 	}
 
-	protected get contentWidth() {
+	public get parent() {
+		if (!this._parent) {
+			throw new Error("layout parent is null!")
+		}
+		return this._parent
+	}
+
+	public get contentWidth() {
 		return 0
 	}
 
-	protected get contentHeight() {
+	public get contentHeight() {
 		return 0
 	}
 
@@ -179,7 +212,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this._height = null
 			this.dirty = true
 			if (this.config.flexMode != "none") {
-				this.parent?.setDirty()
+				this._parent?.setDirty()
 			}
 		}
 	}
@@ -196,26 +229,26 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 	}
 
 	public get top() {
-		return (this._top !== null ? this._top : this.config.top) + this.config.margin.top
+		return (this._top !== null ? this._top : this.configTop) + this.config.margin.top
 	}
 
 	public get left() {
-		return (this._left !== null ? this._left : this.config.left) + this.config.margin.left
+		return (this._left !== null ? this._left : this.configLeft) + this.config.margin.left
 	}
 
 	public get width(): number {
 		if (this._width === null) {
 			if (typeof this.config.width == "function") {
-				this._width = this.config.width(this.parent ? this.parent.width : 0)
+				this._width = this.config.width(this._parent ? this._parent.width : 0, this)
 			} else if (this.config.width) {
 				this._width = this.config.width
 			} else {
 				if (this.config.flexMode == "none") {
 					this._width = this.contentWidth
 				} else if (this.config.flexMode == "horizontal") {
-					this._width = this.children.reduce((value, element) => value + element.outerWidth, 0)
+					this._width = this.childrenWidth
 				} else {
-					this._width = this.children.reduce((value, element) => Math.max(value, element.outerWidth), 0)
+					this._width = this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout ? 0 : element.outerWidth)), 0)
 				}
 				this._width += this.config.padding.left + this.config.padding.right
 			}
@@ -234,16 +267,16 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public get height(): number {
 		if (this._height === null) {
 			if (typeof this.config.height == "function") {
-				this._height = this.config.height(this.parent ? this.parent.height : 0)
+				this._height = this.config.height(this._parent ? this._parent.height : 0, this)
 			} else if (this.config.height) {
 				this._height = this.config.height
 			} else {
 				if (this.config.flexMode == "none") {
 					this._height = this.contentHeight
 				} else if (this.config.flexMode == "horizontal") {
-					this._height = this.children.reduce((value, element) => Math.max(value, element.outerHeight), 0)
+					this._height = this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout ? 0 : element.outerHeight)), 0)
 				} else {
-					this._height = this.children.reduce((value, element) => value + element.outerHeight, 0)
+					this._height = this.childrenHeight
 				}
 			}
 			this._height += this.config.padding.top + this.config.padding.bottom
@@ -259,7 +292,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		return this.height - this.config.padding.top - this.config.padding.bottom
 	}
 
-	public updateConfig(config: LayoutConfig) {
+	public updateConfig(config: LayoutConfig<T>) {
 		Object.assign(this.config, config)
 		if (config.padding) {
 			this.config.padding = LayoutElement.transformPositioningBox(config.padding)
@@ -295,14 +328,14 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		if (element.name) {
 			this.childrenMap.set(element.name, element)
 		}
-		element.parent?.removeElement(element)
-		element.parent = this
+		element._parent?.removeElement(element)
+		element._parent = this
 		this.setDirty()
 	}
 
 	public delete() {
-		this.parent?.removeElement(this)
-		this.parent = null
+		this._parent?.removeElement(this)
+		this._parent = null
 	}
 }
 
@@ -323,7 +356,7 @@ export class LayoutFactory<T extends LayoutElement<any>> {
 		return constructor(name, config) as T
 	}
 
-	public create(json: LayoutElementJson, parent?: T): T {
+	public create(json: LayoutElementJson<T>, parent?: T): T {
 		const root = this.createElement(json.type, json.name, json.config)
 		if (json.layout) {
 			root.updateConfig(json.layout)
