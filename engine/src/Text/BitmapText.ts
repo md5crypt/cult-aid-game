@@ -101,7 +101,6 @@ export class BitmapText extends PIXI.Container {
 			if (index == text.words.length) {
 				if (words) {
 					lines.push({words, width: lineWidth})
-					textHeight += text.lineHeight + text.lineSpacing
 				}
 				break
 			}
@@ -293,7 +292,6 @@ export class RichText {
 			}
 		}
 		if (lineWidth) {
-			rectHeight += this.lineHeight + (rectHeight ? this.lineSpacing : 0)
 			rectWidth = Math.max(rectWidth, lineWidth)
 		}
 		return [rectWidth, rectWidth ? rectHeight : 0]

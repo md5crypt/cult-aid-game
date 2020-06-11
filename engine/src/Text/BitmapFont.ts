@@ -41,6 +41,10 @@ export class BitmapFont {
 		BitmapFont.registeredFonts.set(name || font.name, new BitmapFont(font, textureStorage))
 	}
 
+	public static alias(name: string, source: string) {
+		BitmapFont.registeredFonts.set(name, this.get(source))
+	}
+
 	public static unregister(name: string) {
 		return BitmapFont.registeredFonts.delete(name)
 	}
@@ -126,8 +130,9 @@ export class BitmapFont {
 			if (char.ligatures) {
 				for (const ligature of char.ligatures) {
 					const sequence = ligature.sequence
-					let match = true
+					let match = false
 					if ((i + sequence.length) < value.length) {
+						match = true
 						for (let j = 0; j < sequence.length; j += 1) {
 							if (value.charCodeAt(i + j + 1) != sequence[j]) {
 								match = false

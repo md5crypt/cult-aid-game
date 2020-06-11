@@ -1,4 +1,4 @@
-import { LayoutElement, LayoutFactory } from "../LayoutBase"
+import { LayoutElement, LayoutFactory, LayoutElementJson as BaseLayoutElementJson } from "../LayoutBase"
 
 export const layoutFactory = new LayoutFactory<BaseElement>()
 
@@ -7,6 +7,8 @@ export interface BaseConfig {
 	sorted?: boolean
 	zIndex?: number
 }
+
+export type LayoutElementJson = BaseLayoutElementJson<BaseElement>
 
 export abstract class BaseElement extends LayoutElement<BaseElement> {
 	public readonly handle: PIXI.Container
@@ -50,6 +52,10 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 			graphics.beginFill(0xFFFFFF)
 			graphics.drawRect(0, 0, this.width, this.height)
 			graphics.endFill()
+			if (this.handle.mask) {
+				this.handle.removeChild(this.handle.mask as PIXI.Graphics)
+			}
+			this.handle.addChild(graphics)
 			this.handle.mask = graphics
 		}
 	}
