@@ -40,7 +40,7 @@
 		],
 		"dot-notation": "error",
 		"eol-last": "error",
-		"guard-for-in": "error",
+		// "guard-for-in": "error",
 		"new-parens": "error",
 		"no-fallthrough": "error",
 		"no-invalid-this": "error",

@@ -1,45 +1,9 @@
 const fs = require("fs")
 const path = require("path")
 const assert = require("assert")
-const child_process = require("child_process")
 const glob = require("glob")
+const texturePacker = require("./atlas/packer")
 const fntparser = require("./fntparser")
-
-function buildSprites(atlasFile) {
-	const atlas = JSON.parse(fs.readFileSync(atlasFile))
-	const sprites = {}
-	const array = []
-	const list = Object.keys(atlas.frames).map(filename => {
-		const match = filename.match(/^(.+?)(-fg)?(?:-(\d+))?$/)
-		assert(match, filename)
-		const o = atlas.frames[filename]
-		const data = {
-			frame: [o.frame.x, o.frame.y, o.frame.w, o.frame.h],
-			offset: [o.spriteSourceSize.x, o.spriteSourceSize.y]
-		}
-		return {base: match[1], isFg: !!match[2], frame: match[3] == undefined ? undefined : parseInt(match[3], 10), data}
-	}).sort((a, b) => (a.base == b.base) ? ((a.isFg == b.isFg) ? a.frame - b.frame : b.isFg) : a.base.localeCompare(b.base))
-	for (const item of list) {
-		const key = item.isFg ? 'fgTexture' : 'texture'
-		let sprite = sprites[item.base]
-		if (!sprite) {
-			sprite = {name: item.base}
-			array.push(sprite)
-			sprites[item.base] = sprite
-		}
-		if (item.frame == undefined) {
-			assert(!sprite[key])
-			sprite[key] = item.data
-		} else {
-			if (!sprite[key]) {
-				sprite[key] = []
-			}
-			assert(Array.isArray(sprite[key]))
-			sprite[key].push(item.data)
-		}
-	}
-	return array
-}
 
 const objectParsers = [
 	(objects, sprite) => {
@@ -61,7 +25,7 @@ const objectParsers = [
 				}
 				const dirs = centerMatch[1].split(',')
 				for (const dir of dirs) {
-					assert(dir.match(/^(?:up|down|left|right)$/), sprite.name)
+					assert(dir.match(/^(?:up|down|left|right)$/), sprite.resource)
 					paths[dir].push({n: Infinity, point: [object.x, object.y]})
 				}
 			}
@@ -71,9 +35,9 @@ const objectParsers = [
 			if (!value.length) {
 				continue;
 			}
-			assert(value.length > 1, sprite.name)
+			assert(value.length > 1, sprite.resource)
 			pathsFinal[key] = value.sort((a, b) => a.n - b.n).map((step, i, array) => {
-				assert(((i == (array.length - 1)) && (step.n == Infinity)) || ((i != array.length - 1) && (step.n == i)), sprite.name)
+				assert(((i == (array.length - 1)) && (step.n == Infinity)) || ((i != array.length - 1) && (step.n == i)), sprite.resource)
 				return step.point
 			})
 		}
@@ -100,29 +64,40 @@ function parseProperties(properties, sprite, props) {
 		return sprite
 	}
 	for (const prop of properties) {
-		assert(prop.name in props, sprite.name)
+		assert(prop.name in props, sprite.resource)
 		if (props[prop.name] == "json") {
-			assert(prop.type == "string", sprite.name)
+			assert(prop.type == "string", sprite.resource)
 			sprite[prop.name] = JSON.parse(prop.value)
 		} else {
-			assert(prop.type == props[prop.name], sprite.name)
+			assert(prop.type == props[prop.name], sprite.resource)
 			sprite[prop.name] = prop.value
 		}
 	}
 	return sprite
 }
 
-function buildMap(sprites, mapFile, tilesetFile) {
+function buildMap(resources, mapFile, tilesetFile) {
 	const map = JSON.parse(fs.readFileSync(mapFile))
 	const tileset = JSON.parse(fs.readFileSync(tilesetFile))
 	const tileMap = new Map()
+	const sprites = []
 	const spriteMap = new Map()
-	for (let i = 0; i < sprites.length; i++) {
-		spriteMap.set(sprites[i].name, i)
+	const resolveSprite = name => {
+		let id = spriteMap.get(name)
+		if (id === undefined) {
+			if (!(name in resources)){
+				throw new Error(`resource '${name}' not found`)
+			}
+			id = spriteMap.size
+			spriteMap.set(name, id)
+			sprites.push({resource: name})
+		}
+		return id
 	}
+	Object.keys(resources).forEach(resolveSprite)
 	for (const tile of tileset.tiles) {
 		const name = tile.image.match(/^[^.]+/)[0]
-		const spriteIndex = spriteMap.get(name)
+		const spriteIndex = resolveSprite(name)
 		assert(spriteIndex !== undefined)
 		const sprite = sprites[spriteIndex]
 		tileMap.set(tile.id, spriteIndex) 
@@ -144,7 +119,7 @@ function buildMap(sprites, mapFile, tilesetFile) {
 			})
 		}
 	}
-	const gidMapper = id => sprites[tileMap.get(id - 1)]
+	const gidMapper = id => tileMap.get(id - 1)
 	const baseSize = map.tileheight
 	const objects = []
 	for (const object of map.layers[1].objects) {
@@ -170,8 +145,8 @@ function buildMap(sprites, mapFile, tilesetFile) {
 				onEnter: "string",
 			}))
 		} else {
-			const sprite = gidMapper(object.gid).name
-			objects.push(parseProperties(object.properties, {cell, offset, sprite}, {
+			const sprite = sprites[gidMapper(object.gid)]
+			objects.push(parseProperties(object.properties, {cell, offset, sprite: sprite.name || sprite.resource}, {
 				animation: "json",
 				zIndex: "number",
 				onCreate: "string",
@@ -182,10 +157,13 @@ function buildMap(sprites, mapFile, tilesetFile) {
 		}
 	}
 	return {
-		tiles: map.layers[0].data.map(id => id ? (gidMapper(id).texture ? tileMap.get(id - 1) + 1 : 0) : 0),
-		objects,
-		height: map.layers[0].height,
-		width: map.layers[0].width
+		sprites,
+		map: {
+			objects,
+			tiles: map.layers[0].data.map(id => id ? (gidMapper(id) + 1) : 0),
+			height: map.layers[0].height,
+			width: map.layers[0].width
+		}
 	}
 }
 
@@ -194,20 +172,14 @@ function parseFonts(fontsPath) {
 		.map(file => fntparser(fs.readFileSync(file), "ascii"))
 }
 
-let rebuildAtlas = true
-
-if (fs.existsSync("./build/atlas.json")) {
-	if (fs.statSync("./build/atlas.json").mtimeMs > fs.statSync("./atlas").mtimeMs) {
-		rebuildAtlas = false
+async function run() {
+	const atlas = {}
+	for (const name of ["tiles", "ui"]) {
+		atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
 	}
+	const data = buildMap(atlas.tiles, "map/map.json", "tileset/tileset.json")
+	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))
+	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
 }
 
-if (rebuildAtlas) {
-	const cmd = path.resolve("node_modules/.bin/free-tex-packer-cli")
-	child_process.execSync(cmd + " --project atlas.ftpp --output build", {stdio: 'inherit'})
-}
-
-const sprites = buildSprites("build/atlas.json")
-const map = buildMap(sprites, "map/map.json", "tileset/tileset.json")
-fs.writeFileSync("build/data.json", JSON.stringify({sprites, map}))
-fs.writeFileSync("build/fonts.json", JSON.stringify(parseFonts("fonts")))
+run()

@@ -1,11 +1,6 @@
 import { Animation } from "./Animation"
 
 export namespace GameData {
-	export interface Texture {
-		readonly frame: readonly [number, number, number, number]
-		readonly offset: readonly [number, number]
-	}
-
 	export interface PathData {
 		readonly up?: readonly (readonly [number, number])[]
 		readonly down?: readonly (readonly [number, number])[]
@@ -14,9 +9,8 @@ export namespace GameData {
 	}
 
 	export interface SpriteData {
-		readonly name: string
-		readonly texture?: Texture | readonly Texture[]
-		readonly fgTexture?: Texture | readonly Texture[]
+		readonly resource?: string
+		readonly name?: string
 		readonly paths?: PathData
 		readonly pivot?: readonly [number, number]
 		readonly scale?: number

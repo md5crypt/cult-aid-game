@@ -1,5 +1,4 @@
-import { Sprite } from "../Sprite"
-import { GameData } from "../GameData"
+import { TextureStorage, FRAME } from "../Resources"
 
 interface InternalCharData extends TextCharInfo {
 	kernings?: Map<number, number>
@@ -16,15 +15,14 @@ interface LigatureData {
 interface FontCharData {
 	readonly id: number
 	readonly advance: number
-	readonly frame: readonly [number, number, number, number]
-	readonly offset: readonly [number, number]
+	readonly frame: readonly number[]
 	readonly ligatures?: readonly LigatureData[]
 	readonly kernings?: readonly KerningData[]
 }
 
 export interface FontData {
 	readonly name: string
-	readonly sprite: string
+	readonly resource: string
 	readonly lineHeight: number
 	readonly data: readonly FontCharData[]
 }
@@ -39,8 +37,8 @@ export class BitmapFont {
 	private readonly data: Map<number, InternalCharData>
 	public readonly lineHeight: number
 
-	public static register(font: FontData, baseTexture: PIXI.Texture, name?: string) {
-		BitmapFont.registeredFonts.set(name || font.name, new BitmapFont(font, baseTexture))
+	public static register(font: FontData, textureStorage: TextureStorage) {
+		BitmapFont.registeredFonts.set(name || font.name, new BitmapFont(font, textureStorage))
 	}
 
 	public static unregister(name: string) {
@@ -55,41 +53,38 @@ export class BitmapFont {
 		return font
 	}
 
-	constructor(font: FontData, baseTexture: PIXI.Texture) {
-		const sprite = Sprite.find(font.sprite)
-		if (!sprite.texture || Array.isArray(sprite.texture)) {
-			throw new Error(`can not create font from sprite ${font.sprite}`)
-		}
+	constructor(font: FontData, textureStorage: TextureStorage) {
+		const texture = textureStorage.getTexture(font.resource)
 		this.lineHeight = font.lineHeight
 		this.data = new Map()
+		if ((texture.trim.x != 0) || (texture.trim.y != 0)) {
+			throw new Error(`failed to load font '${font.name}': source texture can not be trimmed`)
+		}
 		for (const char of font.data) {
-			// type asserts seem to be broken with readonly fields
-			// hance the casts...
-			const frame = (sprite.texture as GameData.Texture).frame
-			const offset = (sprite.texture as GameData.Texture).offset
-			const texture = frame[0] ? new PIXI.Texture(
-				baseTexture.baseTexture,
+			const frame = char.frame
+			const character = frame[FRAME.w] ? new PIXI.Texture(
+				texture.baseTexture,
 				new PIXI.Rectangle(
-					char.frame[0] + frame[0],
-					char.frame[1] + frame[1],
-					char.frame[2],
-					char.frame[3],
+					frame[FRAME.x] + texture.frame.x,
+					frame[FRAME.y] + texture.frame.y,
+					frame[FRAME.w],
+					frame[FRAME.h]
 				),
 				new PIXI.Rectangle(
 					0,
 					0,
-					char.frame[2] + offset[0] + char.offset[0],
-					char.frame[3] + offset[1] + char.offset[1],
+					frame[FRAME.w] + frame[FRAME.left],
+					frame[FRAME.h] + frame[FRAME.top]
 				),
 				new PIXI.Rectangle(
-					char.offset[0] + offset[0],
-					char.offset[1] + offset[1],
-					char.frame[2],
-					char.frame[3],
+					frame[FRAME.left],
+					frame[FRAME.top],
+					frame[FRAME.w],
+					frame[FRAME.h]
 				)
 			) : null
 			this.data.set(char.id, {
-				texture,
+				texture: character,
 				advance: char.advance,
 				ligatures: char.ligatures,
 				kernings: char.kernings && char.kernings.reduce(

@@ -9,12 +9,18 @@ import { RectTileLayer } from "./RectTile/RectTileLayer"
 import { ScriptTimer } from "./ScriptTimer"
 import { Animation } from "./Animation"
 import { Player } from "./Player"
+import { TextureStorage } from "./Resources"
 
 export interface GameContext {
 	time: number
 	map: GameMap
 	data: GameData
 	input: GameInput
+	/** @internal */
+	textures: {
+		ui: TextureStorage
+		tiles: TextureStorage
+	}
 	/** @internal */
 	stage: {
 		tile: PIXI.Container

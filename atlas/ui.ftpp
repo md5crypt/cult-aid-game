@@ -2,13 +2,13 @@
   "meta": {
     "version": "0.6.5"
   },
-  "savePath": "./build",
+  "savePath": "../build",
   "images": [],
   "folders": [
-    "./atlas"
+    "./ui"
   ],
   "packOptions": {
-    "textureName": "atlas",
+    "textureName": "atlas-ui",
     "textureFormat": "png",
     "removeFileExtension": true,
     "prependFolderName": false,

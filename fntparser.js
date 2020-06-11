@@ -29,19 +29,17 @@ function buildFontData(input) {
 	}
 	return {
 		name: data.info.face,
-		sprite: data.page.file,
+		resource: data.page.file,
 		lineHeight: data.common.lineHeight,
 		data: data.char.map(char => {
 			return {
 				id: char.id,
 				advance: char.xadvance,
-				frame: (char.id == 32) ? [0, 0, 0, 0] : [
+				frame: (char.id == 32) ? [0, 0, 0, 0, 0, 0] : [
 					char.x,
 					char.y,
 					char.width,
-					char.height
-				],
-				offset: (char.id == 32) ? [0, 0] : [
+					char.height,
 					char.xoffset,
 					char.yoffset
 				],

@@ -9,12 +9,15 @@ import { Animation } from "./Animation"
 import { Listener } from "./Listener"
 import { ScriptTimer } from "./ScriptTimer"
 import { ScriptStorage } from "./ScriptStorage"
+import { FRAME, TextureFrame } from "./Resources"
 
 export namespace Sprite {
 	export class Background implements Sprite {
 		public readonly data: GameData.SpriteData
 		public readonly onCreate?: ScriptStorage.cellStaticCallback
 		private plugs?: (Background | undefined)[]
+		private texture?: TextureFrame
+		private fgTexture?: TextureFrame
 
 		private static cache: Map<GameData.SpriteData, Background> = new Map()
 
@@ -34,6 +37,10 @@ export namespace Sprite {
 
 		private constructor(data: GameData.SpriteData) {
 			this.data = data
+			if (data.resource) {
+				this.texture = gameContext.textures.tiles.getFrame(data.resource, true)
+				this.fgTexture = gameContext.textures.tiles.getFrame(data.resource + "-fg", true)
+			}
 			if (data.plugGroup) {
 				this.plugs = [
 					Background.createPlug(data.plugGroup + "-plug-up"),
@@ -68,34 +75,33 @@ export namespace Sprite {
 		/** @internal */
 		public render(x: number, y: number) {
 			const layers = gameContext.layers
-			const data = this.data
-			if (data.texture) {
-				if (Array.isArray(data.texture)) {
-					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.texture.length
-					Background.renderTexture(layers.bg, data.texture[frame], x, y)
+			if (this.texture) {
+				if (Array.isArray(this.texture[0])) {
+					const frame = Math.floor(gameContext.time / (this.data.delay || CONST.FALLBACK_DELAY)) % this.texture.length
+					Background.renderTexture(layers.bg, this.texture[frame] as number[], x, y)
 				} else {
-					Background.renderTexture(layers.bg, data.texture as GameData.Texture, x, y)
+					Background.renderTexture(layers.bg, this.texture as number[], x, y)
 				}
 			}
-			if (data.fgTexture) {
-				if (Array.isArray(data.fgTexture)) {
-					const frame = Math.floor(gameContext.time / (data.delay || CONST.FALLBACK_DELAY)) % data.fgTexture.length
-					Background.renderTexture(layers.fg, data.fgTexture[frame], x, y)
+			if (this.fgTexture) {
+				if (Array.isArray(this.fgTexture[0])) {
+					const frame = Math.floor(gameContext.time / (this.data.delay || CONST.FALLBACK_DELAY)) % this.fgTexture.length
+					Background.renderTexture(layers.fg, this.fgTexture[frame] as number[], x, y)
 				} else {
-					Background.renderTexture(layers.fg, data.fgTexture as GameData.Texture, x, y)
+					Background.renderTexture(layers.fg, this.fgTexture as number[], x, y)
 				}
 			}
 		}
 
-		private static renderTexture(layer: RectTileLayer, texture: GameData.Texture, x: number, y: number) {
+		private static renderTexture(layer: RectTileLayer, frame: readonly number[], x: number, y: number) {
 			layer.addRect(
-				0,
-				texture.frame[0],
-				texture.frame[1],
-				x + texture.offset[0],
-				y + texture.offset[1],
-				texture.frame[2],
-				texture.frame[3]
+				frame[FRAME.base],
+				frame[FRAME.x],
+				frame[FRAME.y],
+				x + frame[FRAME.left],
+				y + frame[FRAME.top],
+				frame[FRAME.w],
+				frame[FRAME.h]
 			)
 		}
 	}
@@ -110,7 +116,7 @@ export namespace Sprite {
 	}
 
 	export class Item implements Sprite {
-		private textures?: GameData.Texture[]
+		private textures?: readonly number[][]
 		private scale: number
 		private pivot: [number, number]
 		private _inView: boolean
@@ -152,8 +158,11 @@ export namespace Sprite {
 		}
 
 		constructor(data: GameData.SpriteData, name = "") {
+			if (data.resource) {
+				const frame = gameContext.textures.tiles.getFrame(data.resource)
+				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
+			}
 			this.offset = [0, 0]
-			this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
 			this.path = []
 			this.scale = data.scale || 1
 			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
@@ -165,7 +174,7 @@ export namespace Sprite {
 			this.onExitView = new Listener()
 			this.paint = 0
 			this.zIndex = data.zIndex || 0
-			this.name = name || data.name
+			this.name = name || data.name || data.resource || "anonymous"
 			this.userData = {}
 			this.timer = new ScriptTimer()
 
@@ -272,7 +281,10 @@ export namespace Sprite {
 		}
 
 		public setTexture(data: GameData.SpriteData, animation?: Animation | null) {
-			this.textures = data.texture && (Array.isArray(data.texture) ? data.texture : [data.texture])
+			if (data.resource) {
+				const frame = gameContext.textures.tiles.getFrame(data.resource)
+				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
+			}
 			this.scale = data.scale || 1
 			if (data.pivot) {
 				this.pivot[0] = data.pivot[0]
@@ -353,15 +365,15 @@ export namespace Sprite {
 			if (!this.textures) {
 				return
 			}
-			let texture = this.textures[this.frame]
+			let frame = this.textures[this.frame]
 			gameContext.layers.mid.addRect(
-				0,
-				texture.frame[0],
-				texture.frame[1],
-				x + this.offset[0] + (texture.offset[0] - this.pivot[0]) * this.scale,
-				y + this.offset[1] + (texture.offset[1] - this.pivot[1]) * this.scale,
-				texture.frame[2],
-				texture.frame[3],
+				frame[FRAME.base],
+				frame[FRAME.x],
+				frame[FRAME.y],
+				x + this.offset[0] + (frame[FRAME.left] - this.pivot[0]) * this.scale,
+				y + this.offset[1] + (frame[FRAME.top] - this.pivot[1]) * this.scale,
+				frame[FRAME.w],
+				frame[FRAME.h],
 				this.scale
 			)
 		}
@@ -490,7 +502,12 @@ export namespace Sprite {
 	export function find(name: string, noThrow: boolean): GameData.SpriteData | undefined
 	export function find(name: string, noThrow = false) {
 		if (spriteCache.size == 0) {
-			gameContext.data.sprites.forEach(x => spriteCache.set(x.name, x))
+			for (const sprite of gameContext.data.sprites) {
+				const name = sprite.name || sprite.resource
+				if (name) {
+					spriteCache.set(name, sprite)
+				}
+			}
 		}
 		const sprite = spriteCache.get(name)
 		if (!sprite && !noThrow) {
