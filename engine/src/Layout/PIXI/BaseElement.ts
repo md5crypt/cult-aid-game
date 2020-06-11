@@ -8,7 +8,7 @@ export interface BaseConfig {
 	zIndex?: number
 }
 
-export abstract class BaseElement extends LayoutElement {
+export abstract class BaseElement extends LayoutElement<BaseElement> {
 	public readonly handle: PIXI.Container
 	private mask?: boolean
 
@@ -31,14 +31,15 @@ export abstract class BaseElement extends LayoutElement {
 	}
 
 	protected onRemoveElement(index: number) {
-		this.handle.removeChildAt(index)
+		this.handle.removeChild(this.children[index].handle)
 	}
 
 	protected onInsertElement(element: BaseElement, index: number) {
-		if (index >= this.handle.children.length) {
+		if ((index >= (this.children.length - 1)) || this.handle.sortableChildren) {
 			this.handle.addChild(element.handle)
 		} else {
-			this.handle.addChildAt(element.handle, index)
+			const position = this.handle.getChildIndex(this.children[index].handle)
+			this.handle.addChildAt(element.handle, position)
 		}
 	}
 

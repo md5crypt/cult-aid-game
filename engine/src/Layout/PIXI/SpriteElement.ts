@@ -1,4 +1,5 @@
 import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
+import { gameContext } from "../../GameContext"
 
 export interface SpriteElementConfig extends BaseConfig {
 	image?: PIXI.Texture
@@ -13,7 +14,10 @@ export class SpriteElement extends BaseElement {
 	private scaling: "none" | "fixed" | "stretch"
 
 	constructor(name?: string, config?: SpriteElementConfig) {
-		const texture = config?.image || PIXI.Texture.WHITE
+		let texture = PIXI.Texture.WHITE
+		if (typeof config?.image == "string") {
+			texture = (typeof config.image == "string") ? gameContext.textures.ui.getTexture(config.image) : config.image
+		}
 		const sprite = new PIXI.Sprite(texture)
 		let handle: PIXI.Container = sprite
 		if (config?.container) {
@@ -29,17 +33,6 @@ export class SpriteElement extends BaseElement {
 			config.alpha && (this.sprite.alpha = config.alpha)
 			config.scaling && (this.scaling = config.scaling)
 		}
-	}
-
-	protected onRemoveElement(index: number) {
-		super.onRemoveElement(index + 1)
-	}
-
-	protected onInsertElement(element: BaseElement, index: number) {
-		if (this.sprite == this.handle) {
-			throw new Error("can not add element to a non container SpriteElement")
-		}
-		super.onInsertElement(element, index + 1)
 	}
 
 	protected onUpdate() {

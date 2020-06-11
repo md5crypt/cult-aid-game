@@ -1,4 +1,3 @@
-export type LayoutConfig = Readonly<Partial<InternalLayoutConfig>>
 
 export interface LayoutElementJson {
 	type: string
@@ -8,25 +7,39 @@ export interface LayoutElementJson {
 	children?: LayoutElementJson[]
 }
 
+interface InternalPositioningBox {
+	top: number
+	left: number
+	bottom: number
+	right: number
+}
+
 interface InternalLayoutConfig {
 	top: number
 	left: number
 	width: number | ((parent: number) => number)
 	height: number | ((parent: number) => number)
-	padding: number[]
-	margin: number[]
+	padding: InternalPositioningBox
+	margin: InternalPositioningBox
 	flexMode: "none" | "horizontal" | "vertical"
 	flexHorizontalAlign: "left" | "right" | "center"
 	flexVerticalAlign: "top" | "bottom" | "middle"
 	flexGrow: number
 }
 
-export abstract class LayoutElement {
+type PositioningBox = Readonly<(Partial<InternalPositioningBox> & {vertical?: number, horizontal?: number}) | number>
+
+export interface LayoutConfig extends Readonly<Partial<Omit<InternalLayoutConfig, "padding" | "margin">>> {
+	readonly padding?: PositioningBox
+	readonly margin?: PositioningBox
+}
+
+export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public readonly name?: string
 	protected readonly config: InternalLayoutConfig
-	protected parent: LayoutElement | null
-	protected children: LayoutElement[]
-	private readonly childrenMap: Map<string, LayoutElement>
+	protected parent: T | null
+	protected children: T[]
+	private readonly childrenMap: Map<string, T>
 	private dirty: boolean
 	private _top: number | null
 	private _left: number | null
@@ -39,8 +52,8 @@ export abstract class LayoutElement {
 			left: 0,
 			width: 0,
 			height: 0,
-			padding: [0, 0, 0, 0],
-			margin: [0, 0, 0, 0],
+			padding: {top: 0, left: 0, bottom: 0, right: 0},
+			margin: {top: 0, left: 0, bottom: 0, right: 0},
 			flexMode: "none",
 			flexHorizontalAlign: "left",
 			flexVerticalAlign: "top",
@@ -57,16 +70,19 @@ export abstract class LayoutElement {
 		this.childrenMap = new Map()
 	}
 
-	private static expandConfigArray(value: number[]) {
-		switch (value.length) {
-			case 4: return value.slice(0)
-			case 2: return [value[0], value[0], value[1], value[1]]
-			case 1: return [value[0], value[0], value[0], value[0]]
-			default: throw new Error(`invalid value array given: ${value}`)
+	private static transformPositioningBox(input: PositioningBox) {
+		if (typeof input == "number") {
+			return {top: input, left: input, bottom: input, right: input}
+		}
+		return {
+			top: input.top === undefined ? (input.horizontal || 0) : input.top,
+			left: input.left === undefined ? (input.vertical || 0) : input.left,
+			bottom: input.bottom === undefined ? (input.horizontal || 0) : input.bottom,
+			right: input.right === undefined ? (input.vertical || 0) : input.right
 		}
 	}
 
-	private removeElement(element: LayoutElement) {
+	private removeElement(element: T) {
 		const index = this.children.indexOf(element)
 		if (index >= 0) {
 			if (element.name) {
@@ -84,7 +100,7 @@ export abstract class LayoutElement {
 		// no-op by default
 	}
 
-	protected onInsertElement(_element: LayoutElement, _index: number) {
+	protected onInsertElement(_element: T, _index: number) {
 		// no-op by default
 	}
 
@@ -96,22 +112,21 @@ export abstract class LayoutElement {
 		if (this.config.flexMode == "none") {
 			return // nothing to do
 		}
-		const width = this.width
-		const height = this.height
+		const width = this.innerWidth
+		const height = this.innerHeight
 		let growCount = this.children.reduce((value, element) => value + element.config.flexGrow, 0)
 		if (this.config.flexMode == "horizontal") {
 			let growPool = width - this.children.reduce((value, element) => value + element.outerWidth, 0)
-			let xOffset = 0
+			let xOffset = this.config.padding.left
 			if (!growCount && (this.config.flexHorizontalAlign != "left")) {
-				xOffset = this.config.flexHorizontalAlign == "center" ? Math.floor(growPool / 2) : growPool
+				xOffset += this.config.flexHorizontalAlign == "center" ? Math.floor(growPool / 2) : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
+				element._top = this.config.padding.top + element.config.top
 				if (this.config.flexVerticalAlign != "top") {
 					const diff = height - element.outerHeight
-					element._top = this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
-				} else {
-					element._top = 0
+					element._top += this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
 				}
 				if (element.config.flexGrow) {
 					const amount = growCount > 1 ? Math.floor(growFactor * element.config.flexGrow) : growPool
@@ -119,22 +134,22 @@ export abstract class LayoutElement {
 					growPool -= amount
 					element._width = element.width + amount
 				}
-				element._left = xOffset
+				element._left = xOffset + element.config.left
 				xOffset += element.outerWidth
+				console.log(element)
 			}
 		} else {
 			let growPool = height - this.children.reduce((value, element) => value + element.outerHeight, 0)
-			let yOffset = 0
+			let yOffset = this.config.padding.top
 			if (!growCount && (this.config.flexVerticalAlign != "top")) {
-				yOffset = this.config.flexVerticalAlign == "middle" ? Math.floor(growPool / 2) : growPool
+				yOffset += this.config.flexVerticalAlign == "middle" ? Math.floor(growPool / 2) : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
+				element._left = element.config.left + this.config.padding.left
 				if (this.config.flexHorizontalAlign != "left") {
 					const diff = width - element.outerWidth
-					element._left = this.config.flexHorizontalAlign == "center" ? Math.floor(diff / 2) : diff
-				} else {
-					element._left = 0
+					element._left += this.config.flexHorizontalAlign == "center" ? Math.floor(diff / 2) : diff
 				}
 				if (element.config.flexGrow) {
 					const amount = growCount > 1 ? Math.floor(growFactor * element.config.flexGrow) : growPool
@@ -142,7 +157,7 @@ export abstract class LayoutElement {
 					growPool -= amount
 					element._height = element.height + amount
 				}
-				element._top = yOffset
+				element._top = yOffset + element.config.top
 				yOffset += element.outerHeight
 			}
 		}
@@ -181,11 +196,11 @@ export abstract class LayoutElement {
 	}
 
 	public get top() {
-		return (this._top !== null ? this._top : this.config.top) + this.config.margin[0]
+		return (this._top !== null ? this._top : this.config.top) + this.config.margin.top
 	}
 
 	public get left() {
-		return (this._left !== null ? this._left : this.config.left) + this.config.margin[2]
+		return (this._left !== null ? this._left : this.config.left) + this.config.margin.left
 	}
 
 	public get width(): number {
@@ -202,14 +217,18 @@ export abstract class LayoutElement {
 				} else {
 					this._width = this.children.reduce((value, element) => Math.max(value, element.outerWidth), 0)
 				}
+				this._width += this.config.padding.left + this.config.padding.right
 			}
-			this._width += this.config.padding[2] + this.config.padding[3]
 		}
 		return this._width
 	}
 
 	public get outerWidth() {
-		return this.width + this.config.margin[2] + this.config.margin[3]
+		return this.width + this.config.margin.left + this.config.margin.right
+	}
+
+	public get innerWidth() {
+		return this.width - this.config.padding.left - this.config.padding.right
 	}
 
 	public get height(): number {
@@ -227,39 +246,43 @@ export abstract class LayoutElement {
 					this._height = this.children.reduce((value, element) => value + element.outerHeight, 0)
 				}
 			}
-			this._height += this.config.padding[0] + this.config.padding[1]
+			this._height += this.config.padding.top + this.config.padding.bottom
 		}
 		return this._height
 	}
 
 	public get outerHeight() {
-		return this.height + this.config.margin[0] + this.config.margin[1]
+		return this.height + this.config.margin.top + this.config.margin.bottom
+	}
+
+	public get innerHeight() {
+		return this.height - this.config.padding.top - this.config.padding.bottom
 	}
 
 	public updateConfig(config: LayoutConfig) {
 		Object.assign(this.config, config)
 		if (config.padding) {
-			this.config.padding = LayoutElement.expandConfigArray(config.padding)
+			this.config.padding = LayoutElement.transformPositioningBox(config.padding)
 		}
 		if (config.margin) {
-			this.config.margin = LayoutElement.expandConfigArray(config.margin)
+			this.config.margin = LayoutElement.transformPositioningBox(config.margin)
 		}
 		this.setDirty()
 	}
 
-	public getElement<T extends LayoutElement>(name: string) {
+	public getElement<K extends T>(name: string): K {
 		const path = name.split(".")
-		let child: LayoutElement | undefined = this
+		let child: LayoutElement<any> | undefined = this
 		for (let i = 0; i < path.length; i++) {
 			child = child.childrenMap.get(path[i])
 			if (!child) {
 				throw new Error(`could not resolve '${this.name}'`)
 			}
 		}
-		return child as T
+		return child as K
 	}
 
-	public insertElement(element: LayoutElement, before?: LayoutElement | string) {
+	public insertElement(element: T, before?: T | string) {
 		if (before) {
 			const searchResult = this.children.indexOf(typeof before == "string" ? this.getElement(before) : before)
 			const index = searchResult >= 0 ? searchResult : this.children.length
@@ -283,9 +306,9 @@ export abstract class LayoutElement {
 	}
 }
 
-type LayoutConstructor = (name?: string, config?: Record<string, any>) => LayoutElement
+type LayoutConstructor = (name?: string, config?: Record<string, any>) => LayoutElement<any>
 
-export class LayoutFactory<T extends LayoutElement> {
+export class LayoutFactory<T extends LayoutElement<any>> {
 	private constructors: Map<string, LayoutConstructor> = new Map()
 
 	public register(type: string, constructor: LayoutConstructor) {
@@ -300,7 +323,7 @@ export class LayoutFactory<T extends LayoutElement> {
 		return constructor(name, config) as T
 	}
 
-	public create(json: LayoutElementJson, parent?: LayoutElement): T {
+	public create(json: LayoutElementJson, parent?: T): T {
 		const root = this.createElement(json.type, json.name, json.config)
 		if (json.layout) {
 			root.updateConfig(json.layout)

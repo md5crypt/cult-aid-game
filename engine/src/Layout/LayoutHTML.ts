@@ -2,7 +2,7 @@ import { LayoutElement, LayoutFactory } from "./LayoutBase"
 
 export const layoutFactory = new LayoutFactory<BaseElement>()
 
-abstract class BaseElement extends LayoutElement {
+abstract class BaseElement extends LayoutElement<BaseElement> {
 	public abstract readonly handle: HTMLDivElement
 
 	protected get contentHeight() {
