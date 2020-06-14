@@ -1,4 +1,10 @@
-import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
+import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./BaseElement"
+
+export interface ContainerElementJson<T extends LayoutElementJson> extends LayoutElementJson {
+	type: "container"
+	config?: BaseConfig
+	children?: T[]
+}
 
 export class ContainerElement extends BaseElement {
 	public readonly handle!: PIXI.Container

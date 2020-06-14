@@ -1,14 +1,20 @@
-import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
+import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./BaseElement"
 import { gameContext } from "../../GameContext"
 
 type ScalingType = "none" | "fixed" | "stretch" | "repeat"
 
 export interface SpriteElementConfig extends BaseConfig {
-	image?: PIXI.Texture
+	image?: PIXI.Texture | string
 	scaling?: ScalingType
 	tint?: number
 	alpha?: number
 	container?: boolean
+}
+
+export interface SpriteElementJson <T extends LayoutElementJson> extends LayoutElementJson {
+	type: "sprite"
+	config?: SpriteElementConfig
+	children?: T[]
 }
 
 export class SpriteElement extends BaseElement {
@@ -34,6 +40,9 @@ export class SpriteElement extends BaseElement {
 			config.tint && (this.sprite.tint = config.tint)
 			config.alpha && (this.sprite.alpha = config.alpha)
 			config.scaling && (this.scaling = config.scaling)
+		}
+		if (config?.alpha === 0) {
+			this.sprite.visible = false
 		}
 	}
 

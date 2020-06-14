@@ -1,6 +1,6 @@
 import { LayoutElement, LayoutFactory, LayoutElementJson as BaseLayoutElementJson } from "../LayoutBase"
 
-export const layoutFactory = new LayoutFactory<BaseElement>()
+export const layoutFactory = new LayoutFactory<BaseElement, LayoutElementJson>()
 
 export interface BaseConfig {
 	mask?: boolean

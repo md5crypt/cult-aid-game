@@ -2,7 +2,7 @@ import { BitmapFont, TextCharInfo } from "./BitmapFont"
 import { cssColorList } from "./Colors"
 
 export interface TextOptions {
-	font: string | BitmapFont
+	font?: string | BitmapFont
 	lineSpacing?: number
 	letterSpacing?: number
 	wordSpacing?: number
@@ -21,8 +21,8 @@ function resolveTextOptions(options: TextOptions) {
 		wordSpacing: 0,
 		size: 1,
 		...options,
-		font: typeof options.font == "string" ? BitmapFont.get(options.font) : options.font,
-		color: options.color ? BitmapText.resolveColor(options.color) : 0
+		font: typeof options.font == "string" ? BitmapFont.get(options.font) : (options.font || BitmapFont.get("default")),
+		color: BitmapText.resolveColor(options.color === undefined ? "default" : options.color)
 	} as const
 }
 
@@ -252,7 +252,7 @@ export class RichText {
 					data
 				})
 			} else {
-				console.log(match)
+				console.error(match)
 				throw new Error("I apparently messed up the regular expression")
 			}
 			match = re.exec(text)

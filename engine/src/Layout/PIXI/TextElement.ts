@@ -1,11 +1,16 @@
-import { BaseElement, BaseConfig, layoutFactory } from "./BaseElement"
+import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./BaseElement"
 import { BitmapText, TextOptions, RichText } from "../../Text/BitmapText"
 
 export interface TextElementConfig extends BaseConfig {
 	text?: string
 	style?: TextOptions
 	rich?: boolean
-	expand?: "both" | "width" | "height"
+}
+
+export interface TextElementJson <T extends LayoutElementJson> extends LayoutElementJson {
+	type: "text"
+	config?: TextElementConfig
+	children?: T[]
 }
 
 export class TextElement extends BaseElement {
@@ -16,20 +21,17 @@ export class TextElement extends BaseElement {
 	private _offsetCurrent: number
 	private options: TextOptions
 	private textRect: [number, number] | null
-	private expand: "both" | "width" | "height"
 
 	public constructor(name?: string, config?: TextElementConfig) {
 		super(new BitmapText(), name, config)
 		this.textRect = null
 		this._offsetNext = 0
 		this._offsetCurrent = 0
-		this.options = {font: "default"}
+		this.options = {}
 		this.text = ""
-		this.expand = "both"
 		if (config) {
-			config.style && (Object.assign(this.options, config.style))
+			config.style && (this.options = config.style)
 			config.text && (this.text = config.rich ? new RichText(config.text, this.options) : config.text)
-			config.expand && (this.expand = config.expand)
 		}
 	}
 
@@ -46,25 +48,17 @@ export class TextElement extends BaseElement {
 	}
 
 	public get contentHeight() {
-		if (this.expand == "both" || (this.expand == "height" && this._width)) {
-			if (!this.textRect) {
-				this.meausreText()
-			}
-			return this.textRect![1]
-		} else {
-			return 0
+		if (!this.textRect) {
+			this.meausreText()
 		}
+		return this.textRect![1]
 	}
 
 	public get contentWidth() {
-		if (this.expand == "both" || (this.expand == "width" && this._height)) {
-			if (!this.textRect) {
-				this.meausreText()
-			}
-			return this.textRect![0]
-		} else {
-			return 0
+		if (!this.textRect) {
+			this.meausreText()
 		}
+		return this.textRect![0]
 	}
 
 	protected setDirty() {
