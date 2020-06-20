@@ -6,22 +6,33 @@ export interface BaseConfig {
 	mask?: boolean
 	sorted?: boolean
 	zIndex?: number
+	alpha?: number
 }
 
 export type LayoutElementJson = BaseLayoutElementJson<BaseElement>
 
 export abstract class BaseElement extends LayoutElement<BaseElement> {
+	/** @internal */
 	public readonly handle: PIXI.Container
 	private mask?: boolean
+	private hidden: boolean
 
-	constructor(handle: PIXI.Container, name?: string, config?: BaseConfig) {
+	protected constructor(handle: PIXI.Container, name?: string, config?: BaseConfig) {
 		super(name)
 		this.handle = handle
+		this.hidden = false
 		if (config) {
 			this.mask = config.mask
 			this.handle.zIndex = config.zIndex || 0
 			config.sorted && (this.handle.sortableChildren = true)
+			config.alpha !== undefined && (this.alpha = config.alpha)
 		}
+	}
+
+	public set alpha(value: number) {
+		this.handle.alpha = value
+		this.hidden = (value === 0)
+		this.setDirty()
 	}
 
 	public get contentHeight() {
@@ -46,6 +57,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 	}
 
 	protected onUpdate() {
+		this.handle.visible = this.enabled && !this.hidden
 		this.handle.position.set(this.left, this.top)
 		if (this.mask) {
 			const graphics = new PIXI.Graphics()

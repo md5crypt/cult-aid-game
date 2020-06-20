@@ -14,6 +14,7 @@ export interface TextElementJson <T extends LayoutElementJson> extends LayoutEle
 }
 
 export class TextElement extends BaseElement {
+	/** @internal */
 	public readonly handle!: BitmapText
 
 	private text: string | RichText

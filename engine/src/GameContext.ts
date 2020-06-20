@@ -10,6 +10,7 @@ import { ScriptTimer } from "./ScriptTimer"
 import { Animation } from "./Animation"
 import { Player } from "./Player"
 import { TextureStorage } from "./Resources"
+import { BaseElement } from "./Layout/LayoutPIXI"
 
 export interface GameContext {
 	time: number
@@ -32,6 +33,7 @@ export interface GameContext {
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
+	ui: BaseElement
 	camera: GameCamera
 	player: Player
 	Sprite: typeof Sprite

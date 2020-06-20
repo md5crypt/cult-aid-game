@@ -4,10 +4,9 @@ import { gameContext } from "../../GameContext"
 type ScalingType = "none" | "fixed" | "stretch" | "repeat"
 
 export interface SpriteElementConfig extends BaseConfig {
-	image?: PIXI.Texture | string
+	image?: string
 	scaling?: ScalingType
 	tint?: number
-	alpha?: number
 	container?: boolean
 }
 
@@ -18,6 +17,7 @@ export interface SpriteElementJson <T extends LayoutElementJson> extends LayoutE
 }
 
 export class SpriteElement extends BaseElement {
+	/** @internal */
 	private sprite: PIXI.Sprite
 	private scaling: ScalingType
 
@@ -38,12 +38,17 @@ export class SpriteElement extends BaseElement {
 		this.scaling = "none"
 		if (config) {
 			config.tint && (this.sprite.tint = config.tint)
-			config.alpha && (this.sprite.alpha = config.alpha)
 			config.scaling && (this.scaling = config.scaling)
 		}
-		if (config?.alpha === 0) {
-			this.sprite.visible = false
+	}
+
+	public set image(value: string | null) {
+		if(!value) {
+			this.sprite.texture = PIXI.Texture.WHITE
+		} else {
+			this.sprite.texture = gameContext.textures.ui.getTexture(value)
 		}
+		this.setDirty()
 	}
 
 	protected onUpdate() {

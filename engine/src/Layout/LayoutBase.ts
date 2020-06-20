@@ -39,22 +39,26 @@ interface LayoutConfigOverride<T extends LayoutElement<any>> {
 	left: number | ConfigCallback<T> | string
 	width: number | ConfigCallback<T, number | null> | string
 	height: number | ConfigCallback<T, number | null> | string
+	enabled: boolean
 }
 
 type LayoutConfig<T extends LayoutElement<any>> =  Readonly<Partial<Omit<InternalLayoutConfig<T>, keyof LayoutConfigOverride<T>> & LayoutConfigOverride<T>>>
 
 export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public readonly name?: string
+	public readonly children: T[]
+
 	protected readonly config: InternalLayoutConfig<T>
 	protected _parent: T | null
-	protected children: T[]
+	protected _width: number | null
+	protected _height: number | null
+	protected _enabled: boolean
+
 	private readonly childrenMap: Map<string, T>
 	private dirty: boolean
 	private layoutReady: boolean
 	private _top: number | null
 	private _left: number | null
-	protected _width: number | null
-	protected _height: number | null
 
 	public constructor(name?: string) {
 		this.config = {
@@ -73,6 +77,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		this._left = null
 		this._width = null
 		this._height = null
+		this._enabled = true
 		this.dirty = true
 		this.layoutReady = false
 		this.name = name
@@ -80,11 +85,30 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		this.childrenMap = new Map()
 	}
 
-	private removeElement(element: T) {
-		const index = this.children.indexOf(element)
+	private nameAdd(element: T) {
+		if (this.name) {
+			this.childrenMap.set(element.name!, element)
+		} else {
+			this.parent.nameAdd(element)
+		}
+	}
+
+	private nameRemove(element: T) {
+		if (this.name) {
+			this.childrenMap.delete(element.name!)
+		} else {
+			this.parent.nameRemove(element)
+		}
+	}
+
+	private removeElement(element: T): boolean
+	private removeElement(index: number): boolean
+	private removeElement(arg: T | number) {
+		const element = typeof arg == "number" ? this.children[arg] : arg
+		const index = typeof arg == "number" ? arg :this.children.indexOf(element)
 		if (index >= 0) {
-			if (element.name) {
-				this.childrenMap.delete(element.name)
+			if (element.name && (element.name[0] != "@")) {
+				this.nameRemove(element)
 			}
 			this.children.splice(index, 1)
 			this.setDirty()
@@ -95,19 +119,19 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 	}
 
 	private get childrenHeight(): number {
-		return this.children.reduce((value, element) => value + (element.config.ignoreLayout ? 0 : element.outerHeight), 0)
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !this._enabled ? 0 : element.outerHeight), 0)
 	}
 
 	private get childrenMaxHeight(): number {
-		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout ? 0 : element.outerHeight)), 0)
+		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !this._enabled ? 0 : element.outerHeight)), 0)
 	}
 
 	private get childrenWidth(): number {
-		return this.children.reduce((value, element) => value + (element.config.ignoreLayout ? 0 : element.outerWidth), 0)
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !this._enabled ? 0 : element.outerWidth), 0)
 	}
 
 	private get childrenMaxWidth(): number {
-		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout ? 0 : element.outerWidth)), 0)
+		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !this._enabled ? 0 : element.outerWidth)), 0)
 	}
 
 	protected get configTop() {
@@ -147,7 +171,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
-				if (element.config.ignoreLayout) {
+				if (!element._enabled || element.config.ignoreLayout) {
 					continue
 				}
 				if (element.config.flexGrow) {
@@ -165,7 +189,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this.layoutReady = true
 			const height = this.innerHeight
 			for (const element of this.children) {
-				if (!element.config.ignoreLayout && (this.config.flexVerticalAlign != "top")) {
+				if (this._enabled && !element.config.ignoreLayout && (this.config.flexVerticalAlign != "top")) {
 					const diff = height - element.outerHeight
 					element._top! += this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
 				}
@@ -179,7 +203,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
-				if (element.config.ignoreLayout) {
+				if (!element._enabled || element.config.ignoreLayout) {
 					continue
 				}
 				if (element.config.flexGrow) {
@@ -197,7 +221,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this.layoutReady = true
 			const width = this.innerWidth
 			for (const element of this.children) {
-				if (!element.config.ignoreLayout && (this.config.flexHorizontalAlign != "left")) {
+				if (this._enabled && !element.config.ignoreLayout && (this.config.flexHorizontalAlign != "left")) {
 					const diff = width - element.outerWidth
 					element._left! += this.config.flexHorizontalAlign == "center" ? Math.floor(diff / 2) : diff
 				}
@@ -228,19 +252,32 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this._height = null
 			this.dirty = true
 			this.layoutReady = false
-			if (this.config.flexMode != "none") {
-				this._parent?.setDirty()
+			if (this.parentLayout != "none") {
+				this._parent!.setDirty()
 			}
 		}
 	}
 
 	public update() {
-		this.resolveLayout()
-		this.children.forEach(element => element.update())
+		if (this._enabled) {
+			if (this.dirty) {
+				this.resolveLayout()
+			}
+			this.children.forEach(element => element.update())
+		}
 		if (this.dirty) {
 			this.dirty = false
 			this.onUpdate()
 		}
+	}
+
+	public get enabled() {
+		return this._enabled
+	}
+
+	public set enabled(value: boolean) {
+		this._enabled = value
+		this.setDirty()
 	}
 
 	public get parentLayout() {
@@ -251,8 +288,18 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 		return (this._top !== null ? this._top : this.configTop) + this.config.margin.top
 	}
 
+	public set top(value: number) {
+		this.config.top = value
+		this.setDirty()
+	}
+
 	public get left() {
 		return (this._left !== null ? this._left : this.configLeft) + this.config.margin.left
+	}
+
+	public set left(value: number) {
+		this.config.left = value
+		this.setDirty()
 	}
 
 	public get width(): number {
@@ -362,16 +409,22 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 				}
 			}
 		}
+		if (config.enabled !== undefined) {
+			this._enabled = config.enabled
+		}
 		this.setDirty()
 	}
 
 	public getElement<K extends T>(name: string): K {
+		if (!this.name) {
+			return this.parent.getElement<K>(name)
+		}
 		const path = name.split(".")
 		let child: LayoutElement<any> | undefined = this
 		for (let i = 0; i < path.length; i++) {
 			child = child.childrenMap.get(path[i])
 			if (!child) {
-				throw new Error(`could not resolve '${this.name}'`)
+				throw new Error(`could not resolve '${name}'`)
 			}
 		}
 		return child as K
@@ -387,8 +440,8 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this.children.push(element)
 			this.onInsertElement(element, this.children.length - 1)
 		}
-		if (element.name) {
-			this.childrenMap.set(element.name, element)
+		if (element.name && (element.name[0] != "@")) {
+			this.nameAdd(element)
 		}
 		element._parent?.removeElement(element)
 		element._parent = this
@@ -398,6 +451,12 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public delete() {
 		this._parent?.removeElement(this)
 		this._parent = null
+	}
+
+	public deleteChildren(offset = 0) {
+		for (let i = this.children.length - 1; i >= offset; i++) {
+			this.removeElement(i)
+		}
 	}
 }
 
@@ -423,10 +482,10 @@ export class LayoutFactory<T extends LayoutElement<any>, K extends LayoutElement
 		if (json.layout) {
 			root.updateConfig(json.layout)
 		}
+		parent?.insertElement(root)
 		if (json.children) {
 			json.children.forEach(element => this.create(element as K, root))
 		}
-		parent?.insertElement(root)
 		return root
 	}
 }

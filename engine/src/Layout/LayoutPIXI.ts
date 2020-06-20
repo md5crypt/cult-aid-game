@@ -10,6 +10,8 @@ export { SpriteElement, SpriteElementJson }
 import { layoutFactory as layoutFactoryGeneric, BaseElement } from "./PIXI/BaseElement"
 import { LayoutFactory } from "./LayoutBase"
 
+export { BaseElement }
+
 export type LayoutElementJson = (
 	ContainerElementJson<LayoutElementJson> |
 	TextElementJson<LayoutElementJson> |

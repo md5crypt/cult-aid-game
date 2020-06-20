@@ -7,6 +7,7 @@ export interface ContainerElementJson<T extends LayoutElementJson> extends Layou
 }
 
 export class ContainerElement extends BaseElement {
+	/** @internal */
 	public readonly handle!: PIXI.Container
 
 	constructor(name?: string, config?: BaseConfig) {

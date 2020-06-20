@@ -29,6 +29,7 @@ export interface FontData {
 
 export interface TextCharInfo {
 	advance: number
+	/** @internal */
 	texture: PIXI.Texture | null
 }
 
