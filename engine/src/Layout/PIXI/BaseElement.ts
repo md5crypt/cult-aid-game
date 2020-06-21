@@ -62,7 +62,12 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 		if (this.mask) {
 			const graphics = new PIXI.Graphics()
 			graphics.beginFill(0xFFFFFF)
-			graphics.drawRect(0, 0, this.width, this.height)
+			graphics.drawRect(
+				this.config.padding.left,
+				this.config.padding.top,
+				this.innerWidth,
+				this.innerHeight
+			)
 			graphics.endFill()
 			if (this.handle.mask) {
 				this.handle.removeChild(this.handle.mask as PIXI.Graphics)

@@ -110,28 +110,28 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			if (element.name && (element.name[0] != "@")) {
 				this.nameRemove(element)
 			}
+			this.onRemoveElement(index)
 			this.children.splice(index, 1)
 			this.setDirty()
-			this.onRemoveElement(index)
 			return true
 		}
 		return false
 	}
 
 	private get childrenHeight(): number {
-		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !this._enabled ? 0 : element.outerHeight), 0)
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !element._enabled ? 0 : element.outerHeight), 0)
 	}
 
 	private get childrenMaxHeight(): number {
-		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !this._enabled ? 0 : element.outerHeight)), 0)
+		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !element._enabled ? 0 : element.outerHeight)), 0)
 	}
 
 	private get childrenWidth(): number {
-		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !this._enabled ? 0 : element.outerWidth), 0)
+		return this.children.reduce((value, element) => value + (element.config.ignoreLayout || !element._enabled ? 0 : element.outerWidth), 0)
 	}
 
 	private get childrenMaxWidth(): number {
-		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !this._enabled ? 0 : element.outerWidth)), 0)
+		return this.children.reduce((value, element) => Math.max(value, (element.config.ignoreLayout || !element._enabled ? 0 : element.outerWidth)), 0)
 	}
 
 	protected get configTop() {
@@ -161,7 +161,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this.layoutReady = true
 			return // nothing to do
 		}
-		let growCount = this.children.reduce((value, element) => value + element.config.flexGrow, 0)
+		let growCount = this.children.reduce((value, element) => value + (element._enabled ? element.config.flexGrow : 0), 0)
 		if (this.config.flexMode == "horizontal") {
 			const width = this.innerWidth
 			let growPool = width - this.childrenWidth
@@ -454,7 +454,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 	}
 
 	public deleteChildren(offset = 0) {
-		for (let i = this.children.length - 1; i >= offset; i++) {
+		for (let i = this.children.length - 1; i >= offset; i--) {
 			this.removeElement(i)
 		}
 	}
