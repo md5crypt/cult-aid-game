@@ -557,7 +557,7 @@ kerning first=172 second=61  amount=-1
 kerning first=172 second=74  amount=-1  
 kerning first=172 second=45  amount=-1  
 kerning first=172 second=95  amount=-1  
-ligatures count=3
+ligatures count=4
 ligature sequence=102,116 id=127
 ligature sequence=102,105 id=96
 ligature sequence=115,116 id=172
