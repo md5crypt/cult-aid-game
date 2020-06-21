@@ -10,7 +10,9 @@ import { ScriptTimer } from "./ScriptTimer"
 import { Animation } from "./Animation"
 import { Player } from "./Player"
 import { TextureStorage } from "./Resources"
+import { Character } from "./Character"
 import { BaseElement } from "./Layout/LayoutPIXI"
+import { DialogUI } from "./UI/DialogUI"
 
 export interface GameContext {
 	time: number
@@ -25,7 +27,7 @@ export interface GameContext {
 	/** @internal */
 	stage: {
 		tile: PIXI.Container
-		UI: PIXI.Container
+		ui: PIXI.Container
 	}
 	/** @internal */
 	layers: {
@@ -33,12 +35,16 @@ export interface GameContext {
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
-	ui: BaseElement
+	/** @internal */
+	ui: {
+		root: BaseElement
+		dialog: DialogUI
+	}
 	camera: GameCamera
 	player: Player
 	Sprite: typeof Sprite
+	Character: typeof Character
 	Item: typeof Sprite.Item
-	Character: typeof Sprite.Character
 	Path: typeof SimplePath
 	Animation: typeof Animation
 	scripts: ScriptStorage

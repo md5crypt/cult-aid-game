@@ -4,7 +4,7 @@ import { gameContext } from "./GameContext"
 import { Direction } from "./Path"
 import { GameMap } from "./GameMap"
 
-export class Player extends Sprite.Character {
+export class Player extends Sprite.MovableItem {
 
 	public inputEnabled: boolean
 

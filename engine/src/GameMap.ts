@@ -86,27 +86,27 @@ export class GameMap {
 				}
 				if (scripts.onMove) {
 					const callback = storage.resolve(scripts.onMove, "cellMove")
-					cell.onMove.add((cell, direction) => callback(gameContext, cell, direction))
+					cell.onMove.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onEnter) {
 					const callback = storage.resolve(scripts.onEnter, "cellEnter")
-					cell.onEnter.add((cell, direction) => callback(gameContext, cell, direction))
+					cell.onEnter.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onExit) {
 					const callback = storage.resolve(scripts.onExit, "cellExit")
-					cell.onExit.add((cell, direction) => callback(gameContext, cell, direction))
+					cell.onExit.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onCenter) {
 					const callback = storage.resolve(scripts.onCenter, "cellCenter")
-					cell.onCenter.add(cell => callback(gameContext, cell))
+					cell.onCenter.add(cell => callback(cell))
 				}
 				if (scripts.onUse) {
 					const callback = storage.resolve(scripts.onUse, "cellUse")
-					cell.onUse.add(cell => callback(gameContext, cell))
+					cell.onUse.add(cell => callback(cell))
 				}
 			}
 		}
-		defer.forEach(item => item.callback(gameContext, item.cell))
+		defer.forEach(item => item.callback(item.cell))
 	}
 
 	public update(delta: number, top: number, left: number, bottom: number, right: number) {
@@ -301,7 +301,7 @@ export namespace GameMap {
 					.map(name => Sprite.Background.create(Sprite.find(name)))
 			}
 			if (this.background.onCreate) {
-				void this.background.onCreate(gameContext, this)
+				void this.background.onCreate(this)
 			}
 		}
 

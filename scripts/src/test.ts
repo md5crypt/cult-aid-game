@@ -1,14 +1,14 @@
 
-scripts.register("test", "cellUse", (context, _cell) => {
+scripts.register("test", "cellUse", (_cell) => {
 	void context.camera.shake(1000)
 })
 
-scripts.register("placePlayer", "cellCreate", (context, cell) => {
+scripts.register("placePlayer", "cellCreate", async (cell) => {
 	context.player.enable(cell.x, cell.y)
 	context.camera.lockOn(context.player)
 })
 
-scripts.register("trap", "cellEnter", async (context, cell) => {
+scripts.register("trap", "cellEnter", async (cell) => {
 	const {camera, player, map} = context
 	player.inputEnabled = false
 	void camera.moveTo(

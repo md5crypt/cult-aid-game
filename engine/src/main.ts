@@ -17,6 +17,8 @@ import { Animation } from "./Animation"
 import { BitmapFont, FontData } from "./Text/BitmapFont"
 import { layoutFactory } from "./Layout/LayoutPIXI"
 import { TextureStorage } from "./Resources"
+import { Character } from "./Character"
+import { DialogUI } from "./UI/DialogUI"
 import "./TextureAtlasLoader"
 
 declare global {
@@ -28,7 +30,7 @@ declare global {
 
 Object.assign(gameContext, {
 	Item: Sprite.Item,
-	Character: Sprite.Character,
+	Character: Character,
 	Path: SimplePath,
 	Animation,
 	Sprite
@@ -69,13 +71,20 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 	(resources.fonts.data.data as FontData[]).forEach(font => BitmapFont.register(font, gameContext.textures.ui))
 	const tile = new PIXI.Container()
 	tile.interactive = false
-	tile.addChild(gameContext.layers.bg)
-	tile.addChild(gameContext.layers.mid)
-	tile.addChild(gameContext.layers.fg)
-	app.stage.addChild(tile)
-	const UI = new PIXI.Container()
-	app.stage.addChild(UI)
-	gameContext.stage = {tile, UI}
+	tile.addChild(...Object.values(gameContext.layers))
+	BitmapFont.alias("default", "PixAntiqua")
+	gameContext.ui = {} as any
+	gameContext.ui.root = layoutFactory.create({
+		name: "@root",
+		type: "container",
+		layout: {
+			width: app.view.width,
+			height: app.view.height
+		}
+	})
+	gameContext.ui.dialog = new DialogUI()
+	gameContext.stage = {tile, ui: gameContext.ui.root.handle}
+	app.stage.addChild(...Object.values(gameContext.stage))
 }
 
 window.addEventListener("load", async () => {
@@ -91,6 +100,7 @@ window.addEventListener("load", async () => {
 	})
 	document.body.appendChild(app.view)
 	const resources = await loadResources(app) as Record<string, PIXI.LoaderResource>
+
 	bootstrap(app, resources)
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts.data)
@@ -122,6 +132,7 @@ window.addEventListener("load", async () => {
 		gameContext.map.render(...bounds)
 		gameContext.stage.tile.scale.set(zoom)
 		gameContext.stage.tile.pivot.set(left, top)
+		gameContext.ui.root.update()
 		stats.end()
 	})
 })

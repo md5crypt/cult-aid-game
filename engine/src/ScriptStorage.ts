@@ -1,7 +1,7 @@
 import { GameMap } from "./GameMap"
 import { Direction } from "./Path"
 import { Sprite } from "./Sprite"
-import { GameContext } from "./GameContext"
+import { gameContext } from "./GameContext"
 
 interface Mapping {
 	"cellMove": ScriptStorage.cellQueryCallback
@@ -32,13 +32,13 @@ export class ScriptStorage {
 	}
 
 	public load(source: string) {
-		(new Function(`"use strict";return function(scripts){${source}}`))()(this)
+		(new Function(`"use strict";return function(context, scripts){${source}}`))()(gameContext, this)
 	}
 }
 
 export namespace ScriptStorage {
-	export type cellQueryCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => boolean
-	export type cellDynamicCallback = (context: GameContext, cell: GameMap.Cell, direction: Direction) => void | Promise<void>
-	export type cellStaticCallback = (context: GameContext, cell: GameMap.Cell) => void | Promise<void>
-	export type itemCallback = (context: GameContext, item: Sprite.Item) => void | Promise<void>
+	export type cellQueryCallback = (cell: GameMap.Cell, direction: Direction) => boolean
+	export type cellDynamicCallback = (cell: GameMap.Cell, direction: Direction) => void | Promise<void>
+	export type cellStaticCallback = (cell: GameMap.Cell) => void | Promise<void>
+	export type itemCallback = (item: Sprite.Item) => void | Promise<void>
 }

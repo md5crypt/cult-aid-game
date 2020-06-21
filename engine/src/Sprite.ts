@@ -152,7 +152,7 @@ export namespace Sprite {
 			}
 			if (merged.onCreate) {
 				const callback = gameContext.scripts.resolve(merged.onCreate, "itemCreate")
-				void callback(gameContext, item)
+				void callback(item)
 			}
 			return item
 		}
@@ -182,15 +182,15 @@ export namespace Sprite {
 
 			if (data.onUpdate) {
 				const callback = gameContext.scripts.resolve(data.onUpdate, "itemUpdate")
-				this.onUpdate.add(item => callback(gameContext, item))
+				this.onUpdate.add(item => callback(item))
 			}
 			if (data.onEnterView) {
 				const callback = gameContext.scripts.resolve(data.onEnterView, "itemEnterView")
-				this.onEnterView.add(item => callback(gameContext, item))
+				this.onEnterView.add(item => callback(item))
 			}
 			if (data.onExitView) {
 				const callback = gameContext.scripts.resolve(data.onExitView, "itemExitView")
-				this.onExitView.add(item => callback(gameContext, item))
+				this.onExitView.add(item => callback(item))
 			}
 		}
 
@@ -399,7 +399,7 @@ export namespace Sprite {
 		}
 	}
 
-	export class Character extends Item {
+	export class MovableItem extends Item {
 		public readonly walkSequence: WalkSequence
 		private preventWalkSequenceChange: boolean
 		public speed: number
