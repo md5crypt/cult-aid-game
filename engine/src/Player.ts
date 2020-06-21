@@ -23,13 +23,13 @@ export class Player extends Sprite.Character {
 		if (!this.inputEnabled) {
 			return
 		}
-		if (gameContext.input.keyboard.ArrowUp) {
+		if (gameContext.input.keyboard.arrowUp) {
 			this.walk("up")
-		} else if (gameContext.input.keyboard.ArrowDown) {
+		} else if (gameContext.input.keyboard.arrowDown) {
 			this.walk("down")
-		} else if (gameContext.input.keyboard.ArrowLeft) {
+		} else if (gameContext.input.keyboard.arrowLeft) {
 			this.walk("left")
-		} else if (gameContext.input.keyboard.ArrowRight) {
+		} else if (gameContext.input.keyboard.arrowRight) {
 			this.walk("right")
 		} else if (gameContext.input.keyboard["+"]) {
 			gameContext.camera.zoom *= 1.05

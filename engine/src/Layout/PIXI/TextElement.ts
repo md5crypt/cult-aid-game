@@ -41,8 +41,8 @@ export class TextElement extends BaseElement {
 			this.textRect = this.handle.measureText(this.text, this.options)
 		} else {
 			this.textRect = this.text.measure(
-				this.config.width ? this.width : (this._width || Infinity),
-				this.config.height ? this.height : (this._height || Infinity),
+				(this.config.width || this._width) ? this.innerWidth : Infinity,
+				(this.config.height || this._height) ? this.innerHeight : Infinity,
 				this._offsetCurrent
 			)
 		}
@@ -69,8 +69,10 @@ export class TextElement extends BaseElement {
 
 	protected onUpdate() {
 		super.onUpdate()
-		this.handle.width = this.width
-		this.handle.height = this.height
+		this.handle.width = this.innerWidth
+		this.handle.height = this.innerHeight
+		this.handle.x += this.config.padding.left
+		this.handle.y += this.config.padding.top
 		if (typeof this.text == "string") {
 			this.handle.drawText(this.text, this.options)
 		} else {
@@ -97,6 +99,18 @@ export class TextElement extends BaseElement {
 
 	public get offset() {
 		return this._offsetNext
+	}
+
+	public get length() {
+		return this.text instanceof RichText ? this.text.words.length : 0
+	}
+
+	public next() {
+		if (this._offsetNext == this.length) {
+			return false
+		}
+		this.offset = this._offsetNext
+		return true
 	}
 }
 

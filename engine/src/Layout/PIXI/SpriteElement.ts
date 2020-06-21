@@ -7,6 +7,7 @@ export interface SpriteElementConfig extends BaseConfig {
 	image?: string
 	scaling?: ScalingType
 	tint?: number
+	mirror?: "horizontal" | "vertical"
 	container?: boolean
 }
 
@@ -39,6 +40,13 @@ export class SpriteElement extends BaseElement {
 		if (config) {
 			config.tint && (this.sprite.tint = config.tint)
 			config.scaling && (this.scaling = config.scaling)
+			if (config.mirror == "horizontal") {
+				sprite.scale.x *= -1
+				sprite.anchor.x = 1
+			} else if (config.mirror == "vertical") {
+				sprite.scale.y *= -1
+				sprite.anchor.y = 1
+			}
 		}
 	}
 

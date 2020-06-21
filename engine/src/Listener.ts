@@ -47,3 +47,24 @@ export class Listener<T = void, K = void> {
 		return result
 	}
 }
+
+export class ListenerTracker {
+	private map: Map<Listener<any, any>, Callback<any, any>[]> = new Map()
+
+	public add<T, K>(listener: Listener<T, K>, callback: Callback<T, K>) {
+		listener.add(callback)
+		const handlers = this.map.get(listener)
+		if (handlers) {
+			handlers.push(callback)
+		} else {
+			this.map.set(listener, [callback])
+		}
+	}
+
+	public clear() {
+		for (const [listener, handlers] of this.map.entries()) {
+			handlers.forEach(handler => listener.remove(handler))
+		}
+		this.map.clear()
+	}
+}

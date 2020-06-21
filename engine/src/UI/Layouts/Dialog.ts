@@ -16,15 +16,27 @@ export default (): LayoutElementJson => ({
 	},
 	children: [
 		{
-			name: "avatar",
+			name: "avatar-left",
 			type: "sprite",
 			layout: {
 				ignoreLayout: true,
 				top: element => element.parent.height - element.contentHeight
 			},
 			config: {
-				image: "avatar-test",
 				zIndex: 2
+			}
+		},
+		{
+			name: "avatar-right",
+			type: "sprite",
+			layout: {
+				ignoreLayout: true,
+				top: element => element.parent.height - element.contentHeight,
+				left: element => element.parent.width - element.contentWidth
+			},
+			config: {
+				zIndex: 2,
+				mirror: "horizontal"
 			}
 		},
 		{
@@ -55,45 +67,17 @@ export default (): LayoutElementJson => ({
 					type: "container",
 					layout: {
 						flexGrow: 1,
-						margin: {left: 150},
 						height: "100%"
 					},
 					config: {
 						mask: true
-					},
-					children: [
-						{
-							name: "body",
-							type: "container",
-							layout: {
-								width: "100%",
-								flexMode: "vertical",
-								padding: {vertical: 10}
-							},
-							children: [
-								{
-									name: "prompt",
-									type: "text",
-									layout: {
-										width: "100%",
-										margin: {top: 5, bottom: 10}
-									},
-									config: {
-										rich: true,
-										style: {
-											xAlign: "center"
-										}
-									}
-								}
-							]
-						}
-					]
+					}
 				},
 				{
 					type: "container",
 					layout: {
 						flexMode: "vertical",
-						padding: {vertical: 10, right: 12, left: 4},
+						padding: {vertical: 6, right: 12, left: 10},
 						height: "100%"
 					},
 					children: [
@@ -127,7 +111,8 @@ export default (): LayoutElementJson => ({
 				left: -8
 			},
 			config: {
-				image: "scroll-scroll"
+				image: "scroll-scroll",
+				mirror: "horizontal"
 			}
 		}
 	]

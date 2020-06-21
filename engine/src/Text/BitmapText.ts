@@ -66,6 +66,7 @@ export class BitmapText extends PIXI.Container {
 	}
 
 	public drawRichText(text: RichText, offset = 0) {
+		this.removeChildren()
 		if (offset >= text.words.length) {
 			return text.words.length
 		}
@@ -117,7 +118,6 @@ export class BitmapText extends PIXI.Container {
 		} else {
 			yOffset = 0
 		}
-		this.removeChildren()
 		for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
 			const line = lines[lineNumber]
 			let xOffset
