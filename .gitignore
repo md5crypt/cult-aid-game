@@ -1,5 +1,5 @@
-*.png
-fonts
+fonts/*.ttf
 node_modules
 build
 static/pixi.js
+tileset/*.png
