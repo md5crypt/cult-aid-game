@@ -21,7 +21,7 @@ export class DialogUI {
 	private listenerTracker: ListenerTracker
 
 	constructor() {
-		const layout = layoutFactory.create(dialog(), gameContext.ui)
+		const layout = layoutFactory.create(dialog(), gameContext.ui.root)
 		this.arrowUp = layout.getElement("arrow-up")
 		this.arrowDown = layout.getElement("arrow-down")
 		this.mask = layout.getElement("mask")
@@ -56,10 +56,14 @@ export class DialogUI {
 		const nextIndex = Math.max(0, Math.min(value, body.children.length - 2))
 		const current = body.children[this.activeOption + 1]
 		const next = body.children[nextIndex + 1]
-		body.top = Math.max(
-			Math.min(0, Math.floor((this.mask.height / 2) - (next.top + (next.height / 2)))),
-			this.mask.height - body.height
-		)
+		const position = Math.floor((this.mask.height / 2) - (next.top + (next.outerHeight / 2)))
+		const delta = this.mask.height - body.outerHeight
+		const top = Math.min(0, Math.max(position, delta))
+		if (delta < 0) {
+			this.arrowUp.enabled = top < 0
+			this.arrowDown.enabled = top > delta
+		}
+		body.top = top
 		current.getElement<SpriteElement>("lockpick").alpha = 0
 		current.getElement<SpriteElement>("keyhole").image = "scroll-keyhole"
 		current.getElement<TextElement>("text").alpha = 0.75
@@ -73,6 +77,8 @@ export class DialogUI {
 		this.listenerTracker.clear()
 		this.mask.deleteChildren()
 		this.root.enabled = false
+		this.arrowUp.enabled = false
+		this.arrowDown.enabled = false
 	}
 
 	public renderSpeech(text: string, avatar: AvatarConfig = {}, onEnd?: () => void) {
@@ -80,12 +86,16 @@ export class DialogUI {
 		const element = layoutFactory.create(dialogSpeech(text), this.mask) as TextElement
 		this.setAvatar(avatar)
 		this.root.enabled = true
+		gameContext.ui.root.update()
+		this.arrowDown.enabled = element.offset != element.length
 		gameContext.input.onKeyDown.add(key => {
 			const trigger: (typeof key)[] = [" ", "enter", "e"]
 			if (trigger.includes(key)) {
 				if (!element.next() && onEnd) {
 					onEnd()
 				}
+				gameContext.ui.root.update()
+				this.arrowDown.enabled = element.offset != element.length
 			}
 		})
 	}
@@ -97,7 +107,7 @@ export class DialogUI {
 		this.setAvatar({left: avatar})
 		this.activeOption = 0
 		this.root.enabled = true
-		gameContext.ui.update()
+		gameContext.ui.root.update()
 		this.setActive(0)
 		this.listenerTracker.add(gameContext.input.onKeyDown, key => {
 			switch (key) {

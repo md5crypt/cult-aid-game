@@ -6,7 +6,7 @@ export default (text?: string): LayoutElementJson => ({
 	layout: {
 		width: "100%",
 		flexMode: "vertical",
-		padding: {vertical: 10}
+		margin: {vertical: 5}
 	},
 	children: [
 		{
@@ -15,7 +15,7 @@ export default (text?: string): LayoutElementJson => ({
 			layout: {
 				enabled: text !== undefined,
 				width: "100%",
-				margin: {top: 5, bottom: 10}
+				margin: {top: 5, bottom: 8}
 			},
 			config: {
 				rich: true,

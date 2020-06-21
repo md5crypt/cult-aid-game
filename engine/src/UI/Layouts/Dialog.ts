@@ -50,10 +50,35 @@ export default (): LayoutElementJson => ({
 			}
 		},
 		{
+			name: "arrow-up",
+			type: "sprite",
+			layout: {
+				ignoreLayout: true,
+				left: element => element.parent.width - 120,
+				top: element => 28 - element.contentHeight
+			},
+			config: {
+				image: "scroll-arrow-up"
+			}
+		},
+		{
+			name: "arrow-down",
+			type: "sprite",
+			layout: {
+				ignoreLayout: true,
+				left: element => element.parent.width - 160,
+				top: element => element.parent.height - 30
+			},
+			config: {
+				image: "scroll-arrow-down"
+			}
+		},
+		{
 			type: "sprite",
 			layout: {
 				flexGrow: 1,
 				flexMode: "horizontal",
+				padding: {top: 12, bottom: 15},
 				height: element => element.contentHeight
 			},
 			config: {
@@ -72,36 +97,6 @@ export default (): LayoutElementJson => ({
 					config: {
 						mask: true
 					}
-				},
-				{
-					type: "container",
-					layout: {
-						flexMode: "vertical",
-						padding: {vertical: 6, right: 12, left: 10},
-						height: "100%"
-					},
-					children: [
-						{
-							name: "arrow-up",
-							type: "sprite",
-							config: {
-								image: "scroll-arrow-up"
-							}
-						},
-						{
-							type: "container",
-							layout: {
-								flexGrow: 1
-							}
-						},
-						{
-							name: "arrow-down",
-							type: "sprite",
-							config: {
-								image: "scroll-arrow-down-active"
-							}
-						}
-					]
 				}
 			]
 		},
