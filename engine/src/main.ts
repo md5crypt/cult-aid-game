@@ -19,6 +19,7 @@ import { layoutFactory } from "./Layout/LayoutPIXI"
 import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
 import { DialogUI } from "./UI/DialogUI"
+import { Animator } from "./UI/Animator"
 import "./TextureAtlasLoader"
 
 declare global {
@@ -46,6 +47,19 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 		.load((_loader, resources) => resolve(resources))
 		.on("error", error => reject(error))
 	)
+}
+
+function resize(app: PIXI.Application) {
+	const width = app.view.width
+	const height = app.view.height
+	const scale = Math.max(1, Math.floor(width / 683))
+	gameContext.stage.ui.scale.set(scale)
+	gameContext.ui.root.updateConfig({
+		width: Math.floor(width / scale),
+		height: Math.floor(height / scale)
+	})
+	gameContext.camera.zoomDefault = scale
+	app.resize()
 }
 
 function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderResource>) {
@@ -76,14 +90,11 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 	gameContext.ui = {} as any
 	gameContext.ui.root = layoutFactory.create({
 		name: "@root",
-		type: "container",
-		layout: {
-			width: app.view.width,
-			height: app.view.height
-		}
+		type: "container"
 	})
 	gameContext.ui.dialog = new DialogUI()
 	gameContext.stage = {tile, ui: gameContext.ui.root.handle}
+	resize(app)
 	app.stage.addChild(...Object.values(gameContext.stage))
 }
 
@@ -92,9 +103,9 @@ window.addEventListener("load", async () => {
 	stats.showPanel(0)
 	document.body.appendChild(stats.dom)
 	PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+	PIXI.settings.ROUND_PIXELS = true
 	const app = new PIXI.Application({
-		width: 800,
-		height: 600,
+		resizeTo: document.body,
 		backgroundColor: 0,
 		resolution: 1
 	})
@@ -132,7 +143,41 @@ window.addEventListener("load", async () => {
 		gameContext.map.render(...bounds)
 		gameContext.stage.tile.scale.set(zoom)
 		gameContext.stage.tile.pivot.set(left, top)
+		Animator.update()
 		gameContext.ui.root.update()
 		stats.end()
 	})
+
+	class Throttle {
+		private callback: () => void
+		private timeout: NodeJS.Timeout | null
+		private amount: number
+		private flag: boolean
+
+		public constructor(callback: () => void, amount: number) {
+			this.amount = amount
+			this.callback = callback
+			this.timeout = null
+			this.flag = false
+		}
+
+		public invoke() {
+			if (this.timeout == null) {
+				this.callback()
+				this.timeout = setTimeout(() => {
+					this.timeout = null
+					if (this.flag) {
+						this.callback()
+						this.flag = false
+					}
+				}, this.amount)
+			} else {
+				this.flag = true
+			}
+		}
+	}
+
+	const reSizer = new Throttle(() => resize(app), 100)
+
+	window.addEventListener("resize", () => reSizer.invoke())
 })

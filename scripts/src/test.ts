@@ -45,6 +45,18 @@ const testDialog1 = NPC.zombii.ask({
 			]
 		},
 		{
+			text: "Say lorem ipsum to test stuff.",
+			action: [
+				NPC.zombii.say(lorem)
+			]
+		},
+		{
+			text: "Do it again.",
+			action: [
+				NPC.khajiit.say(lorem)
+			]
+		},
+		{
 			text: "I have to go.",
 			action: [
 				NPC.khajiit.say("It was 'fun' talking to you but I have to go."),
@@ -75,7 +87,7 @@ scripts.register("trap", "cellEnter", async (cell) => {
 		(cell.y * CONST.GRID_BASE) + (CONST.GRID_BASE >> 1),
 		500
 	)
-	void camera.zoomTo(camera.screenSize[1] / CONST.GRID_BASE, 500)
+	void camera.zoomTo(camera.zoomCell, 500)
 	await player.waitWalkEnd()
 	player.setTexture(context.Sprite.find("khajiit-idle"), null)
 	const animation = new context.Animation([
@@ -98,7 +110,7 @@ scripts.register("trap", "cellEnter", async (cell) => {
 			player.cell.clearItems()
 			map.getCellByName("init-room").addItem(player)
 			player.setTexture(player.walkSequence.idle)
-			camera.zoom = 1
+			camera.zoom = camera.zoomDefault
 			camera.lockOn(player)
 			map.cells.forEach(cell => cell.visible = false)
 			map.getCellByName("init-room").visible = true

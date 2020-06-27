@@ -167,7 +167,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			let growPool = width - this.childrenWidth
 			let xOffset = this.config.padding.left
 			if (!growCount && (this.config.flexHorizontalAlign != "left")) {
-				xOffset += this.config.flexHorizontalAlign == "center" ? Math.floor(growPool / 2) : growPool
+				xOffset += this.config.flexHorizontalAlign == "center" ? growPool / 2 : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
@@ -191,7 +191,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			for (const element of this.children) {
 				if (this._enabled && !element.config.ignoreLayout && (this.config.flexVerticalAlign != "top")) {
 					const diff = height - element.outerHeight
-					element._top! += this.config.flexVerticalAlign == "middle" ? Math.floor(diff / 2) : diff
+					element._top! += this.config.flexVerticalAlign == "middle" ? diff / 2 : diff
 				}
 			}
 		} else {
@@ -199,7 +199,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			let growPool = height - this.childrenHeight
 			let yOffset = this.config.padding.top
 			if (!growCount && (this.config.flexVerticalAlign != "top")) {
-				yOffset += this.config.flexVerticalAlign == "middle" ? Math.floor(growPool / 2) : growPool
+				yOffset += this.config.flexVerticalAlign == "middle" ? growPool / 2 : growPool
 			}
 			const growFactor = growCount ? growPool / growCount : 0
 			for (const element of this.children) {
@@ -223,7 +223,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			for (const element of this.children) {
 				if (this._enabled && !element.config.ignoreLayout && (this.config.flexHorizontalAlign != "left")) {
 					const diff = width - element.outerWidth
-					element._left! += this.config.flexHorizontalAlign == "center" ? Math.floor(diff / 2) : diff
+					element._left! += this.config.flexHorizontalAlign == "center" ? diff / 2 : diff
 				}
 			}
 		}
@@ -252,6 +252,9 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 			this._height = null
 			this.dirty = true
 			this.layoutReady = false
+			for (const child of this.children) {
+				child.setDirty()
+			}
 			if (this.parentLayout != "none") {
 				this._parent!.setDirty()
 			}

@@ -26,6 +26,8 @@ export class GameCamera {
 
 	private shaker?: Shaker
 
+	private _zoomDefault: number
+
 	constructor() {
 		this.pivotPaths = []
 		this.zoomPaths = []
@@ -33,6 +35,21 @@ export class GameCamera {
 		this._zoom = [1, 0]
 		this.lock = null
 		this._screen = [0, 0]
+		this._zoomDefault = 1
+	}
+
+	public get zoomCell() {
+		return this.screenSize[1] / CONST.GRID_BASE
+	}
+
+	public get zoomDefault() {
+		return this._zoomDefault
+	}
+
+	public set zoomDefault(value: number) {
+		const k = value / this._zoomDefault
+		this._zoomDefault = value
+		this.zoom *= k
 	}
 
 	public get screenSize() {

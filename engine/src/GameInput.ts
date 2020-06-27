@@ -25,7 +25,9 @@ export class GameInput {
 				this.keyboard[key] = true
 				this.onKeyDown.invoke(key)
 			}
-			event.preventDefault()
+			if (key != "f11" && key != "f5") {
+				event.preventDefault()
+			}
 		}
 		window.addEventListener("keydown", keyDown)
 		this.handlers.push(["keydown", keyDown as EventListener])
@@ -35,7 +37,9 @@ export class GameInput {
 				this.keyboard[key] = false
 				this.onKeyUp.invoke(key)
 			}
-			event.preventDefault()
+			if (key != "f11" && key != "f5") {
+				event.preventDefault()
+			}
 		}
 		window.addEventListener("keyup", keyUp)
 		this.handlers.push(["keyup", keyUp as EventListener])
