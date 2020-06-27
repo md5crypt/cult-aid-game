@@ -17,7 +17,7 @@ import { Animation } from "./Animation"
 import { BitmapFont, FontData } from "./Text/BitmapFont"
 import { layoutFactory } from "./Layout/LayoutPIXI"
 import { TextureStorage } from "./Resources"
-import { Character } from "./Character"
+import { Speech } from "./Speech"
 import { DialogUI } from "./UI/DialogUI"
 import "./TextureAtlasLoader"
 
@@ -30,7 +30,7 @@ declare global {
 
 Object.assign(gameContext, {
 	Item: Sprite.Item,
-	Character: Character,
+	Speech: Speech,
 	Path: SimplePath,
 	Animation,
 	Sprite

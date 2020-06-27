@@ -88,7 +88,7 @@ export class DialogUI {
 		this.root.enabled = true
 		gameContext.ui.root.update()
 		this.arrowDown.enabled = element.offset != element.length
-		gameContext.input.onKeyDown.add(key => {
+		this.listenerTracker.add(gameContext.input.onKeyDown, (key => {
 			const trigger: (typeof key)[] = [" ", "enter", "e"]
 			if (trigger.includes(key)) {
 				if (!element.next() && onEnd) {
@@ -97,7 +97,7 @@ export class DialogUI {
 				gameContext.ui.root.update()
 				this.arrowDown.enabled = element.offset != element.length
 			}
-		})
+		}))
 	}
 
 	public renderOptions(options: string[], prompt?: string, avatar?: string, onSelect?: (option: number) => void) {

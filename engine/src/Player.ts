@@ -6,7 +6,7 @@ import { GameMap } from "./GameMap"
 
 export class Player extends Sprite.MovableItem {
 
-	public inputEnabled: boolean
+	private inputLock: number
 
 	public constructor(walkSequence: Sprite.WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 		super(walkSequence, speed)
@@ -16,11 +16,22 @@ export class Player extends Sprite.MovableItem {
 			}
 		})
 		this.alwaysUpdate = true
-		this.inputEnabled = true
+		this.inputLock = 0
+	}
+
+	public lockInput() {
+		this.inputLock += 1
+	}
+
+	public unlockInput() {
+		this.inputLock -= 1
+		if (this.inputLock < 0) {
+			throw new Error("something bad happend")
+		}
 	}
 
 	private checkInput() {
-		if (!this.inputEnabled) {
+		if (this.inputLock) {
 			return
 		}
 		if (gameContext.input.keyboard.arrowUp) {

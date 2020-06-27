@@ -10,7 +10,7 @@ import { ScriptTimer } from "./ScriptTimer"
 import { Animation } from "./Animation"
 import { Player } from "./Player"
 import { TextureStorage } from "./Resources"
-import { Character } from "./Character"
+import { Speech } from "./Speech"
 import { BaseElement } from "./Layout/LayoutPIXI"
 import { DialogUI } from "./UI/DialogUI"
 
@@ -43,7 +43,7 @@ export interface GameContext {
 	camera: GameCamera
 	player: Player
 	Sprite: typeof Sprite
-	Character: typeof Character
+	Speech: typeof Speech
 	Item: typeof Sprite.Item
 	Path: typeof SimplePath
 	Animation: typeof Animation
