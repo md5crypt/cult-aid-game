@@ -2,29 +2,37 @@ import { gameContext } from "../GameContext"
 import { ListenerTracker } from "../Listener"
 import { layoutFactory, SpriteElement, TextElement, BaseElement } from "../Layout/LayoutPIXI"
 
-import dialogOption from "./Layouts/dialogOption"
-import dialogChoice from "./Layouts/dialogChoice"
-import dialogSpeech from "./Layouts/dialogSpeech"
-import * as dialog from "./Layouts/dialog"
+import optionLayout from "./Layouts/dialogOption"
+import choiceLayout from "./Layouts/dialogChoice"
+import speechLayout from "./Layouts/dialogSpeech"
+import mainLayout from "./Layouts/dialog"
 
-interface AvatarConfig {
-	left?: string
-	right?: string
-}
+import arrowAnimator from "./Animators/dialogArrow"
+import avatarAnimator from "./Animators/dialogAvatar"
+import lockpickAnimator from "./Animators/dialogLockpick"
+import scrollAnimator from "./Animators/dialogScroll"
+
+const animatorsBuilder = (scroll: BaseElement) => ({
+	arrowUp: arrowAnimator(scroll.getElement("body.arrow-up"), 34),
+	arrowDown: arrowAnimator(scroll.getElement("body.arrow-down"), -34),
+	avatar: avatarAnimator(scroll.getElement("avatar")),
+	scroll: scrollAnimator(scroll.getElement("body")),
+	lockpick: lockpickAnimator()
+})
 
 export class DialogUI {
 	private root: BaseElement
 	private mask: BaseElement
-	private animators: ReturnType<typeof dialog.animators>
+	private animators: ReturnType<typeof animatorsBuilder>
 	private activeOption: number
 	private listenerTracker: ListenerTracker
 	private counter: number
 	private ready: boolean
 
 	constructor() {
-		this.root = layoutFactory.create(dialog.layout(), gameContext.ui.root)
-		this.animators = dialog.animators(this.root)
-		this.mask = this.root.getElement("mask")
+		this.root = layoutFactory.create(mainLayout(), gameContext.ui.root)
+		this.animators = animatorsBuilder(this.root)
+		this.mask = this.root.getElement("body.mask")
 		this.activeOption = 0
 		this.listenerTracker = new ListenerTracker()
 		this.counter = 0
@@ -36,14 +44,18 @@ export class DialogUI {
 				this.root.enabled = false
 				this.animators.arrowDown.stop()
 				this.animators.arrowUp.stop()
-				this.root.getElement("arrow-up").enabled = false
-				this.root.getElement("arrow-down").enabled = false
+				this.animators.avatar.stop()
+				this.root.getElement("avatar").enabled = false
+				this.root.getElement("body.arrow-up").enabled = false
+				this.root.getElement("body.arrow-down").enabled = false
 			} else if (state == "opened") {
 				this.ready = true
-				this.root.getElement("arrow-up").enabled = true
-				this.root.getElement("arrow-down").enabled = true
 				this.animators.arrowUp.start("closed")
 				this.animators.arrowDown.start("closed")
+			} else if (state == "opening") {
+				this.animators.avatar.start("closed")
+			} else if (state == "closing") {
+				this.animators.avatar.parameters.visible = false
 			}
 		})
 	}
@@ -67,25 +79,15 @@ export class DialogUI {
 		}
 	}
 
-	private setAvatar(config: AvatarConfig) {
-		const avatarLeft = this.root.getElement<SpriteElement>("avatar-left")
-		const avatarRight = this.root.getElement<SpriteElement>("avatar-right")
-		const margin = {left: 15, right: 15}
-		if (config.left) {
-			avatarLeft.enabled = true
-			avatarLeft.image = config.left
-			margin.left = 150
+	private setAvatar(resource: string | undefined) {
+		if (resource) {
+			this.root.getElement<SpriteElement>("avatar").image = resource
+			this.mask.updateConfig({margin: {left: 150}})
+			this.animators.avatar.parameters.visible = true
 		} else {
-			avatarLeft.enabled = false
+			this.mask.updateConfig({margin: {left: 15}})
+			this.animators.avatar.parameters.visible = false
 		}
-		if (config.right) {
-			avatarRight.enabled = true
-			avatarRight.image = config.right
-			margin.right = 150
-		} else {
-			avatarRight.enabled = false
-		}
-		this.mask.updateConfig({margin})
 	}
 
 	private setActive(value: number) {
@@ -114,10 +116,10 @@ export class DialogUI {
 		this.activeOption = nextIndex
 	}
 
-	public renderSpeech(text: string, avatar: AvatarConfig = {}, onEnd?: () => void) {
+	public renderSpeech(text: string, avatar?: string, onEnd?: () => void) {
 		this.claim()
 		this.mask.deleteChildren()
-		const element = layoutFactory.create(dialogSpeech(text), this.mask) as TextElement
+		const element = layoutFactory.create(speechLayout(text), this.mask) as TextElement
 		this.setAvatar(avatar)
 		this.root.enabled = true
 		gameContext.ui.root.update()
@@ -140,9 +142,9 @@ export class DialogUI {
 	public renderOptions(options: string[], prompt?: string, avatar?: string, onSelect?: (option: number) => void) {
 		this.claim()
 		this.mask.deleteChildren()
-		const body = layoutFactory.create(dialogChoice(prompt), this.mask)
-		options.forEach(option => body.insertElement(layoutFactory.create(dialogOption(option))))
-		this.setAvatar({left: avatar})
+		const body = layoutFactory.create(choiceLayout(prompt), this.mask)
+		options.forEach(option => body.insertElement(layoutFactory.create(optionLayout(option))))
+		this.setAvatar(avatar)
 		this.activeOption = 0
 		this.root.enabled = true
 		gameContext.ui.root.update()

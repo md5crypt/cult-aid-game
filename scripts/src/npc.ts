@@ -12,7 +12,6 @@ namespace NPC {
 	export const khajiit = new Character({
 		name: "Khajiit",
 		color: "darkgreen",
-		defaultSide: "right",
 		avatars: {
 			default: "avatar-test"
 		}

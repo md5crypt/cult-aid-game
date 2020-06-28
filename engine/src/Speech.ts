@@ -9,13 +9,11 @@ export namespace Speech {
 		name: string | (() => string)
 		color?: string | (() => string)
 		data?: T
-		defaultSide?: "left" | "right"
 	}
 
 	interface SayParams<T = any, K extends AvatarMap = any> {
 		operation?: "say"
 		character: Character<T, K>
-		side?: "left" | "right"
 		avatar?: keyof K
 		text: string
 	}
@@ -72,7 +70,7 @@ export namespace Speech {
 			} else {
 				await new Promise(resolve => gameContext.ui.dialog.renderSpeech(
 					`[color=${item.character.color}]${item.character.name}:[/color] ${item.text}`,
-					{ [item.side || item.character.side]: item.character.getAvatar(item.avatar || "default") },
+					item.character.getAvatar(item.avatar || "default"),
 					() => resolve()
 				))
 			}
@@ -194,18 +192,24 @@ export namespace Speech {
 			return typeof this.config.name == "function" ? this.config.name() : this.config.name
 		}
 
-		public get side() {
-			return this.config.defaultSide || "left"
-		}
-
 		public getAvatar(name: keyof K) {
 			return this.config.avatars[name]
 		}
 
-		public say(params: string | Omit<SayParams<T, K>, "character">, execute?: false): SayParams<T, K>
-		public say(params: string | Omit<SayParams<T, K>, "character">, execute: true): Promise<void>
-		public say(params: string | Omit<SayParams<T, K>, "character">, execute: boolean = false): SayParams<T, K> | Promise<void> {
-			const result = typeof params == "string" ? {text: params, character: this} : {...params, character: this}
+		public say(text: string, execute?: false): SayParams<T, K>
+		public say(text: string, execute: true): Promise<void>
+		public say(avatar: keyof K, text: string, execute?: false): SayParams<T, K>
+		public say(avatar: keyof K, text: string, execute: true): Promise<void>
+		public say(arg1: string, arg2?: string | boolean, arg3?: boolean): SayParams<T, K> | Promise<void> {
+			let execute = false
+			let result: SayParams<T, K>
+			if (typeof arg2 == "string") {
+				execute = Boolean(arg3)
+				result = {text: arg2, avatar: arg1, character: this}
+			} else {
+				execute = Boolean(arg2)
+				result = {text: arg1, character: this}
+			}
 			return execute ? Speech.execute([result]) : result
 		}
 
