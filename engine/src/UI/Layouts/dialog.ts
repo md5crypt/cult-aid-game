@@ -1,109 +1,129 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson, BaseElement } from "../../Layout/LayoutPIXI"
+import { Animator } from "../Animator"
+import { gameContext } from "../../GameContext"
 
-export default (): LayoutElementJson => ({
+export const animators = (scroll: BaseElement) => ({
+	arrowUp: arrowAnimator(scroll.getElement("arrow-up"), 34),
+	arrowDown: arrowAnimator(scroll.getElement("arrow-down"), -34),
+	scroll: scrollAnimator(scroll)
+})
+
+export const layout = (): LayoutElementJson => ({
 	name: "scroll",
 	type: "container",
 	layout: {
-		top: element => element.parent.height - element.height,
-		width: "100%",
-		flexMode: "horizontal",
-		flexHorizontalAlign: "center",
-		flexVerticalAlign: "middle",
-		enabled: false
-	},
-	config: {
-		sorted: true
+		left: element => (element.parent.width - element.width) / 2,
+		height: "100%"
 	},
 	children: [
 		{
-			name: "avatar-left",
-			type: "sprite",
+			type: "container",
 			layout: {
-				ignoreLayout: true,
-				top: element => element.parent.height - element.contentHeight
-			},
-			config: {
-				zIndex: 2
-			}
-		},
-		{
-			name: "avatar-right",
-			type: "sprite",
-			layout: {
-				ignoreLayout: true,
-				top: element => element.parent.height - element.contentHeight,
-				left: element => element.parent.width - element.contentWidth
-			},
-			config: {
-				zIndex: 2,
-				mirror: "horizontal"
-			}
-		},
-		{
-			type: "sprite",
-			layout: {
-				left: 8
-			},
-			config: {
-				image: "scroll-scroll",
-				zIndex: 1
-			}
-		},
-		{
-			name: "arrow-up",
-			type: "sprite",
-			layout: {
-				ignoreLayout: true,
-				left: element => element.parent.width - 120,
-				top: element => 28 - element.contentHeight
-			},
-			config: {
-				image: "scroll-arrow-up"
-			}
-		},
-		{
-			name: "arrow-down",
-			type: "sprite",
-			layout: {
-				ignoreLayout: true,
-				left: element => element.parent.width - 160,
-				top: element => element.parent.height - 30
-			},
-			config: {
-				image: "scroll-arrow-down"
-			}
-		},
-		{
-			type: "sprite",
-			layout: {
-				flexGrow: 1,
+				width: "100%",
+				height: "100%",
 				flexMode: "horizontal",
-				padding: {top: 12, bottom: 15},
-				height: element => element.contentHeight
+				padding: {horizontal: 4},
+				flexHorizontalAlign: "center",
+				flexVerticalAlign: "bottom"
 			},
 			config: {
-				container: true,
-				image: "scroll-bg",
-				scaling: "repeat"
+				mask: true
 			},
 			children: [
 				{
-					name: "mask",
 					type: "container",
 					layout: {
-						flexGrow: 1,
-						height: "100%"
+						width: () => Math.min(800, gameContext.ui.root.width),
+						height: 172
 					},
-					config: {
-						mask: true
-					}
+					children: [
+						{
+							name: "arrow-up",
+							type: "sprite",
+							layout: {
+								left: element => element.parent.width - 200,
+								top: element => 34 - element.contentHeight
+							},
+							config: {
+								image: "scroll-arrow"
+							}
+						},
+						{
+							name: "arrow-down",
+							type: "sprite",
+							layout: {
+								left: element => element.parent.width - 240,
+								top: element => element.parent.height - 36
+							},
+							config: {
+								image: "scroll-arrow",
+								mirror: "vertical"
+							}
+						},
+						{
+							type: "sprite",
+							layout: {
+								width: "100%",
+								flexMode: "horizontal",
+								padding: {top: 12, bottom: 15, horizontal: 23},
+								height: element => element.contentHeight,
+								top: element => (element.parent.height - element.contentHeight) / 2
+							},
+							config: {
+								container: true,
+								image: "scroll-bg",
+								scaling: "repeat"
+							},
+							children: [
+								{
+									name: "mask",
+									type: "container",
+									layout: {
+										flexGrow: 1,
+										height: "100%"
+									},
+									config: {
+										mask: true
+									}
+								}
+							]
+						},
+						{
+							name: "avatar-left",
+							type: "sprite",
+							layout: {
+								top: element => element.parent.height - element.contentHeight
+							}
+						},
+						{
+							name: "avatar-right",
+							type: "sprite",
+							layout: {
+								top: element => element.parent.height - element.contentHeight,
+								left: element => element.parent.width - element.contentWidth
+							},
+							config: {
+								mirror: "horizontal"
+							}
+						}
+					]
 				}
 			]
 		},
 		{
 			type: "sprite",
 			layout: {
-				left: -8
+				top: element => element.parent.height - element.height
+			},
+			config: {
+				image: "scroll-scroll"
+			}
+		},
+		{
+			type: "sprite",
+			layout: {
+				top: element => element.parent.height - element.height,
+				left: element => element.parent.width - element.contentWidth
 			},
 			config: {
 				image: "scroll-scroll",
@@ -112,3 +132,70 @@ export default (): LayoutElementJson => ({
 		}
 	]
 })
+
+
+function arrowAnimator(arrow: BaseElement, delta: number) {
+	return new Animator<{visible?: boolean}>({
+		"opened": {
+			transition: context => context.parameters.visible ? false : "closing",
+			duration: 0,
+			animation: () => arrow.updateConfig({margin: {top: 0}})
+		},
+		"closing": {
+			transition: "closed",
+			duration: 500,
+			animation: context => arrow.updateConfig({margin: {top: context.interpolate(0, delta)}})
+		},
+		"closed": {
+			transition: context => context.parameters.visible ? "opening" : false,
+			duration: 0,
+			animation: () => arrow.updateConfig({margin: {top: delta}})
+		},
+		"opening": {
+			transition: "opened",
+			duration: 500,
+			animation: context => arrow.updateConfig({margin: {top: context.interpolate(delta, 0)}})
+		}
+	})
+}
+
+function scrollAnimator(scroll: BaseElement) {
+	return new Animator({
+		"slideIn": {
+			transition: "open",
+			duration: 500,
+			animation: context => scroll.updateConfig({
+				margin: {top: context.interpolate(172, 0)},
+				width: 48
+			})
+		},
+		"open": {
+			transition: "opened",
+			duration: 500,
+			animation: context => scroll.updateConfig({
+				width: context.interpolate(48, Math.min(800, scroll.parent.width - 16))
+			})
+		},
+		"opened": {
+			transition: () => false,
+			duration: 0,
+			animation: () => scroll.updateConfig({
+				width: element => Math.min(800, element.parent.width - 16)
+			})
+		},
+		"close": {
+			transition: "slideOut",
+			duration: 500,
+			animation: context => scroll.updateConfig({
+				width: context.interpolate(Math.min(800, scroll.parent.width), 48)
+			})
+		},
+		"slideOut": {
+			transition: "stop",
+			duration: 500,
+			animation: context => scroll.updateConfig({
+				margin: {top: context.interpolate(0, 172)}
+			})
+		}
+	})
+}

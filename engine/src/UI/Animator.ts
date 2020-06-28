@@ -148,7 +148,7 @@ export class Animator<P extends Record<string, any>> {
 		state.animation(this)
 	}
 
-	public interpolate(from: number, to: number, func: keyof typeof transitions = "linear") {
+	public interpolate(from: number, to: number, func: keyof typeof transitions = "easeInOut") {
 		return from + (to - from) * transitions[func](this._progress)
 	}
 
