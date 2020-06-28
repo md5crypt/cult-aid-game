@@ -34,13 +34,13 @@ export class Player extends Sprite.MovableItem {
 		if (this.inputLock) {
 			return
 		}
-		if (gameContext.input.keyboard.arrowUp) {
+		if (gameContext.input.keyboard.arrowUp || gameContext.input.keyboard.w) {
 			this.walk("up")
-		} else if (gameContext.input.keyboard.arrowDown) {
+		} else if (gameContext.input.keyboard.arrowDown || gameContext.input.keyboard.s) {
 			this.walk("down")
-		} else if (gameContext.input.keyboard.arrowLeft) {
+		} else if (gameContext.input.keyboard.arrowLeft || gameContext.input.keyboard.a) {
 			this.walk("left")
-		} else if (gameContext.input.keyboard.arrowRight) {
+		} else if (gameContext.input.keyboard.arrowRight || gameContext.input.keyboard.d) {
 			this.walk("right")
 		} else if (gameContext.input.keyboard["+"]) {
 			gameContext.camera.zoom *= 1.05
@@ -48,7 +48,7 @@ export class Player extends Sprite.MovableItem {
 			gameContext.camera.zoom *= 0.95
 		} else if (gameContext.input.keyboard["0"]) {
 			gameContext.camera.zoom = 1
-		} else if (gameContext.input.keyboard[" "]) {
+		} else if (gameContext.input.keyboard[" "] || gameContext.input.keyboard.e || gameContext.input.keyboard.enter) {
 			if (this.cell.onUse) {
 				this.cell.onUse.invoke(this.cell)
 			}

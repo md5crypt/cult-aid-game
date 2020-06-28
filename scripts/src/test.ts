@@ -68,7 +68,8 @@ const testDialog1 = NPC.zombii.ask({
 })
 
 scripts.register("test", "cellUse", (_cell) => {
-	void context.camera.shake(1000)
+	//void context.camera.shake(1000)
+	void context.Speech.start(testDialog1)
 })
 
 scripts.register("placePlayer", "cellCreate", async (cell) => {

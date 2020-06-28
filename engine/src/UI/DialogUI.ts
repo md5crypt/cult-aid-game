@@ -18,6 +18,8 @@ export class DialogUI {
 	private animators: ReturnType<typeof dialog.animators>
 	private activeOption: number
 	private listenerTracker: ListenerTracker
+	private counter: number
+	private ready: boolean
 
 	constructor() {
 		this.root = layoutFactory.create(dialog.layout(), gameContext.ui.root)
@@ -25,6 +27,44 @@ export class DialogUI {
 		this.mask = this.root.getElement("mask")
 		this.activeOption = 0
 		this.listenerTracker = new ListenerTracker()
+		this.counter = 0
+		this.ready = false
+		this.animators.scroll.onStateChange.add(state => {
+			if (state == null) {
+				this.ready = false
+				gameContext.player.unlockInput()
+				this.root.enabled = false
+				this.animators.arrowDown.stop()
+				this.animators.arrowUp.stop()
+				this.root.getElement("arrow-up").enabled = false
+				this.root.getElement("arrow-down").enabled = false
+			} else if (state == "opened") {
+				this.ready = true
+				this.root.getElement("arrow-up").enabled = true
+				this.root.getElement("arrow-down").enabled = true
+				this.animators.arrowUp.start("closed")
+				this.animators.arrowDown.start("closed")
+			}
+		})
+	}
+
+	public claim() {
+		this.counter += 1
+		if (this.counter == 1) {
+			gameContext.player.lockInput()
+			this.root.enabled = true
+			this.animators.scroll.parameters.opened = true
+			this.animators.scroll.start("slideIn")
+		}
+	}
+
+	public release() {
+		this.counter -= 1
+		if (this.counter == 0) {
+			this.animators.scroll.parameters.opened = false
+			this.animators.arrowUp.parameters.visible = false
+			this.animators.arrowDown.parameters.visible = false
+		}
 	}
 
 	private setAvatar(config: AvatarConfig) {
@@ -57,8 +97,8 @@ export class DialogUI {
 		const delta = this.mask.height - body.outerHeight
 		const top = Math.min(0, Math.max(position, delta))
 		if (delta < 0) {
-			//this.arrowUpAnimator.parameters.visible = top < 0
-			//this.arrowDownAnimator.parameters.visible = top > delta
+			this.animators.arrowUp.parameters.visible = top < 0
+			this.animators.arrowDown.parameters.visible = top > delta
 		}
 		body.top = top
 		current.getElement<SpriteElement>("lockpick").alpha = 0
@@ -67,37 +107,39 @@ export class DialogUI {
 		next.getElement<SpriteElement>("lockpick").alpha = 1
 		next.getElement<SpriteElement>("keyhole").image = "scroll-keyhole-active"
 		next.getElement<TextElement>("text").alpha = 1
+		this.animators.lockpick.parameters.lockpick = next.getElement<SpriteElement>("lockpick")
+		if (!this.animators.lockpick.started) {
+			this.animators.lockpick.start()
+		}
 		this.activeOption = nextIndex
 	}
 
-	public clear() {
-		this.listenerTracker.clear()
-		this.mask.deleteChildren()
-		this.root.enabled = false
-	}
-
 	public renderSpeech(text: string, avatar: AvatarConfig = {}, onEnd?: () => void) {
-		this.clear()
+		this.claim()
+		this.mask.deleteChildren()
 		const element = layoutFactory.create(dialogSpeech(text), this.mask) as TextElement
 		this.setAvatar(avatar)
 		this.root.enabled = true
 		gameContext.ui.root.update()
-		//this.arrowUpAnimator.parameters.visible = false
-		//this.arrowDownAnimator.parameters.visible = element.offset != element.length
+		this.animators.arrowUp.parameters.visible = false
+		this.animators.arrowDown.parameters.visible = element.offset != element.length
 		this.listenerTracker.add(gameContext.input.onKeyDown, (key => {
 			const trigger: (typeof key)[] = [" ", "enter", "e"]
-			if (trigger.includes(key)) {
+			if (trigger.includes(key) && this.ready) {
 				if (!element.next() && onEnd) {
+					this.listenerTracker.clear()
+					this.release()
 					onEnd()
 				}
 				gameContext.ui.root.update()
-				//this.arrowDownAnimator.parameters.visible = element.offset != element.length
+				this.animators.arrowDown.parameters.visible = element.offset != element.length
 			}
 		}))
 	}
 
 	public renderOptions(options: string[], prompt?: string, avatar?: string, onSelect?: (option: number) => void) {
-		this.clear()
+		this.claim()
+		this.mask.deleteChildren()
 		const body = layoutFactory.create(dialogChoice(prompt), this.mask)
 		options.forEach(option => body.insertElement(layoutFactory.create(dialogOption(option))))
 		this.setAvatar({left: avatar})
@@ -106,18 +148,26 @@ export class DialogUI {
 		gameContext.ui.root.update()
 		this.setActive(0)
 		this.listenerTracker.add(gameContext.input.onKeyDown, key => {
+			if (!this.ready) {
+				return
+			}
 			switch (key) {
 				case "arrowUp":
+				case "w":
 					this.setActive(this.activeOption - 1)
 					break
 				case "arrowDown":
+				case "s":
 					this.setActive(this.activeOption + 1)
 					break
 				case "enter":
+				case "e":
+					this.listenerTracker.clear()
+					this.animators.lockpick.stop()
+					this.release()
 					onSelect && onSelect(this.activeOption)
 					break
 			}
 		})
-		this.animators.scroll.start("slideIn")
 	}
 }

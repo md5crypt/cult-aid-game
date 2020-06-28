@@ -46,7 +46,7 @@ export namespace Speech {
 	export async function execute(batch: (SayParams | SayFunction)[]): Promise<void>
 	export async function execute(batch: (SayParams | DialogOperation | DialogFunction)[], dialog: Dialog): Promise<void>
 	export async function execute(batch: (SayParams | DialogOperation | DialogFunction | SayFunction)[], dialog?: Dialog) {
-		gameContext.player.lockInput()
+		gameContext.ui.dialog.claim()
 		for (const item of batch) {
 			if (typeof item == "function") {
 				const result = dialog ? item(dialog) : (item as SayFunction)()
@@ -73,14 +73,11 @@ export namespace Speech {
 				await new Promise(resolve => gameContext.ui.dialog.renderSpeech(
 					`[color=${item.character.color}]${item.character.name}:[/color] ${item.text}`,
 					{ [item.side || item.character.side]: item.character.getAvatar(item.avatar || "default") },
-					() => {
-						gameContext.ui.dialog.clear()
-						resolve()
-					})
-				)
+					() => resolve()
+				))
 			}
 		}
-		gameContext.player.unlockInput()
+		gameContext.ui.dialog.release()
 	}
 
 	export function start<T, K extends AvatarMap>(dialog: DialogConfig<T, K>) {
@@ -118,8 +115,8 @@ export namespace Speech {
 
 		public static start<T, K extends AvatarMap>(dialog: DialogConfig<T, K>): Promise<void> {
 			const object = new Dialog()
-			gameContext.player.lockInput()
 			object.stack = [dialog]
+			gameContext.ui.dialog.claim()
 			return new Promise(resolve => {
 				object.resolve = resolve
 				object.continue()
@@ -128,7 +125,7 @@ export namespace Speech {
 
 		private continue() {
 			if (this.stack.length == 0) {
-				gameContext.player.unlockInput()
+				gameContext.ui.dialog.release()
 				this.resolve!()
 				return
 			}

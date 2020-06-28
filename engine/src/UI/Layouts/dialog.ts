@@ -5,7 +5,8 @@ import { gameContext } from "../../GameContext"
 export const animators = (scroll: BaseElement) => ({
 	arrowUp: arrowAnimator(scroll.getElement("arrow-up"), 34),
 	arrowDown: arrowAnimator(scroll.getElement("arrow-down"), -34),
-	scroll: scrollAnimator(scroll)
+	scroll: scrollAnimator(scroll),
+	lockpick: lockpickAnimator()
 })
 
 export const layout = (): LayoutElementJson => ({
@@ -22,7 +23,7 @@ export const layout = (): LayoutElementJson => ({
 				width: "100%",
 				height: "100%",
 				flexMode: "horizontal",
-				padding: {horizontal: 4},
+				padding: {horizontal: 5},
 				flexHorizontalAlign: "center",
 				flexVerticalAlign: "bottom"
 			},
@@ -41,6 +42,7 @@ export const layout = (): LayoutElementJson => ({
 							name: "arrow-up",
 							type: "sprite",
 							layout: {
+								enabled: false,
 								left: element => element.parent.width - 200,
 								top: element => 34 - element.contentHeight
 							},
@@ -52,6 +54,7 @@ export const layout = (): LayoutElementJson => ({
 							name: "arrow-down",
 							type: "sprite",
 							layout: {
+								enabled: false,
 								left: element => element.parent.width - 240,
 								top: element => element.parent.height - 36
 							},
@@ -135,7 +138,7 @@ export const layout = (): LayoutElementJson => ({
 
 
 function arrowAnimator(arrow: BaseElement, delta: number) {
-	return new Animator<{visible?: boolean}>({
+	return new Animator({
 		"opened": {
 			transition: context => context.parameters.visible ? false : "closing",
 			duration: 0,
@@ -143,7 +146,7 @@ function arrowAnimator(arrow: BaseElement, delta: number) {
 		},
 		"closing": {
 			transition: "closed",
-			duration: 500,
+			duration: 400,
 			animation: context => arrow.updateConfig({margin: {top: context.interpolate(0, delta)}})
 		},
 		"closed": {
@@ -153,10 +156,10 @@ function arrowAnimator(arrow: BaseElement, delta: number) {
 		},
 		"opening": {
 			transition: "opened",
-			duration: 500,
+			duration: 400,
 			animation: context => arrow.updateConfig({margin: {top: context.interpolate(delta, 0)}})
 		}
-	})
+	}, {visible: false})
 }
 
 function scrollAnimator(scroll: BaseElement) {
@@ -177,24 +180,50 @@ function scrollAnimator(scroll: BaseElement) {
 			})
 		},
 		"opened": {
-			transition: () => false,
+			transition: context => context.parameters.opened ? false : "close",
 			duration: 0,
 			animation: () => scroll.updateConfig({
 				width: element => Math.min(800, element.parent.width - 16)
 			})
 		},
 		"close": {
-			transition: "slideOut",
+			transition: () => "slideOut",
 			duration: 500,
 			animation: context => scroll.updateConfig({
-				width: context.interpolate(Math.min(800, scroll.parent.width), 48)
+				width: context.interpolate(Math.min(800, scroll.parent.width - 16), 48)
 			})
 		},
 		"slideOut": {
 			transition: "stop",
 			duration: 500,
 			animation: context => scroll.updateConfig({
-				margin: {top: context.interpolate(0, 172)}
+				margin: {top: context.interpolate(0, 172)},
+				width: 48
+			})
+		}
+	}, {opened: true})
+}
+
+function lockpickAnimator() {
+	const stepsY = [
+		{progress: 0, value: 0},
+		{progress: 0.25, value: 1},
+		{progress: 0.5, value: 0},
+		{progress: 0.75, value: -1}
+	]
+	const stepsX = [
+		{progress: 0, value: 2},
+		{progress: 0.25, value: 1},
+		{progress: 0.5, value: 0},
+		{progress: 0.75, value: 1}
+	]
+	return new Animator<{lockpick: BaseElement}>({
+		"initial": {
+			duration: 500,
+			loop: true,
+			animation: context => context.parameters.lockpick.updateConfig({
+				top: context.steps(stepsY),
+				left: context.steps(stepsX)
 			})
 		}
 	})

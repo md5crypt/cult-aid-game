@@ -22,7 +22,7 @@ const transitions = {
 interface State<P> {
 	duration: number
 	loop?: boolean
-	transition: string | ((context: Animator<P>) => string | false)
+	transition?: string | ((context: Animator<P>) => string | false)
 	animation: (context: Animator<P>) => void
 }
 
@@ -36,7 +36,7 @@ export class Animator<P extends Record<string, any>> {
 	private _started: boolean
 	private _progress: number
 	public readonly parameters: P
-	public readonly onStateChange: Listener<string | null>
+	public readonly onStateChange: Listener<[string | null]>
 
 	public constructor(states: Record<string, State<P>>, parameters?: P) {
 		if (states.stop) {
@@ -105,12 +105,19 @@ export class Animator<P extends Record<string, any>> {
 		}
 		let state = this.state!
 		let progress = state.duration ? (current - this.startTime) / state.duration : 1
-		if (!this.running || (progress > 1)) {
+		if ((!this.running || (progress > 1)) && state.transition) {
 			const nextStateName = typeof state.transition == "string" ? state.transition : state.transition(this)
 			if (nextStateName == "stop") {
 				this.stop()
 				return
 			} else if (nextStateName) {
+				if (this.running) {
+					this.startTime += state.duration
+					progress = state.duration ? (current - this.startTime) / state.duration : 1
+				} else {
+					this.startTime = current
+					progress = 0
+				}
 				state = this.states[nextStateName]
 				if (!state) {
 					throw new Error(`could not find state ${nextStateName}`)
@@ -120,13 +127,6 @@ export class Animator<P extends Record<string, any>> {
 				// the callback could have called stop()
 				if (!this._started) {
 					return
-				}
-				if (this.running) {
-					this.startTime += state.duration
-					progress = state.duration ? (current - this.startTime) / state.duration : 1
-				} else {
-					this.startTime = current
-					progress = 0
 				}
 				this.running = true
 			}
@@ -154,7 +154,7 @@ export class Animator<P extends Record<string, any>> {
 
 	public steps<T>(steps: {progress: number, value: T}[]) {
 		for (let i = steps.length - 1; i >= 0; i -= 1) {
-			if (steps[i].progress >= this._progress) {
+			if (steps[i].progress <= this._progress) {
 				return steps[i].value
 			}
 		}
