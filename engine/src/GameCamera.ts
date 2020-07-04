@@ -1,6 +1,7 @@
 import { SimplePath, Path } from "./Path"
 import { Sprite } from "./Sprite"
 import { gameContext } from "./GameContext"
+import { modulo } from "./utils"
 import { CONST } from "./Constants"
 
 interface Shaker {
@@ -105,7 +106,16 @@ export class GameCamera {
 	}
 
 	public moveTo(x: number, y: number, duration: number) {
-		return this.moveBy(x - this._pivot[0], y - this._pivot[1], duration)
+		const width = gameContext.map.pixelWidth
+		const height = gameContext.map.pixelHeight
+		const dx = modulo(x - this._pivot[0], width)
+		const dy = modulo(y - this._pivot[1], height)
+		console.log(dx, dy)
+		return this.moveBy(
+			dx > (width / 2) ? dx - width : dx,
+			dy > (height / 2) ? dy - height : dy,
+			duration
+		)
 	}
 
 	public zoomBy(dz: number, duration: number) {
@@ -181,7 +191,7 @@ export class GameCamera {
 				if (steps > 0) {
 					shaker.timer -= shaker.speed * steps
 					shaker.x = (Math.random() - 0.5) * shaker.magnitude * 2
-					shaker.y = (Math.random() - 0.5)  * shaker.magnitude * 2
+					shaker.y = (Math.random() - 0.5) * shaker.magnitude * 2
 				}
 			}
 		}

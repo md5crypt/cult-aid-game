@@ -126,3 +126,49 @@ scripts.register("trap", "cellEnter", async (cell) => {
 	})
 	player.setTexture(context.Sprite.find("khajiit-spider"), animation)
 })
+
+scripts.register("roomEnter", "cellEnter", (cell, direction) => {
+	const reverse = {
+		up: "down",
+		down: "up",
+		left: "right",
+		right: "left"
+	} as const
+	if (reverse[direction] == cell.data?.gateway) {
+		const group = cell.getGroup()
+		const bounds = cell.getGroupBounds(group)
+		group.forEach(x => x.setVisible())
+		context.player.lockInput()
+		void Promise.all([
+			context.camera.moveTo(
+				(bounds[0] + (bounds[2] / 2)) * CONST.GRID_BASE,
+				((bounds[1] + (bounds[3] / 2)) * CONST.GRID_BASE) + 6,
+				500
+			),
+			context.camera.zoomTo(
+				context.camera.zoomCell / Math.max(bounds[2], bounds[3]),
+				500
+			)
+		]).then(() => context.player.unlockInput())
+	}
+})
+
+scripts.register("roomExit", "cellExit", (cell, direction) => {
+	if (direction == cell.data?.gateway) {
+		const next = cell.getNeighbor(direction)
+		const path = next.getEnterPath(direction)!
+		const center = path[path.length - 1]
+		context.player.lockInput()
+		void Promise.all([
+			context.camera.zoomTo(context.camera.zoomDefault, 500),
+			context.camera.moveTo(
+				(next.x * CONST.GRID_BASE) + center[0],
+				(next.y * CONST.GRID_BASE) + center[1],
+				500
+			)
+		]).then(() => {
+			context.camera.lockOn(context.player)
+			context.player.unlockInput()
+		})
+	}
+})

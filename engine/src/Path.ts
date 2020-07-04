@@ -54,7 +54,7 @@ export class SimplePath implements Path {
 		this.x = points[0][0]
 		this.y = points[0][1]
 		this.current = 0
-		this.speed = speed / CONST.WALK_SPEED_SCALE
+		this.speed = (speed / CONST.WALK_SPEED_SCALE) || Infinity
 		this.accumulator = 0
 		this.prepareNext()
 		this.onEnd = new Listener()

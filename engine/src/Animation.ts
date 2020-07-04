@@ -2,7 +2,7 @@ import { Listener } from "./Listener"
 import { CONST } from "./Constants"
 
 interface StackFrame {
-	data: Animation.Defenition
+	data: Animation.Definition
 	position: number
 	counter: number
 }
@@ -15,7 +15,7 @@ export class Animation {
 	private timer: number
 	private delay: number
 
-	constructor(defenition: Animation.Defenition, delay = CONST.FALLBACK_DELAY) {
+	constructor(defenition: Animation.Definition, delay = CONST.FALLBACK_DELAY) {
 		this.stack = [{data: defenition, position: 0, counter: 0}]
 		this.onEnd = new Listener()
 		this.onInvoke = new Listener()
@@ -94,7 +94,7 @@ export class Animation {
 				}
 			} else {
 				frame.position += 1
-				stack.push({data: item as Animation.Defenition, position: 0, counter: 0})
+				stack.push({data: item as Animation.Definition, position: 0, counter: 0})
 			}
 		}
 		if (stack.length == 0) {
@@ -110,7 +110,7 @@ export namespace Animation {
 		["sequence", number, number, number?] |
 		["invoke", string] |
 		["loop", number?] |
-		Defenition
+		Definition
 	)>
-	export interface Defenition extends ReadonlyArray<DefenitionObject> {}
+	export interface Definition extends ReadonlyArray<DefenitionObject> {}
 }

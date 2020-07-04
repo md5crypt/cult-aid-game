@@ -6,6 +6,7 @@ import { gameContext } from "./GameContext"
 import { ScriptTimer } from "./ScriptTimer"
 import { ScriptStorage } from "./ScriptStorage"
 import { Listener } from "./Listener"
+import { modulo } from "./utils"
 
 export class GameMap {
 	private _cells: GameMap.Cell[] = []
@@ -230,31 +231,37 @@ export namespace GameMap {
 			this.timer = new ScriptTimer()
 		}
 
-		get visible() {
+		public get data() {
+			return this.background?.data
+		}
+
+		public get visible() {
 			return this.visibility >= CellVisibility.FULL
 		}
 
-		set visible(value: boolean) {
+		public set visible(value: boolean) {
 			if (!(this.visibility & (CellVisibility.COMPOSITE_MASK | CellVisibility.FULL)) == value) {
 				this.visibility = value ? CellVisibility.FULL : 0
 				if (this.composite) {
-					this.updateConntected(this.composite[0].data.paths!, value)
-					this.updateConntected(this.composite[1].data.paths!, value)
+					this.updateConnected(this.composite[0].data.paths!, value)
+					this.updateConnected(this.composite[1].data.paths!, value)
 				} else if (this.paths) {
-					this.updateConntected(this.paths, value)
+					this.updateConnected(this.paths, value)
 				}
 			}
 		}
 
 		public setVisible(direction?: Direction) {
-			if (this.composite && direction) {
+			if (this.visibility & CellVisibility.FULL) {
+				// nothing to do
+			} else if (this.composite && direction) {
 				const paths = this.composite[0].data.paths!
 				if (paths[direction]) {
 					this.visibility |= CellVisibility.COMPOSITE_A
-					this.updateConntected(paths, true)
+					this.updateConnected(paths, true)
 				} else {
 					this.visibility |= CellVisibility.COMPOSITE_B
-					this.updateConntected(this.composite[1].data.paths!, true)
+					this.updateConnected(this.composite[1].data.paths!, true)
 				}
 				if ((this.visibility & (CellVisibility.COMPOSITE_MASK)) == (CellVisibility.COMPOSITE_MASK)) {
 					this.visibility |= CellVisibility.FULL
@@ -262,12 +269,12 @@ export namespace GameMap {
 			} else {
 				this.visibility |= CellVisibility.FULL
 				if (this.paths) {
-					this.updateConntected(this.paths, true)
+					this.updateConnected(this.paths, true)
 				}
 			}
 		}
 
-		private updateConntected(paths: GameData.PathData, value: boolean) {
+		private updateConnected(paths: GameData.PathData, value: boolean) {
 			const map = gameContext.map
 			if (paths.down) {
 				map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).setPlug("down", value)
@@ -365,7 +372,9 @@ export namespace GameMap {
 			return undefined
 		}
 
-		public getExitPath(direction: Direction, x: number, y: number) {
+		public getExitPath(direction: Direction) : readonly (readonly [number, number])[] | undefined
+		public getExitPath(direction: Direction, x: number, y: number) : readonly (readonly [number, number])[] | undefined
+		public getExitPath(direction: Direction, x?: number, y?: number) {
 			if (this.paths) {
 				let path
 				switch (direction) {
@@ -381,6 +390,9 @@ export namespace GameMap {
 					case "right":
 						path = this.paths.left
 						break
+				}
+				if (typeof x === "undefined") {
+					return path
 				}
 				if (path) {
 					const last = path[path.length - 1]
@@ -428,6 +440,84 @@ export namespace GameMap {
 		public clearItems() {
 			this._items.forEach(item => item._cell = undefined)
 			this._items = []
+		}
+
+		public getNeighbor(direction: Direction) {
+			let offsetX = 0
+			let offsetY = 0
+			switch (direction) {
+				case "up":
+					offsetY = -1
+					break
+				case "down":
+					offsetY = 1
+					break
+				case "left":
+					offsetX = -1
+					break
+				case "right":
+					offsetX = 1
+					break
+			}
+			const map = gameContext.map
+			return map.getCell(
+				modulo(this.x + offsetX, map.tileWidth),
+				modulo(this.y + offsetY, map.tileHeight)
+			)
+		}
+
+		private getGroupNeighbor(direction: Direction) {
+			if (!this.background || !this.paths) {
+				return null
+			}
+			const data = this.background.data
+			if (this.getEnterPath(direction) && (data.gateway != direction)) {
+				const cell = this.getNeighbor(direction)
+				if (cell.background && (cell.background.data.group == data.group)) {
+					return cell
+				}
+			}
+			return null
+		}
+
+		public getGroup() {
+			const cells: Set<Cell> = new Set()
+			const stack = [this] as Cell[]
+			const directions = ["up", "down", "left", "right"] as const
+			while (stack.length) {
+				const current = stack.pop()!
+				cells.add(current)
+				for (const direction of directions) {
+					const cell = current.getGroupNeighbor(direction)
+					if (cell && !cells.has(cell)) {
+						stack.push(cell)
+					}
+				}
+			}
+			return cells
+		}
+
+		public getGroupBounds(cells?: Set<Cell>) {
+			const xSet = new Set<number>()
+			const ySet = new Set<number>()
+			for (const cell of (cells || this.getGroup())) {
+				xSet.add(cell.x)
+				ySet.add(cell.y)
+			}
+			const findLowerBound = (points: number[]) => {
+				for (let i = 0; i < points.length - 1; i++) {
+					if ((points[i] + 1) != points[i + 1]) {
+						return points[i + 1]
+					}
+				}
+				return points[0]
+			}
+			return [
+				findLowerBound(Array.from(xSet.values()).sort()),
+				findLowerBound(Array.from(ySet.values()).sort()),
+				xSet.size,
+				ySet.size
+			]
 		}
 	}
 }

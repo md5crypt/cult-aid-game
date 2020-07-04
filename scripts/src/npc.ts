@@ -13,7 +13,7 @@ namespace NPC {
 		name: "Khajiit",
 		color: "darkgreen",
 		avatars: {
-			default: "avatar-test"
+			default: "avatar-khajit-beg"
 		}
 	})
 }

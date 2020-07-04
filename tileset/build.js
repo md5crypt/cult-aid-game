@@ -5,7 +5,7 @@ const path = require("path");
 
 (async () => {
 	glob.sync(path.resolve(__dirname, "*.png")).forEach(file => fs.unlinkSync(file));
-	for (const file of glob.sync(path.resolve(__dirname, "../atlas") + "/*.png")) {
+	for (const file of glob.sync(path.resolve(__dirname, "../atlas/tiles") + "/*.png")) {
 		const name = path.basename(file)
 		const match = name.match(/^(.+?)(-fg+)?(?:-(\d+))?\.png$/)
 		if (!match) {
@@ -18,8 +18,8 @@ const path = require("path");
 		}
 		const dest = path.resolve(__dirname, base + ".png")
 		const fgFile = [
-			path.resolve(__dirname, "../atlas", base + "-fg.png"),
-			path.resolve(__dirname, "../atlas", base + "-fg-0000.png"),
+			path.resolve(__dirname, "../atlas/tiles", base + "-fg.png"),
+			path.resolve(__dirname, "../atlas/tiles", base + "-fg-0000.png"),
 		].filter(file => fs.existsSync(file))
 		if (fgFile.length == 1) {
 			await jimp.read(file)

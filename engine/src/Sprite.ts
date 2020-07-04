@@ -41,13 +41,8 @@ export namespace Sprite {
 				this.texture = gameContext.textures.tiles.getFrame(data.resource, true)
 				this.fgTexture = gameContext.textures.tiles.getFrame(data.resource + "-fg", true)
 			}
-			if (data.plugGroup) {
-				this.plugs = [
-					Background.createPlug(data.plugGroup + "-plug-up"),
-					Background.createPlug(data.plugGroup + "-plug-down"),
-					Background.createPlug(data.plugGroup + "-plug-left"),
-					Background.createPlug(data.plugGroup + "-plug-right")
-				]
+			if (data.plugs) {
+				this.plugs = data.plugs.map(x => Background.createPlug(x))
 			}
 			if (data.onCreate) {
 				this.onCreate = gameContext.scripts.resolve(data.onCreate, "cellCreate")
@@ -335,31 +330,6 @@ export namespace Sprite {
 			]
 		}
 
-		public getNeighborCell(direction: Direction) {
-			let offsetX = 0
-			let offsetY = 0
-			switch (direction) {
-				case "up":
-					offsetY = -1
-					break
-				case "down":
-					offsetY = 1
-					break
-				case "left":
-					offsetX = -1
-					break
-				case "right":
-					offsetX = 1
-					break
-			}
-			const map = gameContext.map
-			const cell = this.cell
-			return map.getCell(
-				modulo(cell.x + offsetX, map.tileWidth),
-				modulo(cell.y + offsetY, map.tileHeight)
-			)
-		}
-
 		/** @internal */
 		public render(x: number, y: number) {
 			if (!this.textures) {
@@ -454,7 +424,7 @@ export namespace Sprite {
 		public canWalk(direction: Direction): boolean {
 			return (
 				!!this.cell.getExitPath(direction, this.offset[0], this.offset[1]) &&
-				!!this.getNeighborCell(direction).getEnterPath(direction)
+				!!this.cell.getNeighbor(direction).getEnterPath(direction)
 			)
 		}
 
@@ -464,7 +434,7 @@ export namespace Sprite {
 			if (!exitPath) {
 				return null
 			}
-			const newCell = this.getNeighborCell(direction)
+			const newCell = this.cell.getNeighbor(direction)
 			const enterPath = newCell.getEnterPath(direction)
 			if (!enterPath) {
 				return null

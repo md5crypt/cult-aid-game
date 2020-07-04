@@ -15,9 +15,11 @@ export namespace GameData {
 		readonly pivot?: readonly [number, number]
 		readonly scale?: number
 		readonly delay?: number
-		readonly plugGroup?: string
+		readonly plugs?: readonly string[]
+		readonly group?: string
+		readonly gateway?: "up" | "down" | "left" | "right"
 		readonly composite?: readonly string[]
-		readonly animation?: Animation.Defenition
+		readonly animation?: Animation.Definition
 		readonly zIndex?: number
 		readonly onCreate?: string
 		readonly onUpdate?: string
@@ -40,7 +42,7 @@ export namespace GameData {
 		readonly cell: readonly [number, number]
 		readonly sprite: string
 		readonly name?: string
-		readonly animation?: Animation.Defenition
+		readonly animation?: Animation.Definition
 		readonly zIndex?: number
 		readonly offset?: readonly [number, number]
 		readonly onCreate?: string

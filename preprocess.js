@@ -112,11 +112,16 @@ function buildMap(resources, mapFile, tilesetFile) {
 			parseProperties(tile.properties, sprite, {
 				scale: "float",
 				delay: "int",
-				plugGroup: "string",
+				plugs: "string",
 				composite: "json",
 				onCreate: "string",
-				animation: "json"
+				animation: "json",
+				group: "string",
+				gateway: "string"
 			})
+			if (typeof sprite.plugs == "string") {
+				sprite.plugs = ["-plug-up", "-plug-down", "-plug-left", "-plug-right"].map(x => sprite.plugs + x)
+			}
 		}
 	}
 	const gidMapper = id => tileMap.get(id - 1)

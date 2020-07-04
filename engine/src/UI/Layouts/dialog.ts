@@ -4,6 +4,7 @@ export default (): LayoutElementJson => ({
 	name: "scroll",
 	type: "container",
 	layout: {
+		enabled: false,
 		width: element => Math.min(800, element.parent.width - 16),
 		left: element => (element.parent.width - element.width) / 2,
 		height: "100%"
@@ -122,7 +123,8 @@ export default (): LayoutElementJson => ({
 			type: "sprite",
 			layout: {
 				enabled: false,
-				top: element => element.parent.height - element.contentHeight
+				top: element => element.parent.height - element.contentHeight,
+				left: -6
 			}
 		}
 	]

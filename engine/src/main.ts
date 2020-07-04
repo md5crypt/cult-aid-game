@@ -45,21 +45,31 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 		.add("fonts", "fonts.json")
 		.add("scripts", "scripts.js")
 		.load((_loader, resources) => resolve(resources))
-		.on("error", error => reject(error))
+		.onError.add(error => reject(error))
 	)
 }
 
 function resize(app: PIXI.Application) {
-	const width = app.view.width
-	const height = app.view.height
+	app.view.width = window.innerWidth
+	app.view.height = window.innerHeight
+	app.view.style.overflow = "hidden"
+	app.view.style.width = window.innerWidth + "px"
+	app.view.style.height = window.innerHeight + "px"
+	const resolution = window.devicePixelRatio || 1
+	const width = window.innerWidth * resolution
+	const height = window.innerHeight * resolution
 	const scale = Math.max(1, Math.floor(width / 683))
 	gameContext.stage.ui.scale.set(scale)
 	gameContext.ui.root.updateConfig({
 		width: Math.floor(width / scale),
 		height: Math.floor(height / scale)
 	})
+	gameContext.camera.updateScreenSize(
+		width / CONST.STAGE_BASE_ZOOM,
+		height / CONST.STAGE_BASE_ZOOM
+	)
 	gameContext.camera.zoomDefault = scale
-	app.resize()
+	app.renderer.resize(width, height)
 }
 
 function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderResource>) {
@@ -103,23 +113,19 @@ window.addEventListener("load", async () => {
 	stats.showPanel(0)
 	document.body.appendChild(stats.dom)
 	PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+	PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF
 	PIXI.settings.ROUND_PIXELS = true
 	const app = new PIXI.Application({
-		resizeTo: document.body,
-		backgroundColor: 0,
-		resolution: 1
+		backgroundColor: 0
 	})
 	document.body.appendChild(app.view)
 	const resources = await loadResources(app) as Record<string, PIXI.LoaderResource>
-
 	bootstrap(app, resources)
+	resize(app)
+
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts.data)
 	gameContext.map.loadMap(gameContext.data.map)
-	gameContext.camera.updateScreenSize(
-		app.view.width / CONST.STAGE_BASE_ZOOM,
-		app.view.height / CONST.STAGE_BASE_ZOOM
-	)
 
 	app.ticker.add(() => {
 		stats.begin()
@@ -128,8 +134,8 @@ window.addEventListener("load", async () => {
 		gameContext.camera.update(delta)
 		const zoom = gameContext.camera.zoom * CONST.STAGE_BASE_ZOOM
 		const pivot = gameContext.camera.position
-		const screenWidth = app.view.width * (1 / zoom)
-		const screenHeight = app.view.height * (1 / zoom)
+		const screenWidth = app.renderer.width * (1 / zoom)
+		const screenHeight = app.renderer.height * (1 / zoom)
 		const left = modulo(pivot[0] - (screenWidth /  2), gameContext.map.pixelWidth)
 		const top = modulo(pivot[1] - (screenHeight /  2), gameContext.map.pixelHeight)
 		const bounds = [
