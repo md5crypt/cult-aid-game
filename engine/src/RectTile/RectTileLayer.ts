@@ -25,7 +25,7 @@ export class RectTileLayer extends PIXI.Container {
 		this.offset = 0
 	}
 
-	public addRect(texture: number, u: number, v: number, x: number, y: number, w: number, h: number, scale = 1) {
+	public addRect(texture: number, u: number, v: number, x0: number, y0: number, w: number, h: number, scale = 1) {
 		const offset = this.offset
 		let buffer = this.buffer
 		if ((offset + RectTileRenderer.CONST.STRIDE) > buffer.length) {
@@ -33,42 +33,32 @@ export class RectTileLayer extends PIXI.Container {
 			buffer.set(this.buffer)
 			this.buffer = buffer
 		}
-		buffer[offset + 0] = x
-		buffer[offset + 1] = y
-		buffer[offset + 2] = u
-		buffer[offset + 3] = v
-		buffer[offset + 4] = u + 0.5
-		buffer[offset + 5] = v + 0.5
-		buffer[offset + 6] = u + (w - 0.5)
-		buffer[offset + 7] = v + (h - 0.5)
-		buffer[offset + 8] = texture
-		buffer[offset + 9] = x + (w * scale)
-		buffer[offset + 10] = y
-		buffer[offset + 11] = u + w
-		buffer[offset + 12] = v
-		buffer[offset + 13] = u + 0.5
-		buffer[offset + 14] = v + 0.5
-		buffer[offset + 15] = u + (w - 0.5)
-		buffer[offset + 16] = v + (h - 0.5)
-		buffer[offset + 17] = texture
-		buffer[offset + 18] = x + (w * scale)
-		buffer[offset + 19] = y + (h * scale)
-		buffer[offset + 20] = u + w
-		buffer[offset + 21] = v + h
-		buffer[offset + 22] = u + 0.5
-		buffer[offset + 23] = v + 0.5
-		buffer[offset + 24] = u + (w - 0.5)
-		buffer[offset + 25] = v + (h - 0.5)
-		buffer[offset + 26] = texture
-		buffer[offset + 27] = x
-		buffer[offset + 28] = y + (h * scale)
-		buffer[offset + 29] = u
-		buffer[offset + 30] = v + h
-		buffer[offset + 31] = u + 0.5
-		buffer[offset + 32] = v + 0.5
-		buffer[offset + 33] = u + (w - 0.5)
-		buffer[offset + 34] = v + (h - 0.5)
-		buffer[offset + 35] = texture
+		const u0 = u + 0.01
+		const v0 = v + 0.01
+		const u1 = u + w - 0.01
+		const v1 = v + h - 0.01
+		const x1 = x0 + (w * scale)
+		const y1 = y0 + (h * scale)
+		buffer[offset + 0] = x0
+		buffer[offset + 1] = y0
+		buffer[offset + 2] = u0
+		buffer[offset + 3] = v0
+		buffer[offset + 4] = texture
+		buffer[offset + 5] = x1
+		buffer[offset + 6] = y0
+		buffer[offset + 7] = u1
+		buffer[offset + 8] = v0
+		buffer[offset + 9] = texture
+		buffer[offset + 10] = x1
+		buffer[offset + 11] = y1
+		buffer[offset + 12] = u1
+		buffer[offset + 13] = v1
+		buffer[offset + 14] = texture
+		buffer[offset + 15] = x0
+		buffer[offset + 16] = y1
+		buffer[offset + 17] = u0
+		buffer[offset + 18] = v1
+		buffer[offset + 19] = texture
 		this.offset += RectTileRenderer.CONST.STRIDE
 	}
 
@@ -76,7 +66,7 @@ export class RectTileLayer extends PIXI.Container {
 		if (this.offset == 0) {
 			return
 		}
-		const plugin = (renderer.plugins as any).rectTileRenderer as RectTileRenderer
+		const plugin = renderer.plugins.rectTileRenderer as RectTileRenderer
 		renderer.batch.setObjectRenderer(plugin)
 		renderer.globalUniforms.uniforms.projectionMatrix
 			.copyTo(plugin.shader.uniforms.projTransMatrix)

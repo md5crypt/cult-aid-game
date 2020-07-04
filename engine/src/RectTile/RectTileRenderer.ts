@@ -23,8 +23,8 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 			}
 			renderer.texture.bind(texture, i)
 			samplerSize.push(
-				1.0 / texture.baseTexture.width,
-				1.0 / texture.baseTexture.height
+				texture.baseTexture.width,
+				texture.baseTexture.height
 			)
 		}
 		this.shader.uniforms.uSamplerSize = samplerSize
@@ -48,7 +48,7 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 
 export namespace RectTileRenderer {
 	export const enum CONST {
-		VERT_PER_QUAD = 9,
+		VERT_PER_QUAD = 5,
 		STRIDE = VERT_PER_QUAD * 4,
 	}
 	export class Geometry extends PIXI.Geometry {
@@ -57,8 +57,7 @@ export namespace RectTileRenderer {
 			const buf = new PIXI.Buffer(new Float32Array(CONST.VERT_PER_QUAD), true, false)
 			this.addAttribute("aVertexPosition", buf, 0, false, 0, CONST.STRIDE, 0)
 				.addAttribute("aTextureCoord", buf, 0, false, 0, CONST.STRIDE, 2 * 4)
-				.addAttribute("aFrame", buf, 0, false, 0, CONST.STRIDE, 4 * 4)
-				.addAttribute("aTextureId", buf, 0, false, 0, CONST.STRIDE, 8 * 4)
+				.addAttribute("aTextureId", buf, 0, false, 0, CONST.STRIDE, 4 * 4)
 				.addIndex(renderer.indexBuffer)
 		}
 	}
