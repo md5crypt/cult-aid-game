@@ -21,6 +21,7 @@ import { Speech } from "./Speech"
 import { DialogUI } from "./UI/DialogUI"
 import { Animator } from "./UI/Animator"
 import "./TextureAtlasLoader"
+import "./RectTile/RectTileRenderer"
 
 declare global {
 	interface Window {

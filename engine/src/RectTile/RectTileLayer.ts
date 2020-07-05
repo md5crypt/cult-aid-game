@@ -71,12 +71,10 @@ export class RectTileLayer extends PIXI.Container {
 		renderer.globalUniforms.uniforms.projectionMatrix
 			.copyTo(plugin.shader.uniforms.projTransMatrix)
 			.append(this.worldTransform)
-		const rects = this.offset / RectTileRenderer.CONST.STRIDE
 		plugin.bindTextures(renderer, this.textures)
-		plugin.resizeIndexBuffer(rects)
 		renderer.shader.bind(plugin.shader, false)
 		if (this.geometry == null) {
-			this.geometry = new RectTileRenderer.Geometry(plugin)
+			this.geometry = plugin.createGeometry()
 			this.dirty = true
 		}
 		if (this.dirty) {
@@ -84,7 +82,7 @@ export class RectTileLayer extends PIXI.Container {
 			this.dirty = false
 		}
 		renderer.geometry.bind(this.geometry, plugin.shader)
-		renderer.geometry.draw(PIXI.DRAW_MODES.TRIANGLES, rects * 6, 0)
+		renderer.geometry.draw(PIXI.DRAW_MODES.TRIANGLES, (this.offset / RectTileRenderer.CONST.STRIDE) * 6, 0)
 	}
 
 	public destroy(options?: any) {

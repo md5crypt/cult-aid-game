@@ -4,23 +4,22 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 	public readonly indexBuffer: PIXI.Buffer
 	public readonly shader: RectTileShader
 	public static MAX_TEXTURES = 4
-	private indexBufferSize: number
 
 	constructor(renderer: PIXI.Renderer) {
 		super(renderer)
 		this.shader = new RectTileShader(RectTileRenderer.MAX_TEXTURES)
 		this.indexBuffer = new PIXI.Buffer(new ArrayBuffer(0), true, true)
-		this.indexBufferSize = 1
-		this.resizeIndexBuffer(1024)
+		this.indexBuffer.update(PIXI.utils.createIndicesForQuads(256 * 256))
+	}
+
+	public createGeometry() {
+		return new RectTileRenderer.Geometry(this)
 	}
 
 	public bindTextures(renderer: PIXI.Renderer, textures: Array<PIXI.Texture>) {
 		let samplerSize: number[] = []
 		for (let i = 0; i < textures.length; i++) {
 			const texture = textures[i]
-			if (!texture || !texture.valid) {
-				throw new Error()
-			}
 			renderer.texture.bind(texture, i)
 			samplerSize.push(
 				texture.baseTexture.width,
@@ -28,21 +27,6 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 			)
 		}
 		this.shader.uniforms.uSamplerSize = samplerSize
-	}
-
-	public resizeIndexBuffer(size: number) {
-		const required = size * 6
-		if (required > this.indexBufferSize) {
-			while (required >= this.indexBufferSize) {
-				this.indexBufferSize *= 2
-			}
-			this.indexBuffer.update(PIXI.utils.createIndicesForQuads(this.indexBufferSize))
-		}
-	}
-
-	public destroy() {
-		super.destroy();
-		(this.shader as any) = null
 	}
 }
 
