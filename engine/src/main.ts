@@ -134,15 +134,15 @@ window.addEventListener("load", async () => {
 		gameContext.camera.update(delta)
 		const zoom = gameContext.camera.zoom * CONST.STAGE_BASE_ZOOM
 		const pivot = gameContext.camera.position
-		const screenWidth = app.renderer.width * (1 / zoom)
-		const screenHeight = app.renderer.height * (1 / zoom)
-		const left = modulo(pivot[0] - (screenWidth /  2), gameContext.map.pixelWidth)
-		const top = modulo(pivot[1] - (screenHeight /  2), gameContext.map.pixelHeight)
+		const screenWidth = app.renderer.width
+		const screenHeight = app.renderer.height
+		const left = modulo(pivot[0] - ((screenWidth >> 1) * (1 / zoom)), gameContext.map.pixelWidth)
+		const top = modulo(pivot[1] - ((screenHeight >> 1) * (1 / zoom)), gameContext.map.pixelHeight)
 		const bounds = [
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
-			Math.floor((top + (screenHeight - 1)) / CONST.GRID_BASE),
-			Math.floor((left + (screenWidth - 1)) / CONST.GRID_BASE)
+			Math.floor((top + ((screenHeight * (1 / zoom)) - 1)) / CONST.GRID_BASE),
+			Math.floor((left + ((screenWidth * (1 / zoom)) - 1)) / CONST.GRID_BASE)
 		] as const
 		gameContext.timer.update(delta)
 		gameContext.map.update(delta, ...bounds)
