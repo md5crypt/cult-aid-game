@@ -16,6 +16,7 @@ export namespace GameData {
 		readonly scale?: number
 		readonly delay?: number
 		readonly plugs?: readonly string[]
+		readonly autoReveal?: boolean
 		readonly group?: string
 		readonly gateway?: "up" | "down" | "left" | "right"
 		readonly composite?: readonly string[]

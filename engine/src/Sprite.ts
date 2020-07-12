@@ -252,9 +252,9 @@ export namespace Sprite {
 			}
 		}
 
-		public setAnimation(animation: Animation) {
-			this.animation = animation
-			return animation
+		public setAnimation(animation: Animation | Animation.Definition) {
+			this.animation = animation instanceof Animation ? animation : new Animation(animation)
+			return this.animation
 		}
 
 		public clearAnimation(frame = 0) {
@@ -275,7 +275,7 @@ export namespace Sprite {
 			this.directionChanged(undefined)
 		}
 
-		public setTexture(data: GameData.SpriteData, animation?: Animation | null) {
+		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition |  null) {
 			if (data.resource) {
 				const frame = gameContext.textures.tiles.getFrame(data.resource)
 				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
@@ -296,7 +296,7 @@ export namespace Sprite {
 					data.delay
 				)
 			} else if (animation) {
-				this.animation = animation
+				this.animation = animation instanceof Animation ? animation : new Animation(animation)
 			}
 		}
 
@@ -384,7 +384,7 @@ export namespace Sprite {
 			this.preventWalkSequenceChange = false
 		}
 
-		public setTexture(data: GameData.SpriteData, animation?: Animation | null) {
+		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition | null) {
 			this.preventWalkSequenceChange = true
 			super.setTexture(data, animation)
 		}

@@ -10,7 +10,7 @@ interface StackFrame {
 export class Animation {
 	public frame: number
 	public readonly onEnd: Listener<Animation>
-	public readonly onInvoke: Listener<[Animation, string], boolean>
+	public readonly onInvoke: Listener<[Animation, string], boolean | void>
 	private stack: StackFrame[]
 	private timer: number
 	private delay: number

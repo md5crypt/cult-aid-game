@@ -33,10 +33,10 @@ export class RectTileLayer extends PIXI.Container {
 			buffer.set(this.buffer)
 			this.buffer = buffer
 		}
-		const u0 = u + 0.01
-		const v0 = v + 0.01
-		const u1 = u + w - 0.01
-		const v1 = v + h - 0.01
+		const u0 = u + (1/1024)
+		const v0 = v + (1/1024)
+		const u1 = u + w - (1/1024)
+		const v1 = v + h - (1/1024)
 		const x1 = x0 + (w * scale)
 		const y1 = y0 + (h * scale)
 		buffer[offset + 0] = x0

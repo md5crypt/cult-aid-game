@@ -10,7 +10,7 @@
  "infinite":false,
  "layers":[
         {
-         "data":[5, 7, 3, 6, 9, 17, 7, 8, 4, 8, 5, 6, 1, 8, 2, 2, 18, 16, 19, 5, 7, 2, 9, 1, 8, 0, 30, 37, 31, 9, 0, 32, 27, 35, 2, 0, 28, 26, 29, 0, 0, 0, 9, 0, 0, 0, 30, 37, 31, 0, 0, 28, 26, 29, 0],
+         "data":[5, 7, 3, 6, 9, 2, 40, 8, 4, 8, 5, 6, 1, 8, 2, 2, 18, 16, 19, 5, 7, 2, 9, 1, 8, 0, 30, 37, 31, 9, 0, 32, 27, 35, 2, 0, 28, 26, 29, 0, 0, 0, 9, 0, 0, 0, 30, 37, 31, 0, 0, 28, 26, 29, 0],
          "height":11,
          "id":1,
          "name":"maze",
@@ -27,71 +27,10 @@
          "name":"objects",
          "objects":[
                 {
-                 "height":19,
-                 "id":5,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"onCreate",
-                         "type":"string",
-                         "value":"placePlayer"
-                        }, 
-                        {
-                         "name":"onUse",
-                         "type":"string",
-                         "value":"test"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"player init",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":78,
-                 "x":264,
-                 "y":174
-                }, 
-                {
-                 "height":19,
-                 "id":8,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"trap"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"trap",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":42,
-                 "x":518,
-                 "y":176
-                }, 
-                {
-                 "gid":21,
+                 "gid":38,
                  "height":120,
-                 "id":10,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"animation",
-                         "type":"string",
-                         "value":"[[\"delay\", 2000], [[\"sequence\", 1, 0], [\"loop\", 1]], [\"loop\"]]"
-                        }],
+                 "id":21,
+                 "name":"fire-trap-marker",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -100,111 +39,32 @@
                  "y":240
                 }, 
                 {
-                 "height":0,
-                 "id":12,
-                 "name":"init-room",
-                 "point":true,
+                 "gid":21,
+                 "height":120,
+                 "id":26,
+                 "name":"spider-trap-marker",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":0,
-                 "x":298,
-                 "y":165
-                }, 
-                {
-                 "height":44,
-                 "id":15,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":271,
-                 "y":647
-                }, 
-                {
-                 "height":44,
-                 "id":16,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":378,
-                 "y":757
-                }, 
-                {
-                 "height":44,
-                 "id":17,
-                 "name":"",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":261,
-                 "y":870
-                }, 
+                 "width":120,
+                 "x":240,
+                 "y":240
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":4,
+         "name":"scripts",
+         "objects":[
                 {
                  "height":44,
                  "id":18,
-                 "name":"",
+                 "name":"static-camera",
                  "properties":[
                         {
                          "name":"onEnter",
@@ -234,7 +94,7 @@
                 {
                  "height":44,
                  "id":20,
-                 "name":"",
+                 "name":"static-camera",
                  "properties":[
                         {
                          "name":"onEnter",
@@ -260,6 +120,332 @@
                  "width":67,
                  "x":266,
                  "y":1230
+                }, 
+                {
+                 "height":44,
+                 "id":15,
+                 "name":"static-camera",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"roomEnter"
+                        }, 
+                        {
+                         "name":"onExit",
+                         "type":"string",
+                         "value":"roomExit"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"static\ncamera",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":67,
+                 "x":271,
+                 "y":647
+                }, 
+                {
+                 "height":44,
+                 "id":16,
+                 "name":"static-camera",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"roomEnter"
+                        }, 
+                        {
+                         "name":"onExit",
+                         "type":"string",
+                         "value":"roomExit"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"static\ncamera",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":67,
+                 "x":378,
+                 "y":757
+                }, 
+                {
+                 "height":44,
+                 "id":17,
+                 "name":"static-camera",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"roomEnter"
+                        }, 
+                        {
+                         "name":"onExit",
+                         "type":"string",
+                         "value":"roomExit"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"static\ncamera",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":67,
+                 "x":261,
+                 "y":870
+                }, 
+                {
+                 "height":19,
+                 "id":8,
+                 "name":"spider-trap",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"spiderTrap"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"spider",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":52,
+                 "x":514,
+                 "y":176
+                }, 
+                {
+                 "height":19,
+                 "id":25,
+                 "name":"fire-trap",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"fireTrap"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"fire",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":52,
+                 "x":393,
+                 "y":298
+                }, 
+                {
+                 "height":19,
+                 "id":5,
+                 "name":"player-init",
+                 "properties":[
+                        {
+                         "name":"onCreate",
+                         "type":"string",
+                         "value":"placePlayer"
+                        }, 
+                        {
+                         "name":"onUse",
+                         "type":"string",
+                         "value":"test"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"player init",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":78,
+                 "x":264,
+                 "y":174
+                }, 
+                {
+                 "height":0,
+                 "id":12,
+                 "name":"init-room",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":298,
+                 "y":165
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":27,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":368,
+                 "y":642
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":28,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":382,
+                 "y":642
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":29,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":396,
+                 "y":642
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":30,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":390,
+                 "y":656
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":31,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":376,
+                 "y":656
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":32,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":419,
+                 "y":654
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":33,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":439,
+                 "y":671
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":34,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":429,
+                 "y":663
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":35,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":418,
+                 "y":689
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":36,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":432,
+                 "y":689
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":37,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":425,
+                 "y":701
+                }, 
+                {
+                 "gid":39,
+                 "height":30,
+                 "id":39,
+                 "name":"server",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":14,
+                 "x":438,
+                 "y":701
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -267,11 +453,11 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":3,
- "nextobjectid":21,
+ "nextlayerid":5,
+ "nextobjectid":40,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.3.4",
+ "tiledversion":"1.4.1",
  "tileheight":120,
  "tilesets":[
         {
@@ -280,6 +466,6 @@
         }],
  "tilewidth":120,
  "type":"map",
- "version":1.2,
+ "version":1.4,
  "width":5
 }

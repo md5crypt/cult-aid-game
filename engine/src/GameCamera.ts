@@ -118,6 +118,14 @@ export class GameCamera {
 		)
 	}
 
+	public moveToCell(x: number, y: number, duration: number) {
+		return this.moveTo(
+			(x * CONST.GRID_BASE) + (CONST.GRID_BASE >> 1),
+			(y * CONST.GRID_BASE) + (CONST.GRID_BASE >> 1),
+			duration
+		)
+	}
+
 	public zoomBy(dz: number, duration: number) {
 		const speed = Math.abs(dz / duration) * CONST.WALK_SPEED_SCALE
 		const path = new SimplePath([this._zoom.slice(0), [this._zoom[0] + dz, 0]], speed)

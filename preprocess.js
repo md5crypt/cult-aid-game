@@ -76,9 +76,43 @@ function parseProperties(properties, sprite, props) {
 	return sprite
 }
 
-function buildMap(resources, mapFile, tilesetFile) {
+function loadTileset(path, resolveSprite, tileMap) {
+	const tileset = JSON.parse(fs.readFileSync(path))
+	for (const tile of tileset.tiles) {
+		const name = tile.image.match(/^[^.]+/)[0]
+		const spriteEntry = resolveSprite(name)
+		const sprite = spriteEntry.sprite
+		tileMap && tileMap.set(tile.id, spriteEntry.index)
+		if (tile.objectgroup && tile.objectgroup.objects) {
+			let data = tile.objectgroup.objects
+			for (parser of objectParsers) {
+				data = parser(data, sprite)
+			}
+			assert(data.length == 0, tile.image)
+		}
+		if (tile.properties) {
+			parseProperties(tile.properties, sprite, {
+				scale: "float",
+				delay: "int",
+				plugs: "string",
+				autoReveal: "bool",
+				composite: "json",
+				onCreate: "string",
+				animation: "json",
+				group: "string",
+				gateway: "string"
+			})
+			if (sprite.plugs && sprite.plugs[0] == "[") {
+				sprite.plugs = JSON.parse(sprite.plugs)
+			} else if (sprite.plugs) {
+				sprite.plugs = ["-plug-up", "-plug-down", "-plug-left", "-plug-right"].map(x => sprite.plugs + x)
+			}
+		}
+	}
+}
+
+function buildMap(resources, mapFile, tilesetFiles) {
 	const map = JSON.parse(fs.readFileSync(mapFile))
-	const tileset = JSON.parse(fs.readFileSync(tilesetFile))
 	const tileMap = new Map()
 	const sprites = []
 	const spriteMap = new Map()
@@ -92,73 +126,49 @@ function buildMap(resources, mapFile, tilesetFile) {
 			spriteMap.set(name, id)
 			sprites.push({resource: name})
 		}
-		return id
+		return {index: id, sprite: sprites[id]}
 	}
 	Object.keys(resources).forEach(resolveSprite)
-	for (const tile of tileset.tiles) {
-		const name = tile.image.match(/^[^.]+/)[0]
-		const spriteIndex = resolveSprite(name)
-		assert(spriteIndex !== undefined)
-		const sprite = sprites[spriteIndex]
-		tileMap.set(tile.id, spriteIndex) 
-		if (tile.objectgroup && tile.objectgroup.objects) {
-			let data = tile.objectgroup.objects
-			for (parser of objectParsers) {
-				data = parser(data, sprite)
-			}
-			assert(data.length == 0, tile.image)
-		}
-		if (tile.properties) {
-			parseProperties(tile.properties, sprite, {
-				scale: "float",
-				delay: "int",
-				plugs: "string",
-				composite: "json",
-				onCreate: "string",
-				animation: "json",
-				group: "string",
-				gateway: "string"
-			})
-			if (typeof sprite.plugs == "string") {
-				sprite.plugs = ["-plug-up", "-plug-down", "-plug-left", "-plug-right"].map(x => sprite.plugs + x)
-			}
-		}
+	for (let i = 0; i < tilesetFiles.length; i += 1) {
+		loadTileset(tilesetFiles[i], resolveSprite, i == 0 ? tileMap : null)
 	}
 	const gidMapper = id => tileMap.get(id - 1)
 	const baseSize = map.tileheight
 	const objects = []
-	for (const object of map.layers[1].objects) {
-		const cell = [
-			Math.floor(object.x / baseSize),
-			Math.floor((object.y - (object.text ? 0 : object.height)) / baseSize)
-		]
-		const offset = [
-			object.x % baseSize,
-			object.y % baseSize
-		]
-		if (!object.gid) {
-			const o = {cell}
-			if (object.name) {
-				o.name = object.name
+	for (let i = 1; i < map.layers.length; i += 1) {
+		for (const object of map.layers[i].objects) {
+			const cell = [
+				Math.floor(object.x / baseSize),
+				Math.floor((object.y - (object.text ? 0 : object.height)) / baseSize)
+			]
+			const offset = [
+				object.x % baseSize,
+				object.y % baseSize
+			]
+			if (!object.gid) {
+				const o = {cell}
+				if (object.name) {
+					o.name = object.name
+				}
+				objects.push(parseProperties(object.properties, o, {
+					onCreate: "string",
+					onMove: "string",
+					onUse: "string",
+					onCenter: "string",
+					onExit: "string",
+					onEnter: "string",
+				}))
+			} else {
+				const sprite = sprites[gidMapper(object.gid)]
+				objects.push(parseProperties(object.properties, {cell, offset, sprite: sprite.name || sprite.resource}, {
+					animation: "json",
+					zIndex: "number",
+					onCreate: "string",
+					onUpdate: "string",
+					onEnterView: "string",
+					onExitView: "string",
+				}))
 			}
-			objects.push(parseProperties(object.properties, o, {
-				onCreate: "string",
-				onMove: "string",
-				onUse: "string",
-				onCenter: "string",
-				onExit: "string",
-				onEnter: "string",
-			}))
-		} else {
-			const sprite = sprites[gidMapper(object.gid)]
-			objects.push(parseProperties(object.properties, {cell, offset, sprite: sprite.name || sprite.resource}, {
-				animation: "json",
-				zIndex: "number",
-				onCreate: "string",
-				onUpdate: "string",
-				onEnterView: "string",
-				onExitView: "string",
-			}))
 		}
 	}
 	return {
@@ -182,7 +192,10 @@ async function run() {
 	for (const name of ["tiles", "ui"]) {
 		atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
 	}
-	const data = buildMap(atlas.tiles, "map/map.json", "tileset/tileset.json")
+	const data = buildMap(atlas.tiles, "map/map.json", [
+		"tileset/tileset.json",
+		"tileset/tileset-objects.json"
+	])
 	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))
 	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
 }

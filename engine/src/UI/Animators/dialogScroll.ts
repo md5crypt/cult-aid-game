@@ -14,6 +14,7 @@ export default (scroll: BaseElement) => new Animator({
 		transition: "opened",
 		duration: 500,
 		animation: context => scroll.updateConfig({
+			margin: {top: 0},
 			width: context.interpolate(48, scroll.parent.width)
 		})
 	},

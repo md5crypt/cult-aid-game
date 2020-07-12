@@ -291,7 +291,9 @@ export namespace GameMap {
 		}
 
 		public setPlug(direction: Direction, value: boolean) {
-			if (this.paths) {
+			if (this.data?.autoReveal) {
+				this.visibility |= CellVisibility.FULL
+			} else if (this.paths) {
 				if (value) {
 					this.visibility |= Cell.plugMap[direction]
 				} else {

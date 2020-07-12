@@ -75,19 +75,46 @@ scripts.register("test", "cellUse", (_cell) => {
 scripts.register("placePlayer", "cellCreate", async (cell) => {
 	context.player.enable(cell.x, cell.y)
 	context.camera.lockOn(context.player)
-	void context.Speech.start(testDialog1)
+	//void context.Speech.start(testDialog1)
 	//await ppl.zombii.say(lorem)
 	//await ppl.zombii.say("fuck it then.")
 })
 
-scripts.register("trap", "cellEnter", async (cell) => {
+scripts.register("fireTrap", "cellEnter", async (cell) => {
+	const {camera, player} = context
+	player.lockInput()
+	void camera.moveToCell(cell.x, cell.y, 500)
+	void camera.zoomTo(camera.zoomCell, 500)
+	await player.waitWalkEnd()
+	await context.timer.wait(400)
+	const fire = context.Item.create("fire-trap-fire")
+	fire.setAnimation([
+		["frame", 0, 200],
+		["invoke", "glyph"],
+		["delay", 700],
+		["sequence", 1, 2, 100],
+		[
+			["sequence", 3, 4, 100],
+			["loop"]
+		]
+	]).onInvoke.add(() => player.setTexture(context.Sprite.find("fire-trap-khajiit"), [
+		["frame", 0, 400],
+		["sequence", 1, 3, 200],
+		["frame", 4, 400],
+		["sequence", 4, 7, 200],
+		["frame", 8, 600],
+		[
+			["sequence", 9, 10, 200],
+			["loop"]
+		]
+	]))
+	player.cell.addItem(fire)
+})
+
+scripts.register("spiderTrap", "cellEnter", async (cell) => {
 	const {camera, player, map} = context
 	player.lockInput()
-	void camera.moveTo(
-		(cell.x * CONST.GRID_BASE) + (CONST.GRID_BASE >> 1),
-		(cell.y * CONST.GRID_BASE) + (CONST.GRID_BASE >> 1),
-		500
-	)
+	void camera.moveToCell(cell.x, cell.y, 500)
 	void camera.zoomTo(camera.zoomCell, 500)
 	await player.waitWalkEnd()
 	player.setTexture(context.Sprite.find("khajiit-idle"), null)
