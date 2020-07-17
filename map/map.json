@@ -6,18 +6,18 @@
          "target":"."
         }
     },
- "height":11,
+ "height":13,
  "infinite":false,
  "layers":[
         {
-         "data":[5, 7, 3, 6, 9, 2, 40, 8, 4, 8, 5, 6, 1, 8, 2, 2, 18, 16, 19, 5, 7, 2, 9, 1, 8, 0, 30, 37, 31, 9, 0, 32, 27, 35, 2, 0, 28, 26, 29, 0, 0, 0, 9, 0, 0, 0, 30, 37, 31, 0, 0, 28, 26, 29, 0],
-         "height":11,
+         "data":[16, 16, 17, 8, 6, 1, 16, 19, 5, 4, 2, 5, 8, 8, 16, 3, 8, 3, 19, 40, 3, 17, 8, 8, 17, 4, 4, 18, 6, 9, 5, 3, 8, 16, 19, 9, 4, 4, 8, 4, 19, 18, 8, 8, 8, 9, 18, 3, 3, 8, 17, 19, 18, 19, 8, 3, 8, 17, 3, 16, 8, 3, 8, 1, 4, 2, 5, 8, 17, 8, 3, 2, 5, 8, 16, 8, 4, 16, 8, 4, 6, 8, 4, 8, 3, 3, 8, 4, 8, 8, 18, 8, 3, 3, 8, 8, 8, 3, 2, 1, 4, 19, 18, 4, 19, 18, 3, 6, 0, 1, 8, 8, 17, 8, 17, 8, 2],
+         "height":13,
          "id":1,
          "name":"maze",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
-         "width":5,
+         "width":9,
          "x":0,
          "y":0
         }, 
@@ -36,7 +36,7 @@
                  "visible":true,
                  "width":120,
                  "x":240,
-                 "y":240
+                 "y":1200
                 }, 
                 {
                  "gid":21,
@@ -47,8 +47,272 @@
                  "type":"",
                  "visible":true,
                  "width":120,
+                 "x":360,
+                 "y":1560
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":40,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":601,
+                 "y":1561
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":41,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":721,
+                 "y":1320
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":42,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":0,
+                 "y":1200
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":43,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":360,
+                 "y":1080
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":44,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":600,
+                 "y":1320
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":45,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
                  "x":240,
+                 "y":840
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":46,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":480,
+                 "y":960
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":48,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":480,
+                 "y":720
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":49,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":240,
+                 "y":600
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":51,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":360,
+                 "y":120
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":55,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":840,
                  "y":240
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":56,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":600,
+                 "y":360
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":58,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":480,
+                 "y":240
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":59,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":600,
+                 "y":480
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":60,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":480,
+                 "y":360
+                }, 
+                {
+                 "gid":38,
+                 "height":120,
+                 "id":61,
+                 "name":"fire-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":480,
+                 "y":360
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":62,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":720,
+                 "y":840
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":64,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":840,
+                 "y":600
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":65,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":960,
+                 "y":600
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":68,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":960,
+                 "y":840
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":70,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":840,
+                 "y":1200
+                }, 
+                {
+                 "gid":21,
+                 "height":120,
+                 "id":71,
+                 "name":"spider-trap-marker",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":120,
+                 "x":720,
+                 "y":960
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -61,156 +325,6 @@
          "id":4,
          "name":"scripts",
          "objects":[
-                {
-                 "height":44,
-                 "id":18,
-                 "name":"static-camera",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":264,
-                 "y":1130
-                }, 
-                {
-                 "height":44,
-                 "id":20,
-                 "name":"static-camera",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":266,
-                 "y":1230
-                }, 
-                {
-                 "height":44,
-                 "id":15,
-                 "name":"static-camera",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":271,
-                 "y":647
-                }, 
-                {
-                 "height":44,
-                 "id":16,
-                 "name":"static-camera",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":378,
-                 "y":757
-                }, 
-                {
-                 "height":44,
-                 "id":17,
-                 "name":"static-camera",
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"roomEnter"
-                        }, 
-                        {
-                         "name":"onExit",
-                         "type":"string",
-                         "value":"roomExit"
-                        }],
-                 "rotation":0,
-                 "text":
-                    {
-                     "color":"#aa0000",
-                     "halign":"center",
-                     "text":"static\ncamera",
-                     "valign":"center",
-                     "wrap":true
-                    },
-                 "type":"",
-                 "visible":true,
-                 "width":67,
-                 "x":261,
-                 "y":870
-                }, 
                 {
                  "height":19,
                  "id":8,
@@ -233,8 +347,8 @@
                  "type":"",
                  "visible":true,
                  "width":52,
-                 "x":514,
-                 "y":176
+                 "x":877,
+                 "y":1499
                 }, 
                 {
                  "height":19,
@@ -258,8 +372,8 @@
                  "type":"",
                  "visible":true,
                  "width":52,
-                 "x":393,
-                 "y":298
+                 "x":149,
+                 "y":1014
                 }, 
                 {
                  "height":19,
@@ -288,164 +402,70 @@
                  "type":"",
                  "visible":true,
                  "width":78,
-                 "x":264,
-                 "y":174
+                 "x":261,
+                 "y":1501
+                }, 
+                {
+                 "height":19,
+                 "id":47,
+                 "name":"spider-trap",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"spiderTrap"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"spider",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":52,
+                 "x":756,
+                 "y":535
+                }, 
+                {
+                 "height":19,
+                 "id":52,
+                 "name":"fire-trap",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"fireTrap"
+                        }],
+                 "rotation":0,
+                 "text":
+                    {
+                     "color":"#aa0000",
+                     "halign":"center",
+                     "text":"fire",
+                     "valign":"center",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":52,
+                 "x":394,
+                 "y":178
                 }, 
                 {
                  "height":0,
-                 "id":12,
+                 "id":72,
                  "name":"init-room",
                  "point":true,
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":298,
-                 "y":165
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":27,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":368,
-                 "y":642
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":28,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":382,
-                 "y":642
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":29,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":396,
-                 "y":642
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":30,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":390,
-                 "y":656
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":31,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":376,
-                 "y":656
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":32,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":419,
-                 "y":654
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":33,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":439,
-                 "y":671
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":34,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":429,
-                 "y":663
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":35,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":418,
-                 "y":689
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":36,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":432,
-                 "y":689
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":37,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":425,
-                 "y":701
-                }, 
-                {
-                 "gid":39,
-                 "height":30,
-                 "id":39,
-                 "name":"server",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":14,
-                 "x":438,
-                 "y":701
+                 "x":295,
+                 "y":1500
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -454,7 +474,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":40,
+ "nextobjectid":74,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.4.1",
@@ -467,5 +487,5 @@
  "tilewidth":120,
  "type":"map",
  "version":1.4,
- "width":5
+ "width":9
 }

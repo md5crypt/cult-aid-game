@@ -110,7 +110,6 @@ export class GameCamera {
 		const height = gameContext.map.pixelHeight
 		const dx = modulo(x - this._pivot[0], width)
 		const dy = modulo(y - this._pivot[1], height)
-		console.log(dx, dy)
 		return this.moveBy(
 			dx > (width / 2) ? dx - width : dx,
 			dy > (height / 2) ? dy - height : dy,

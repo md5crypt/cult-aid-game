@@ -67,6 +67,23 @@ const testDialog1 = NPC.zombii.ask({
 	]
 })
 
+namespace utils {
+	export async function reset() {
+		const {camera, player, map} = context
+		camera.enabled = false
+		player.cell.clearItems()
+		map.getCellByName("init-room").addItem(player)
+		player.setTexture(player.walkSequence.idle)
+		camera.zoom = camera.zoomDefault
+		camera.lockOn(player)
+		map.cells.forEach(cell => cell.visible = false)
+		map.getCellByName("init-room").visible = true
+		await context.timer.wait(500)
+		player.unlockInput()
+		camera.enabled = true
+	}
+}
+
 scripts.register("test", "cellUse", (_cell) => {
 	//void context.camera.shake(1000)
 	void context.Speech.start(testDialog1)
@@ -105,8 +122,9 @@ scripts.register("fireTrap", "cellEnter", async (cell) => {
 		["frame", 8, 600],
 		[
 			["sequence", 9, 10, 200],
-			["loop"]
-		]
+			["loop", 4]
+		],
+		["invoke", () => (utils.reset(), true)]
 	]))
 	player.cell.addItem(fire)
 })
@@ -131,20 +149,9 @@ scripts.register("spiderTrap", "cellEnter", async (cell) => {
 			["sequence", 2, 6],
 			["frame", 7, 0]
 		], 200)
-		animation.onEnd.add(async () => {
+		animation.onEnd.add(() => {
 			player.cell.addItem(context.Item.create("spider-web"))
-			await context.timer.wait(200)
-			camera.enabled = false
-			player.cell.clearItems()
-			map.getCellByName("init-room").addItem(player)
-			player.setTexture(player.walkSequence.idle)
-			camera.zoom = camera.zoomDefault
-			camera.lockOn(player)
-			map.cells.forEach(cell => cell.visible = false)
-			map.getCellByName("init-room").visible = true
-			await context.timer.wait(500)
-			player.unlockInput()
-			camera.enabled = true
+			void context.timer.wait(200).then(utils.reset)
 		})
 		animation.onInvoke.add(() => (camera.shake(400, 1), false))
 		spider.setAnimation(animation)

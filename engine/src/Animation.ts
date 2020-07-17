@@ -65,7 +65,11 @@ export class Animation {
 						break
 					} case "invoke":
 						frame.position += 1
-						if (this.onInvoke.collectBoolean(this, item[1])) {
+						const shouldBreak = (
+							(typeof item[1] == "string" && this.onInvoke.collectBoolean(this, item[1])) ||
+							(typeof item[1] == "function" && item[1]())
+						)
+						if (shouldBreak) {
 							break loop
 						}
 						break
@@ -108,7 +112,7 @@ export namespace Animation {
 		["delay", number] |
 		["frame", number, number?] |
 		["sequence", number, number, number?] |
-		["invoke", string] |
+		["invoke", string | (() => boolean | void)] |
 		["loop", number?] |
 		Definition
 	)>
