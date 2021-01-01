@@ -1,4 +1,4 @@
-export const cssColorList = [
+const cssColorList = [
 	["default", 0x000000],
 	["aliceblue", 0xf0f8ff],
 	["antiquewhite", 0xfaebd7],
@@ -149,3 +149,25 @@ export const cssColorList = [
 	["yellow", 0xffff00],
 	["yellowgreen", 0x9acd32]
 ] as [string, number][]
+
+export class Colors {
+	private static colors: Map<string, number> = new Map(cssColorList)
+
+	public static register(name: string, value: number) {
+		this.colors.set(name.toLowerCase(), value)
+	}
+
+	public static resolve(value: string | number) {
+		if (typeof value == "number") {
+			return value
+		}
+		if (value[0] == "#") {
+			return parseInt(value.slice(1), 16)
+		}
+		const color = this.colors.get(value.toLowerCase())
+		if (color === undefined) {
+			throw new Error(`color '${value}' not found`)
+		}
+		return color
+	}
+}

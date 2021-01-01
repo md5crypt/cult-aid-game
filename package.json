@@ -21,10 +21,11 @@
     "free-tex-packer-cli": "^0.2.7",
     "glob": "^7.1.6",
     "jimp": "^0.10.3",
-    "pixi-sound": "^3.0.4",
+    "pixi-sound": "^3.0.5",
     "pixi-tilemap": "^2.0.6",
-    "pixi.js": "^5.3.0",
+    "pixi.js": "^5.3.7",
     "stats.js": "^0.17.0",
+    "text2wav": "0.0.13",
     "typescript": "^3.9.5",
     "watchify": "^3.11.1"
   }

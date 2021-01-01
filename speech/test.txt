@@ -1,0 +1,146 @@
+@dialog test-main
+
+@prompt
+	zombie: Whatcha wanna do
+
+@option game: Start card game
+	%exit
+
+@option technician: Goto technician dialog
+	%push technician-main
+
+@option item: Give item
+	%push test-give-item
+
+@option old-test: Character test
+	%push test-character
+
+@option exit: (Back)
+	%pop
+
+
+@dialog test-give-item
+
+@prompt
+	zombie: Which item to give?
+
+@option book: Book
+	zombie: done
+
+@option sweetroll: Sweetroll
+	zombie: done
+
+@option exit: (Back)
+	%pop
+
+@fragment card-game-fail
+	khajiit: F**k
+
+	breton: Lol u suck at this.
+
+@fragment card-game-success
+	khajiit: Did I just win?
+
+	breton: Well in theory yes, but I can always try to convince you that you did not.
+
+@dialog test-character
+
+@prompt
+	zombie: Which character do you want to see?
+
+@option maid: The Maid
+
+	khajiit: Is there any chance you could help me get out of here?
+	
+	maid: No.
+
+	khajiit: Why is that?
+
+	maid smoke1: Oh, it's quite simple.
+	maid smoke2: Watching little khajiit struggle for his life gives me this wonderful feeling of catharsis.
+
+@option hobo: The Hobo (a.k.a. nekro)
+
+	khajiit: And where exactly does your dry throat comes into play?
+
+	hobo lecture: Such attitude will be a problem. To begin your journey you must open your mind and accept the unacceptable
+
+	khajiit: And bring you booze.
+
+	hobo flask: Yes, that too.
+
+@option librarian: The Librarian
+
+	khajiit: I can't say I've been to many libraries in my life but this one seems... a bit excessive as for a cultist cave.
+	
+	librarian actually: Oh, actually this library has nothing to do with the cult.
+
+@option thief: The Thief
+
+	thief hungry: Look at me now *sob* trapped, alone, without anything to eat, sitting on the ground, waiting for the end.
+
+	khajiit: I'm here for size reference.
+
+@option technician: The Technician
+
+	technician explaining: Ha, typical uneducated non-technical bystander. I'm actively monitory system health after recovering from a fatal malfunction.
+
+	khajiit: And how long will that take?
+
+	technician explaining: As long as they keep paying me per hour.
+
+@option bosmer: The Investigator (a.k.a. bosmer)
+
+	bosmer: You! Who are you! Why are you disguising yourself? You can't fool the investigator! The investigator can see right through your lies!
+
+	khajiit: Right, sorry for disturbing you sir. I'm just a completely unimportant khajiit that'll immediately leave you alone.
+
+	bosmer: Fool! Still trying your trickery on the investigator? I see the wings! I see the horns!
+	bosmer: You're not a Khajiit! You're a Daedra!
+
+@option altmer: The Archeologist
+
+	archeologist lecture: ...and this would further influence any surface artist of the Era. Do you have any questions?
+
+	khajiit: No. That was a very... comprehensive explanation. I doubt you have left any details out.
+
+	archeologist lecture: Well, actually..
+
+@option spirit: The Spirit
+
+	spirit angry: What the f**k is this? Who the f**k are you?
+
+	khajiit: Um... hello?
+
+	spirit angry: Hello my ass! Was murdering me was not enough? Does dragging my soul from oblivion give you some sick sens of satisfaction?
+
+	khajiit: Actually I was hopping you could help me escape this place?
+
+	spirit angry: You know what? F**k you, I'm not even going to listen to your necromancer bullshit.
+
+	khajiit: Wait! I really need your help!
+
+	khajiit: Please! I err... command thy!
+
+	khajiit: Aaaaand his gone. I'm really bad at this, aren't I?
+
+@option chef: The Chef
+
+	chef pinch: All those subtle flavors of traditional khajiit cousin are lost in their smooth-tongued mouths as they fall off chairs and drool like little children.
+
+	khajiit: Ah, I see... and adding less moonsugar would be...
+
+	chef pinch: Heresy!
+
+@option cards: Card playing cultists
+
+	nord andthen: Boss pulled me out of the gutter when I was a wee lad. Paid me to be his bodyguard during his travels. I stuck around ever since.
+
+	khajiit: And what does that have to do with the cult?
+
+	breton wellwell: He identifies the cult with its leader, so by following the cult's leader before the said cult existed he sees himself as a member of a non-existing cult.
+
+	khajiit: I won't even pretend I understood that.
+
+@option exit: (Back)
+	%pop

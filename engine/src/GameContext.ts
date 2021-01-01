@@ -11,8 +11,7 @@ import { Animation } from "./Animation"
 import { Player } from "./Player"
 import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
-import { BaseElement } from "./Layout/LayoutPIXI"
-import { DialogUI } from "./UI/DialogUI"
+import { UI } from "./UI/UI"
 
 export interface GameContext {
 	time: number
@@ -35,19 +34,16 @@ export interface GameContext {
 		mid: RectTileLayer
 		fg: RectTileLayer
 	}
-	/** @internal */
-	ui: {
-		root: BaseElement
-		dialog: DialogUI
-	}
+	ui: UI
 	camera: GameCamera
 	player: Player
+	speech: Speech
 	Sprite: typeof Sprite
-	Speech: typeof Speech
 	Item: typeof Sprite.Item
 	Path: typeof SimplePath
 	Animation: typeof Animation
 	scripts: ScriptStorage
+	storage: Record<string, any>
 	timer: ScriptTimer
 }
 

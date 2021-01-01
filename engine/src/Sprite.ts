@@ -45,7 +45,7 @@ export namespace Sprite {
 				this.plugs = data.plugs.map(x => Background.createPlug(x))
 			}
 			if (data.onCreate) {
-				this.onCreate = gameContext.scripts.resolve(data.onCreate, "cellCreate")
+				this.onCreate = gameContext.scripts.resolveOrThrow("cellCreate", data.onCreate)
 			}
 		}
 
@@ -146,7 +146,7 @@ export namespace Sprite {
 				item.setOffset(data.offset)
 			}
 			if (merged.onCreate) {
-				const callback = gameContext.scripts.resolve(merged.onCreate, "itemCreate")
+				const callback = gameContext.scripts.resolveOrThrow("itemCreate", merged.onCreate)
 				void callback(item)
 			}
 			return item
@@ -176,15 +176,15 @@ export namespace Sprite {
 			this.setTexture(data)
 
 			if (data.onUpdate) {
-				const callback = gameContext.scripts.resolve(data.onUpdate, "itemUpdate")
+				const callback = gameContext.scripts.resolveOrThrow("itemUpdate", data.onUpdate)
 				this.onUpdate.add(item => callback(item))
 			}
 			if (data.onEnterView) {
-				const callback = gameContext.scripts.resolve(data.onEnterView, "itemEnterView")
+				const callback = gameContext.scripts.resolveOrThrow("itemEnterView", data.onEnterView)
 				this.onEnterView.add(item => callback(item))
 			}
 			if (data.onExitView) {
-				const callback = gameContext.scripts.resolve(data.onExitView, "itemExitView")
+				const callback = gameContext.scripts.resolveOrThrow("itemExitView", data.onExitView)
 				this.onExitView.add(item => callback(item))
 			}
 		}

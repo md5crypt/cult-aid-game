@@ -5,6 +5,7 @@ export interface TextElementConfig extends BaseConfig {
 	text?: string
 	style?: TextOptions
 	rich?: boolean
+	formatter?: (...args: any) => string
 }
 
 export interface TextElementJson <T extends LayoutElementJson> extends LayoutElementJson {
@@ -22,6 +23,7 @@ export class TextElement extends BaseElement {
 	private _offsetCurrent: number
 	private options: TextOptions
 	private textRect: [number, number] | null
+	private formatter?: (...args: any) => string
 
 	public constructor(name?: string, config?: TextElementConfig) {
 		super(new BitmapText(), name, config)
@@ -31,6 +33,7 @@ export class TextElement extends BaseElement {
 		this.options = {}
 		this.text = ""
 		if (config) {
+			this.formatter = config.formatter
 			config.style && (this.options = config.style)
 			config.text && (this.text = config.rich ? new RichText(config.text, this.options) : config.text)
 		}
@@ -69,6 +72,7 @@ export class TextElement extends BaseElement {
 
 	protected onUpdate() {
 		super.onUpdate()
+		this.handle.pivot.set(this.width / 2, this.height / 2)
 		this.handle.width = this.innerWidth
 		this.handle.height = this.innerHeight
 		this.handle.x += this.config.padding.left
@@ -78,6 +82,13 @@ export class TextElement extends BaseElement {
 		} else {
 			this._offsetNext = this.handle.drawRichText(this.text, this._offsetCurrent)
 		}
+	}
+
+	public setFormattedText(...args: any) {
+		if (!this.formatter) {
+			throw new Error("formatter not defined")
+		}
+		this.setText(this.formatter(...args))
 	}
 
 	public setText(text: string, rich = false, options?: TextOptions) {

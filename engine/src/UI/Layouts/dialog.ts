@@ -61,7 +61,7 @@ export default (): LayoutElementJson => ({
 									},
 									config: {
 										image: "scroll-arrow",
-										mirror: "vertical"
+										flipped: "vertical"
 									}
 								},
 								{
@@ -87,7 +87,8 @@ export default (): LayoutElementJson => ({
 												height: "100%"
 											},
 											config: {
-												mask: true
+												mask: true,
+												interactive: true
 											}
 										}
 									]
@@ -113,7 +114,7 @@ export default (): LayoutElementJson => ({
 					},
 					config: {
 						image: "scroll-scroll",
-						mirror: "horizontal"
+						flipped: "horizontal"
 					}
 				}
 			]

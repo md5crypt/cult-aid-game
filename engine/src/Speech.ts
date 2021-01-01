@@ -1,220 +1,214 @@
 import { gameContext } from "./GameContext"
 
-export namespace Speech {
+interface SpeechCharacter {
+	name: string
+	color: string
+	avatars: Record<string, string>
+}
 
-	type AvatarMap = {default: string, [key: string]: string}
+interface SpeechFragmentElement {
+	character: string
+	avatar?: string
+	text: string
+}
 
-	interface CharacterConfig<T, K> {
-		avatars: K
-		name: string | (() => string)
-		color?: string | (() => string)
-		data?: T
+interface SpeechFragmentFunction {
+	function: string
+	argument?: string
+}
+
+type SpeechFragment = (SpeechFragmentElement | SpeechFragmentFunction)[]
+
+interface SpeechDialogOption {
+	id: string
+	text: string
+	hidden?: boolean
+}
+
+interface SpeechDialog {
+	options: SpeechDialogOption[]
+	prompts: Record<string, string>
+}
+
+interface SpeechData {
+	characters: Record<string, SpeechCharacter>
+	fragments: Record<string, SpeechFragment>
+	dialogs: Record<string, SpeechDialog>
+}
+
+export class Speech {
+	public readonly data: SpeechData
+	private _dialog: Dialog | null
+	private audio?: PIXI.sound.Sound
+
+	public constructor(data: SpeechData, audio?: PIXI.sound.Sound) {
+		this.data = data
+		this._dialog = null
+		this.audio = audio
+		if (!gameContext.storage.dialog) {
+			gameContext.storage.dialog = {hidden: {}, seen: {}}
+		}
 	}
 
-	interface SayParams<T = any, K extends AvatarMap = any> {
-		operation?: "say"
-		character: Character<T, K>
-		avatar?: keyof K
-		text: string
+	public get dialog() {
+		if (!this._dialog) {
+			throw new Error("dialog is not active")
+		}
+		return this._dialog
 	}
 
-	type DialogOperation = (
-		{operation: "exit"} |
-		{operation: "push" | "restart" | "replace", dialog: DialogConfig} |
-		{operation: "pop", amount?: number}
-	)
-
-	type MaybePromise<T = void> = T | Promise<T>
-	type SayFunction = () => MaybePromise
-	type DialogFunction = (dialog: Dialog) => MaybePromise
-
-	interface DialogOption {
-		text: string | (() => string)
-		action: DialogFunction | (SayParams | DialogOperation | DialogFunction)[]
-		enabled?: () => boolean
+	public async executeDialog(id: string, noClaim?: boolean): Promise<void>
+	public async executeDialog(id: string, intro?: string): Promise<void>
+	public async executeDialog(id: string, arg?: string | boolean): Promise<void> {
+		if (this._dialog != null) {
+			throw new Error("a dialog is already running!")
+		}
+		if (typeof arg == "string") {
+			await this.executeFragment(arg, true)
+		}
+		this._dialog = new Dialog(id)
+		return this._dialog.start(!!arg).then(() => {
+			this._dialog = null
+		})
 	}
 
-	interface DialogConfig<T = any, K extends AvatarMap = any> {
-		character: Character<T, K>
-		avatar?: keyof K | ((character: Character<T, K>) => (keyof K | undefined))
-		prompt?: string | ((character: Character<T, K>) => (string | undefined))
-		options: DialogOption[]
-	}
-
-	export async function execute(batch: (SayParams | SayFunction)[]): Promise<void>
-	export async function execute(batch: (SayParams | DialogOperation | DialogFunction)[], dialog: Dialog): Promise<void>
-	export async function execute(batch: (SayParams | DialogOperation | DialogFunction | SayFunction)[], dialog?: Dialog) {
+	public async executeFragment(id: string, noRelease = false): Promise<void> {
+		const fragment = this.data.fragments[id]
+		await gameContext.scripts.resolve("fragmentBefore", id)?.(id)
 		gameContext.ui.dialog.claim()
-		for (const item of batch) {
-			if (typeof item == "function") {
-				const result = dialog ? item(dialog) : (item as SayFunction)()
-				if (result instanceof Promise) {
-					await result
-				}
-			} else if (item.operation) {
-				switch (item.operation) {
+		for (let i = 0; i < fragment.length; i++) {
+			const item = fragment[i]
+			if ("function" in item) {
+				switch (item.function) {
+					case "seen":
+						gameContext.storage.dialog.seen[id] = true
+						break
+					case "hide":
+						gameContext.storage.dialog.hidden[item.argument || id] = true
+						break
+					case "show":
+						gameContext.storage.dialog.hidden[item.argument || id] = false
+						break
 					case "exit":
-						dialog!.exit()
+						this._dialog!.exit()
 						break
 					case "pop":
-						dialog!.pop(item.amount)
+						this._dialog!.pop(item.argument ? parseInt(item.argument, 10) : 1)
+						break
+					case "invoke":
+						await gameContext.scripts.resolveOrThrow("fragmentInvoke", id)(item.argument, id)
 						break
 					case "push":
 					case "replace":
 					case "restart":
-						dialog![item.operation](item.dialog)
+						this._dialog![item.function](item.argument!)
 						break
 					default:
-						throw new Error(`invalid dialog operation: ${item.operation}`)
+						throw new Error(`invalid dialog operation: ${item.function}`)
 				}
 			} else {
-				await new Promise(resolve => gameContext.ui.dialog.renderSpeech(
-					`[color=${item.character.color}]${item.character.name}:[/color] ${item.text}`,
-					item.character.getAvatar(item.avatar || "default"),
-					() => resolve()
-				))
+				const character = this.data.characters[item.character]
+				const soundId = id + "." + i
+				if (this.audio && soundId in this.audio.sprites) {
+					void this.audio.play(soundId)
+				}
+				await gameContext.ui.dialog.renderSpeech(
+					`[color=${character.color}]${character.name}:[/color] ${item.text}`,
+					character.avatars[item.avatar || "default"]
+				)
+				if (this.audio && soundId in this.audio.sprites) {
+					this.audio.stop()
+				}
 			}
 		}
-		gameContext.ui.dialog.release()
-	}
-
-	export function start<T, K extends AvatarMap>(dialog: DialogConfig<T, K>) {
-		return Dialog.start(dialog)
-	}
-
-	export function exit(): DialogOperation {
-		return {operation: "exit"}
-	}
-
-	export function pop(amount?: number): DialogOperation {
-		return {operation: "pop", amount}
-	}
-
-	export function push(config: DialogConfig): DialogOperation {
-		return {operation: "push", dialog: config}
-	}
-
-	export function restart(config: DialogConfig): DialogOperation {
-		return {operation: "restart", dialog: config}
-	}
-
-	export function replace(config: DialogConfig): DialogOperation {
-		return {operation: "replace", dialog: config}
-	}
-
-	class Dialog {
-		private stack: DialogConfig[]
-		private resolve: (() => void) | null
-
-		private constructor() {
-			this.stack = []
-			this.resolve = null
+		if (!noRelease) {
+			await gameContext.ui.dialog.release()
 		}
+		await gameContext.scripts.resolve("fragmentAfter", id)?.(id)
+	}
+}
 
-		public static start<T, K extends AvatarMap>(dialog: DialogConfig<T, K>): Promise<void> {
-			const object = new Dialog()
-			object.stack = [dialog]
+export class Dialog {
+	private stack: {dialog: string, lastSelection?: string}[]
+
+	public constructor(dialog: string) {
+		this.stack = [{dialog}]
+	}
+
+	public get id() {
+		return this.stack[this.stack.length - 1].dialog
+	}
+
+	/** @internal */
+	public async start(noClaim = false) {
+		if (!noClaim) {
 			gameContext.ui.dialog.claim()
-			return new Promise(resolve => {
-				object.resolve = resolve
-				object.continue()
-			})
 		}
+		const storage = gameContext.storage.dialog as {hidden: Record<string,boolean>, seen: Record<string,boolean>}
 
-		private continue() {
-			if (this.stack.length == 0) {
-				gameContext.ui.dialog.release()
-				this.resolve!()
-				return
-			}
-			const dialog = this.stack[this.stack.length - 1]
-			const prompt = typeof dialog.prompt == "function" ? dialog.prompt(dialog.character) : dialog.prompt
-			const avatar = typeof dialog.avatar == "function" ? dialog.avatar(dialog.character) : (dialog.avatar || "default")
-			const options = dialog.options.filter(option => !option.enabled || option.enabled())
-			void new Promise<number>(resolve => gameContext.ui.dialog.renderOptions(
-				options.map(option => typeof option.text == "function" ? option.text() : option.text),
-				prompt && `[color=${dialog.character.color}]${dialog.character.name}:[/color] ${prompt}`,
-				avatar && dialog.character.getAvatar(avatar),
-				resolve
-			)).then(async index => {
-				const action = options[index].action
-				if (Array.isArray(action)) {
-					await Speech.execute(action, this)
-				} else {
-					await action(this)
+		while (this.stack.length > 0) {
+			const element = this.stack[this.stack.length - 1]
+			await gameContext.scripts.resolve("dialogStart", element.dialog)?.(element.dialog)
+			const data = gameContext.speech.data
+			const dialog = data.dialogs[element.dialog]
+			const prompt = data.fragments[`${element.dialog}.prompt.default`][0] as SpeechFragmentElement
+			const character = data.characters[prompt.character]
+			const options = dialog.options.map(option => ({
+				id: option.id,
+				text: option.text,
+				seen: storage.seen[`${element.dialog}.option.${option.id}`],
+				hidden: storage.hidden[`${element.dialog}.option.${option.id}`] ?? option.hidden
+			}))
+
+			let activeOption = 0
+			if (element.lastSelection) {
+				for (const option of options) {
+					activeOption += option.hidden ? 0 : 1
+					if (option.id == element.lastSelection) {
+						activeOption = Math.max(activeOption - 1, 0)
+						break
+					}
 				}
-				this.continue()
-			})
-		}
+			}
 
-		public restart<T, K extends AvatarMap>(dialog: DialogConfig<T, K>) {
-			this.stack = [dialog]
-		}
+			const filteredOptions = options.filter(option => !option.hidden)
+			const selectedId = filteredOptions[await gameContext.ui.dialog.renderOptions({
+				options: filteredOptions,
+				prompt: `[color=${character.color}]${character.name}:[/color] ${prompt.text}`,
+				avatar: character.avatars[prompt.avatar || "default"],
+				activeOption
+			})].id
 
-		public pop(amount = 1) {
-			for (let i = 0; i < amount; i++) {
-				this.stack.pop()
+			element.lastSelection = selectedId
+			if (!(await gameContext.scripts.resolve("dialogSelect", element.dialog)?.(selectedId, element.dialog))) {
+				await gameContext.speech.executeFragment(`${element.dialog}.option.${selectedId}`)
 			}
 		}
+		await gameContext.ui.dialog.release()
+	}
 
-		public push<T, K extends AvatarMap>(dialog: DialogConfig<T, K>) {
-			this.stack.push(dialog)
-		}
+	public restart(dialog: string) {
+		this.stack = [{dialog}]
+	}
 
-		public replace<T, K extends AvatarMap>(dialog: DialogConfig<T, K>) {
-			if (this.stack.length == 0) {
-				throw new Error("can not replace dialog, stack empty")
-			}
-			this.stack[this.stack.length - 1] = dialog
-		}
-
-		public exit() {
-			this.stack = []
+	public pop(amount = 1) {
+		for (let i = 0; i < amount; i++) {
+			this.stack.pop()
 		}
 	}
 
-	export class Character<T, K extends AvatarMap> {
-		private config: CharacterConfig<T, K>
+	public push(dialog: string) {
+		this.stack.push({dialog})
+	}
 
-		public constructor(config: CharacterConfig<T, K>) {
-			this.config = config
+	public replace(dialog: string) {
+		if (this.stack.length == 0) {
+			throw new Error("can not replace dialog, stack empty")
 		}
+		this.stack[this.stack.length - 1] = {dialog}
+	}
 
-		public get data() {
-			return this.config.data!
-		}
-
-		public get color() {
-			return typeof this.config.color == "function" ? this.config.color() : this.config.color
-		}
-
-		public get name() {
-			return typeof this.config.name == "function" ? this.config.name() : this.config.name
-		}
-
-		public getAvatar(name: keyof K) {
-			return this.config.avatars[name]
-		}
-
-		public say(text: string, execute?: false): SayParams<T, K>
-		public say(text: string, execute: true): Promise<void>
-		public say(avatar: keyof K, text: string, execute?: false): SayParams<T, K>
-		public say(avatar: keyof K, text: string, execute: true): Promise<void>
-		public say(arg1: string, arg2?: string | boolean, arg3?: boolean): SayParams<T, K> | Promise<void> {
-			let execute = false
-			let result: SayParams<T, K>
-			if (typeof arg2 == "string") {
-				execute = Boolean(arg3)
-				result = {text: arg2, avatar: arg1, character: this}
-			} else {
-				execute = Boolean(arg2)
-				result = {text: arg1, character: this}
-			}
-			return execute ? Speech.execute([result]) : result
-		}
-
-		public ask(params: Omit<DialogConfig<T, K>, "character">): DialogConfig<T, K> {
-			return {...params, character: this}
-		}
+	public exit() {
+		this.stack = []
 	}
 }

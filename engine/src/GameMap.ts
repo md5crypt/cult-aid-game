@@ -82,27 +82,27 @@ export class GameMap {
 				if (scripts.onCreate) {
 					defer.push({
 						cell,
-						callback: storage.resolve(scripts.onCreate, "cellCreate")
+						callback: storage.resolveOrThrow("cellCreate", scripts.onCreate)
 					})
 				}
 				if (scripts.onMove) {
-					const callback = storage.resolve(scripts.onMove, "cellMove")
+					const callback = storage.resolveOrThrow("cellMove", scripts.onMove)
 					cell.onMove.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onEnter) {
-					const callback = storage.resolve(scripts.onEnter, "cellEnter")
+					const callback = storage.resolveOrThrow("cellEnter", scripts.onEnter)
 					cell.onEnter.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onExit) {
-					const callback = storage.resolve(scripts.onExit, "cellExit")
+					const callback = storage.resolveOrThrow("cellExit", scripts.onExit)
 					cell.onExit.add((cell, direction) => callback(cell, direction))
 				}
 				if (scripts.onCenter) {
-					const callback = storage.resolve(scripts.onCenter, "cellCenter")
+					const callback = storage.resolveOrThrow("cellCenter", scripts.onCenter)
 					cell.onCenter.add(cell => callback(cell))
 				}
 				if (scripts.onUse) {
-					const callback = storage.resolve(scripts.onUse, "cellUse")
+					const callback = storage.resolveOrThrow("cellUse", scripts.onUse)
 					cell.onUse.add(cell => callback(cell))
 				}
 			}

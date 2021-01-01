@@ -1,5 +1,5 @@
 import { BitmapFont, TextCharInfo } from "./BitmapFont"
-import { cssColorList } from "./Colors"
+import { Colors } from "../Colors"
 
 export interface TextOptions {
 	font?: string | BitmapFont
@@ -22,12 +22,11 @@ function resolveTextOptions(options: TextOptions) {
 		size: 1,
 		...options,
 		font: typeof options.font == "string" ? BitmapFont.get(options.font) : (options.font || BitmapFont.get("default")),
-		color: BitmapText.resolveColor(options.color === undefined ? "default" : options.color)
+		color: Colors.resolve(options.color === undefined ? "default" : options.color)
 	} as const
 }
 
 export class BitmapText extends PIXI.Container {
-	private static readonly colors: Map<string, number> = new Map(cssColorList)
 	private _width = 0
 	private _height = 0
 
@@ -47,24 +46,6 @@ export class BitmapText extends PIXI.Container {
 		return this._height
 	}
 
-	public static registerColor(name: string, value: number) {
-		BitmapText.colors.set(name.toLowerCase(), value)
-	}
-
-	public static resolveColor(value: string | number) {
-		if (typeof value == "number") {
-			return value
-		}
-		if (value[0] == "#") {
-			return parseInt(value.slice(1), 16)
-		}
-		const color = this.colors.get(value.toLowerCase())
-		if (color === undefined) {
-			throw new Error(`color '${value}' not found`)
-		}
-		return color
-	}
-
 	public drawRichText(text: RichText, offset = 0) {
 		this.removeChildren()
 		if (offset >= text.words.length) {
@@ -81,7 +62,7 @@ export class BitmapText extends PIXI.Container {
 		let index = offset
 		while (true) {
 			const word = text.words[index]
-			const delta = word.width + (words.length ? text.whitespace : 0)
+			const delta = word.width + (words.length && !word.noSpace ? text.whitespace : 0)
 			if ((lineWidth + delta) <= this.width) {
 				lineWidth += delta
 				words.push(word)
@@ -129,8 +110,9 @@ export class BitmapText extends PIXI.Container {
 				xOffset = this.width - line.width
 			} else if (text.xAlign == "justify" && ((lineNumber + 1) != lines.length)) {
 				xOffset = 0
-				justifyQuotient = Math.floor((this.width - line.width) / (line.words.length - 1))
-				justifyReminder = (this.width - line.width) % (line.words.length - 1)
+				const count = line.words.filter(x => !x.noSpace).length - 1
+				justifyQuotient = Math.floor((this.width - line.width) / count)
+				justifyReminder = (this.width - line.width) % count
 			} else {
 				xOffset = 0
 			}
@@ -146,9 +128,11 @@ export class BitmapText extends PIXI.Container {
 					}
 					xOffset += char.advance * text.size
 				}
-				xOffset += text.whitespace + justifyQuotient + (justifyReminder ? 1 : 0)
-				if (justifyReminder > 0) {
-					justifyReminder -= 1
+				if (!word.noSpace) {
+					xOffset += text.whitespace + justifyQuotient + (justifyReminder ? 1 : 0)
+					if (justifyReminder > 0) {
+						justifyReminder -= 1
+					}
 				}
 			}
 			yOffset += text.lineHeight + text.lineSpacing
@@ -219,6 +203,7 @@ export class RichText {
 		const color = [options.color]
 		const words: RichText.Word[] = []
 		let match = re.exec(text)
+		let noSpace = false
 		while (match) {
 			if (match[1] !== undefined) {
 				// bb tag start
@@ -228,7 +213,7 @@ export class RichText {
 				if (match[2] === undefined) {
 					throw new Error(`no color provided in '${match[0]}' in '${text}'`)
 				}
-				color.push(BitmapText.resolveColor(match[2]))
+				color.push(Colors.resolve(match[2]))
 			} else if (match[3] !== undefined) {
 				// bb tag end
 				if (match[3] != "color") {
@@ -237,11 +222,16 @@ export class RichText {
 				if (color.length <= 1) {
 					throw new Error(`invalid bb tag '${match[0]}' in '${text}'`)
 				}
+				noSpace = true
 				color.pop()
 			} else if (match[4] !== undefined) {
+				noSpace = false
 				// whitespace (ignore)
 			} else if (match[5] !== undefined) {
 				// text
+				if (noSpace && words.length) {
+					words[words.length - 1].noSpace = true
+				}
 				const word = match[5]
 				const data = options.font.resolve(word)
 				data.forEach(char => char.advance += options.letterSpacing)
@@ -249,8 +239,10 @@ export class RichText {
 					text: word,
 					width: data.reduce((a, b) => a + b.advance, 0) * options.size,
 					color: color[color.length - 1],
+					noSpace: false,
 					data
 				})
+				noSpace = false
 			} else {
 				console.error(match)
 				throw new Error("I apparently messed up the regular expression")
@@ -275,7 +267,7 @@ export class RichText {
 		let rectWidth = 0
 		for (let i = offset; i < this.words.length; i += 1) {
 			const word = this.words[i]
-			const delta = word.width + (lineWidth ? this.whitespace : 0)
+			const delta = word.width + (lineWidth && !word.noSpace ? this.whitespace : 0)
 			if ((lineWidth + delta) <= width) {
 				lineWidth += delta
 			} else if (lineWidth) {
@@ -304,5 +296,6 @@ export namespace RichText {
 		color: number
 		width: number
 		data: TextCharInfo[]
+		noSpace: boolean
 	}
 }

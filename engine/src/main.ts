@@ -15,10 +15,10 @@ import { ScriptTimer } from "./ScriptTimer"
 import { SimplePath } from "./Path"
 import { Animation } from "./Animation"
 import { BitmapFont, FontData } from "./Text/BitmapFont"
-import { layoutFactory } from "./Layout/LayoutPIXI"
+import { UI } from "./UI/UI"
 import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
-import { DialogUI } from "./UI/DialogUI"
+
 import { Animator } from "./UI/Animator"
 import "./TextureAtlasLoader"
 import "./RectTile/RectTileRenderer"
@@ -32,7 +32,6 @@ declare global {
 
 Object.assign(gameContext, {
 	Item: Sprite.Item,
-	Speech: Speech,
 	Path: SimplePath,
 	Animation,
 	Sprite
@@ -43,8 +42,11 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 		.add("atlasUi", "atlas-ui.json")
 		.add("atlasTiles", "atlas-tiles.json")
 		.add("gameData", "data.json")
+		.add("speech", "speech.json")
 		.add("fonts", "fonts.json")
 		.add("scripts", "scripts.js")
+		//.add("soundData", "audio.json")
+		//.add("sound", "audio.mp3")
 		.load((_loader, resources) => resolve(resources))
 		.onError.add(error => reject(error))
 	)
@@ -60,11 +62,11 @@ function resize(app: PIXI.Application) {
 	const width = window.innerWidth * resolution
 	const height = window.innerHeight * resolution
 	const scale = Math.max(1, Math.floor(width / 683))
-	gameContext.stage.ui.scale.set(scale)
 	gameContext.ui.root.updateConfig({
 		width: Math.floor(width / scale),
 		height: Math.floor(height / scale)
 	})
+	gameContext.ui.root.scale = scale
 	gameContext.camera.updateScreenSize(
 		width / CONST.STAGE_BASE_ZOOM,
 		height / CONST.STAGE_BASE_ZOOM
@@ -86,7 +88,10 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 		mid: new RectTileLayer(gameContext.textures.tiles.baseTextures),
 		fg: new RectTileLayer(gameContext.textures.tiles.baseTextures)
 	}
+	gameContext.storage = {}
 	gameContext.scripts = new ScriptStorage()
+	//resources.sound.sound.addSprites(resources.soundData.data.data)
+	gameContext.speech = new Speech(resources.speech.data.data /*,resources.sound.sound*/)
 	gameContext.input = new GameInput()
 	gameContext.map = new GameMap()
 	gameContext.camera = new GameCamera()
@@ -98,12 +103,7 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 	tile.interactive = false
 	tile.addChild(...Object.values(gameContext.layers))
 	BitmapFont.alias("default", "PixAntiqua")
-	gameContext.ui = {} as any
-	gameContext.ui.root = layoutFactory.create({
-		name: "@root",
-		type: "container"
-	})
-	gameContext.ui.dialog = new DialogUI()
+	gameContext.ui = new UI()
 	gameContext.stage = {tile, ui: gameContext.ui.root.handle}
 	resize(app)
 	app.stage.addChild(...Object.values(gameContext.stage))

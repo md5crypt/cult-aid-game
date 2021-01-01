@@ -1,0 +1,201 @@
+
+
+
+@fragment technician-touch-server
+
+technician: Hey! Keep your dirty paws off that!
+
+@fragment technician-intro
+
+khajiit: Umm... hello?
+
+technician: What? Can't you see I'm busy?
+
+khajiit: I actually would argue that it's the exact opposite.
+
+technician: Ha, typical uneducated non-technical bystander. I'm actively monitoring system health after recovering from a fatal malfunction.
+
+khajiit: And how long will that take?
+
+technician: As long as they keep paying me per hour.
+
+khajiit: I see.
+
+
+@dialog technician-main
+
+@prompt
+technician: What do you want?
+
+@option hidden sweetroll: (Give sweetroll)
+
+khajiit: You look hungry, maybe fancy a sweetroll?
+
+technician: If life taught me anything, it's to never ever take a sweetroll from a random khajiit.
+
+khajiit: Fair enough.
+
+%seen
+
+@option hidden book: (Give book)
+
+khajiit: Here, I brought you a book from the library. Should be a better read then that server manual.
+
+technician: Really? And look at that, a classic!
+technician: That's... actually the kindest thing that happened to me for a long time.
+technician: Thank you! You know I can't register you to the system right? I would lose my job.
+
+khajiit: It's fine.
+
+%hide
+
+@option reading: What are you reading?
+
+khajiit: What are you reading?
+
+technician: Some random server manual I found lying around.
+
+khajiit: And you're reading it not because you're bored out of your mind but because it's crucial for "system health monitoring".
+
+technician: Precisely! You would make a great technician.
+
+%seen
+
+@option hidden register: Register me in the security system.
+
+khajiit: Could you register me in the security system?
+
+technician: On whose request?
+
+khajiit: Er... mine?
+
+technician: Then I'll make you a favor and pretend I didn't hear that.
+
+%seen
+
+@option work: You work here?
+
+khajiit: So you work here?
+
+technician: In a dirty cultist cave? Have you lost your mind? I'm an authorized corporate field technician. The only reason I'm here is because those stupid cultists are paying for our extended service plan.
+
+khajiit: But you said they pay per hour of your "work"?
+
+technician: The service plan only guarantees a technician will show up on site. The client still needs to cover the full costs of all necessary repairs.
+technician: Brilliant, isn't it?
+
+khajiit: I would say borderline evil, but sure.
+
+%hide
+%show job-offers
+%show comfy
+%show register
+
+@option hidden  job-offers: Any job offers in the corporation you work for?
+
+khajiit: So that corporation you work for... they have some open job offers?
+
+technician: Let's see... Do you have a degree in automaton programming, micro enchanting or asynchronous conjuration?
+
+khajiit: No...
+
+technician: Then maybe you have at least four years of experience as a sales manager, preferably in a dunmer company?
+
+khajiit: OK, forget that I asked.
+
+technician: *sigh* There is an open position for a penetration tester. The last one... um... proved that our systems are great at what they do.
+
+khajiit: What are the requirements?
+
+technician: As far as I know... none. It's more of a "we find you" then "you find us" position, but you can try your luck.
+
+khajiit: Thanks, I guess.
+
+%hide
+
+@option hidden comfy: How often do you get called here?
+
+khajiit: You seem... well accommodated. How often do you get called here?
+
+technician: Oh, all our systems implement a patented Uninterrupted Serviceability System.
+
+khajiit: What exactly does it do?
+
+technician: Ensures that I am needed at least once per month?
+
+khajiit: I would like to say that I'm surprised but I'm afraid that would be a lie.
+
+%hide
+%show info
+
+@option hidden info: Anything to say about this place?
+
+khajiit: Given that you seem to be a regular here, do you have anything interesting to say about the place?
+
+technician: Let's see... Avoid the canteen on Mondays, be nice to that one cultist that looks like a smashed hobo and never do anything that would even remotely anger the maid.
+
+khajiit: Those seem oddly specific... care to elaborate?
+
+technician: Sure, what exactly would you like to know?
+
+%seen
+%push technician-info
+
+@option exit: (Exit)
+
+khajiit: I'll leave you alone for now.
+
+technician: Mhm, I have important work to do.
+
+%pop
+
+@dialog technician-info
+
+@prompt
+technician: What would you like to know?
+
+@option canteen: Canteen? Mondays?
+
+khajiit: Why should I avoid the canteen on Mondays?
+
+technician: Actually, scratch that, you're a khajiit, you should be fine.
+
+khajiit: I don't like the direction this is going...
+
+technician: Well, the chef working in the canteen is a khajiit with a fixation on "traditional cuisine". On Mondays he serves a "genuine khajiit experience".
+
+khajiit: He just adds a shit-ton of moonsugar to it, doesn't he?
+
+technician: Yup.
+
+khajiit: I feel like I should be mad.
+
+%seen
+
+@option hobo: Be nice to the hobo?
+
+khajiit: There's something special about that hobo?
+
+technician: You can say that. The whole security system has only one user with full access rights. Guess who's user it is.
+
+khajiit: Okay, that is a good reason to be nice to him.
+
+%seen
+
+@option maid: Don't anger the maid?
+
+khajiit: Something happened between you and the maid?
+
+technician: You can say that. I might've tried asking her out once... made a joke or two about argonians. Argonian maids to be specific.
+
+khajiit: I'm guessing she did not appreciate your top-notch humor?
+
+technician: That depends how you interpret punching someone straight in the stomach.
+
+%seen
+
+@option exit: (Go back)
+
+khajiit: Thanks for the information.
+
+%pop

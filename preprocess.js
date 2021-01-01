@@ -3,7 +3,8 @@ const path = require("path")
 const assert = require("assert")
 const glob = require("glob")
 const texturePacker = require("./atlas/packer")
-const fntparser = require("./fntparser")
+const fontParser = require("./fontParser")
+const speechParser = require("./speechParser")
 
 const objectParsers = [
 	(objects, sprite) => {
@@ -184,7 +185,17 @@ function buildMap(resources, mapFile, tilesetFiles) {
 
 function parseFonts(fontsPath) {
 	return glob.sync(path.resolve(fontsPath, "*.fnt"))
-		.map(file => fntparser(fs.readFileSync(file), "ascii"))
+		.map(file => fontParser(fs.readFileSync(file, "ascii")))
+}
+
+function parseSpeech(speechPath) {
+	const data = {characters: JSON.parse(fs.readFileSync(path.resolve(speechPath, "characters.json"), "utf8"))}
+	glob.sync(path.resolve(speechPath, "*.txt"))
+		.forEach(file => speechParser.parse(fs.readFileSync(file, "utf8"), file, data))
+	speechParser.finalize(data)
+	fs.writeFileSync(path.resolve("scripts/src", "fragments.d.ts"), "declare const enum FragmentId { " + Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
+	fs.writeFileSync(path.resolve("scripts/src", "dialogs.d.ts"), "declare const enum DialogId { " + Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
+	return data
 }
 
 async function run() {
@@ -198,6 +209,7 @@ async function run() {
 	])
 	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))
 	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
+	fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))
 }
 
 run()

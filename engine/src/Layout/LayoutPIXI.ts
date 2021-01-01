@@ -7,8 +7,12 @@ export { TextElement, TextElementJson }
 import { SpriteElement, SpriteElementJson } from "./PIXI/SpriteElement"
 export { SpriteElement, SpriteElementJson }
 
+import { RootElement } from "./PIXI/RootElement"
+export { RootElement }
+
 import { layoutFactory as layoutFactoryGeneric, BaseElement } from "./PIXI/BaseElement"
 import { LayoutFactory } from "./LayoutBase"
+
 
 export { BaseElement }
 

@@ -1,5 +1,3 @@
-const fs = require("fs")
-
 function buildFontData(input) {
 	const data = parse(input)
 	const kernings = new Map()

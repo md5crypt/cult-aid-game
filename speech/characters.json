@@ -1,0 +1,144 @@
+{
+	"zombie": {
+		"name": "Zombie",
+		"color": "darkred",
+		"avatars": {
+			"default": "avatar-test"
+		}
+	},
+	"khajiit": {
+		"name": "Khajiit",
+		"color": "darkgreen",
+		"avatars": {
+			"default": "avatar-khajiit-size"
+		},
+		"tts": {
+			"voice": "en+klatt"
+		}
+	},
+	"hobo": {
+		"name": "Hobo",
+		"color": "#3b0053",
+		"avatars": {
+			"default": "avatar-hobo-flask",
+			"flask": "avatar-hobo-flask",
+			"lecture": "avatar-hobo-lecture"
+		},
+		"tts": {
+			"voice": "en+Tweaky"
+		}
+	},
+	"librarian": {
+		"name": "Librarian",
+		"color": "#871a1a",
+		"avatars": {
+			"default": "avatar-librarian-actually",
+			"actually": "avatar-librarian-actually"
+		},
+		"tts": {
+			"voice": "en+zac"
+		}
+	},
+	"thief": {
+		"name": "Thief",
+		"color": "#0f4880",
+		"avatars": {
+			"default": "avatar-thief-hungry",
+			"hungry": "avatar-thief-hungry"
+		},
+		"tts": {
+			"voice": "en+aunty"
+		}
+	},
+	"maid": {
+		"name": "Maid",
+		"color": "#726012",
+		"avatars": {
+			"default": "avatar-maid-angry",
+			"angry": "avatar-maid-angry",
+			"smoke1": "avatar-maid-smoke1",
+			"smoke2": "avatar-maid-smoke2"
+		},
+		"tts": {
+			"voice": "en+f4"
+		}
+	},
+	"bosmer": {
+		"name": "Investigator",
+		"color": "#294429",
+		"avatars": {
+			"default": "avatar-bosmer-well",
+			"well": "avatar-bosmer-well"
+		},
+		"tts": {
+			"voice": "en+AnxiousAndy"
+		}
+	},
+	"technician": {
+		"name": "Technician",
+		"color": "#34515E",
+		"avatars": {
+			"default": "avatar-technician-explaining",
+			"explaining": "avatar-technician-explaining"
+		}
+		,
+		"tts": {
+			"voice": "en+croak"
+		}
+	},
+	"archeologist": {
+		"name": "Archeologist",
+		"color": "#726012",
+		"avatars": {
+			"default": "avatar-archeologist-lecture",
+			"lecture": "avatar-archeologist-lecture"
+		},
+		"tts": {
+			"voice": "en+Annie"
+		}
+	},
+	"spirit": {
+		"name": "Spirit",
+		"color": "#336e7b",
+		"avatars": {
+			"default": "avatar-spirit-angry",
+			"angry": "avatar-spirit-angry"
+		},
+		"tts": {
+			"voice": "en+whisper"
+		}
+	},
+	"chef": {
+		"name": "Chef",
+		"color": "#804600",
+		"avatars": {
+			"default": "avatar-chef-pinch",
+			"pinch": "avatar-chef-pinch"
+		},
+		"tts": {
+			"voice": "en+m2"
+		}
+	},
+	"breton": {
+		"name": "Mage",
+		"color": "#7928a1",
+		"avatars": {
+			"default": "avatar-breton-wellwell",
+			"wellwell": "avatar-breton-wellwell"
+		},
+		"tts": {
+			"voice": "en+quincy"
+		}
+	},
+	"nord": {
+		"name": "Mercenary",
+		"color": "#3455db",
+		"avatars": {
+			"default": "avatar-nord-andthen",
+			"andthen": "avatar-nord-andthen"
+		},
+		"tts": {
+			"voice": "en+Gene"
+		}
+	}
+}

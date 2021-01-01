@@ -7,6 +7,9 @@ export interface BaseConfig {
 	sorted?: boolean
 	zIndex?: number
 	alpha?: number
+	rotation?: number
+	flipped?: false | "vertical" | "horizontal"
+	interactive?: boolean
 }
 
 export type LayoutElementJson = BaseLayoutElementJson<BaseElement>
@@ -14,8 +17,8 @@ export type LayoutElementJson = BaseLayoutElementJson<BaseElement>
 export abstract class BaseElement extends LayoutElement<BaseElement> {
 	/** @internal */
 	public readonly handle: PIXI.Container
-	private mask?: boolean
 	private hidden: boolean
+	private mask?: boolean
 
 	protected constructor(handle: PIXI.Container, name?: string, config?: BaseConfig) {
 		super(name)
@@ -25,14 +28,59 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 			this.mask = config.mask
 			this.handle.zIndex = config.zIndex || 0
 			config.sorted && (this.handle.sortableChildren = true)
+			config.interactive && (this.interactive = true)
 			config.alpha !== undefined && (this.alpha = config.alpha)
+			config.rotation && (this.rotation = config.rotation)
+			config.flipped && (this.flipped = config.flipped)
 		}
 	}
 
+	public removeFilter(filter: PIXI.Filter) {
+		this.handle.filters = this.filters.filter(x => x != filter)
+	}
+
+	public addFilter(filter: PIXI.Filter) {
+		if (!this.filters.includes(filter)) {
+			this.filters.push(filter)
+		}
+	}
+
+	protected get filters(): PIXI.Filter[] {
+		if (!this.handle.filters) {
+			this.handle.filters = []
+		}
+		return this.handle.filters
+	}
+
 	public set alpha(value: number) {
+		this.hidden = value === 0
+		this.handle.visible = value !== 0
 		this.handle.alpha = value
-		this.hidden = (value === 0)
-		this.setDirty()
+	}
+
+	public set rotation(value: number) {
+		this.handle.angle = value
+	}
+
+	public set flipped(value: false | "vertical" | "horizontal") {
+		if (value == "vertical") {
+			this.handle.scale.x = Math.abs(this.handle.scale.x)
+			this.handle.scale.y = -Math.abs(this.handle.scale.x)
+		} else if (value == "horizontal") {
+			this.handle.scale.x = -Math.abs(this.handle.scale.x)
+			this.handle.scale.y = Math.abs(this.handle.scale.y)
+		} else {
+			this.handle.scale.x = Math.abs(this.handle.scale.x)
+			this.handle.scale.y = Math.abs(this.handle.scale.y)
+		}
+	}
+
+	public set interactive(value: boolean) {
+		this.handle.interactive = value
+	}
+
+	public set interactiveChildren(value: boolean) {
+		this.handle.interactiveChildren = value
 	}
 
 	public get contentHeight() {
@@ -41,6 +89,10 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 
 	public get contentWidth() {
 		return this.handle.height
+	}
+
+	public on(event: string, callback: Function) {
+		this.handle.on(event, callback)
 	}
 
 	protected onRemoveElement(index: number) {
@@ -58,7 +110,6 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 
 	protected onUpdate() {
 		this.handle.visible = this.enabled && !this.hidden
-		this.handle.position.set(this.left, this.top)
 		if (this.mask) {
 			const graphics = new PIXI.Graphics()
 			graphics.beginFill(0xFFFFFF)
@@ -75,5 +126,6 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 			this.handle.addChild(graphics)
 			this.handle.mask = graphics
 		}
+		this.handle.position.set(this.left + this.width / 2, this.top + this.height / 2)
 	}
 }

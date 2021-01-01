@@ -42,7 +42,7 @@ interface LayoutConfigOverride<T extends LayoutElement<any>> {
 	enabled: boolean
 }
 
-type LayoutConfig<T extends LayoutElement<any>> =  Readonly<Partial<Omit<InternalLayoutConfig<T>, keyof LayoutConfigOverride<T>> & LayoutConfigOverride<T>>>
+export type LayoutConfig<T extends LayoutElement<any>> =  Readonly<Partial<Omit<InternalLayoutConfig<T>, keyof LayoutConfigOverride<T>> & LayoutConfigOverride<T>>>
 
 export abstract class LayoutElement<T extends LayoutElement<any>> {
 	public readonly name?: string
@@ -345,7 +345,7 @@ export abstract class LayoutElement<T extends LayoutElement<any>> {
 				this._height = this.config.height(this)
 			} else if (this.config.height) {
 				this._height = this.config.height
-			} else if (this.config.width === 0) {
+			} else if (this.config.height === 0) {
 				return 0
 			} else {
 				if (this.config.flexMode == "none") {

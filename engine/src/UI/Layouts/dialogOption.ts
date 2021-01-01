@@ -1,6 +1,6 @@
 import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
 
-export default (text: string): LayoutElementJson => ({
+export default (text: string, seen: boolean): LayoutElementJson => ({
 	name: "@option",
 	type: "container",
 	layout: {
@@ -40,7 +40,7 @@ export default (text: string): LayoutElementJson => ({
 				flexGrow: 1
 			},
 			config: {
-				alpha: 0.75,
+				alpha: seen ? 0.5 : 1,
 				text,
 				style: {
 					xAlign: "justify",

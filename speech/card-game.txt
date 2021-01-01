@@ -1,0 +1,128 @@
+@fragment card-game-rules-intro
+
+khajiit: Could you explain the rules again?
+
+breton: Sure, what do you want to know?
+
+@dialog card-game-rules-cards
+
+@prompt
+
+breton: Which card would you want to hear about?
+
+@option altmer: [color=card-altmer]Altmer[/color] cards
+
+breton: [color=card-altmer]Altmer[/color] cards allow you to play or move more cards during your turn and are required to win the game. In order to stay on the table they have to consume resources. Each [color=card-altmer]Altmer[/color] card consumes one gold and one meat each turn. If there are not enough resources for an [color=card-altmer]Altmer[/color] card, that card returned to your hand.
+
+@option mer: [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards
+    
+breton: [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards limit the amount of [color=card-argonian]Argonian[/color] cards you can have assigned to each resource. [color=card-dunmer]Dunmer[/color] cards correspond to gold and [color=card-bosmer]Bosmer[/color] to meat.
+
+breton: The limits are set in the following way: 0 cards = 1 Argonian; 1 cards = 2 Argonians; 2 cards = 4 Argonians; 3 cards = 8 Argonians
+
+@option argonian: [color=card-argonian]Argonian[/color] cards
+
+breton:  [color=card-argonian]Argonian[/color] cards produce meat and gold when assigned to the given resource. The amount of [color=card-argonian]Argonian[/color] cards assigned to each resource is limited by the amount of [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards you have in play.
+
+breton: [color=card-argonian]Argonian[/color] cards assigned to gold production have to consume meat to stay in play, one meat per card. If there is not enough meat, cards that were unable to consume meat are returned to your hand.
+
+breton: [color=card-argonian]Argonian[/color] cards can also be moved between resources during your interaction phase.
+
+@option khajiit: [color=card-khajiit]Khajiit[/color] cards
+
+breton: [color=card-khajiit]Khajiit[/color] cards can be assigned to enemy resources in order to consume them. One [color=card-khajiit]Khajiit[/color] card consumes one resource. If there are not enough resources for the cards to consume, the resource value stays at zero and [color=card-khajiit]Khajiit[/color] cards remain in play.
+
+breton: [color=card-khajiit]Khajiit[/color] cards played by you can be moved between resources during your interaction phase.
+
+@option back: (Back)
+
+%pop
+
+
+@dialog card-game-rules-phases
+
+@prompt
+
+breton: Which phases do you want to hear about?
+
+@option production: Production phase
+
+breton: During the production phase gold and meat is created based on the number of [color=card-argonian]Argonian[/color] cards assigned to each resource. One card produces one resource.
+
+@option consumption: Consumption phase
+
+breton: The consumption phase is divided into three sub-stages: [color=card-khajiit]Khajiit[/color] consumption, [color=card-altmer]Altmer[/color] consumption and [color=card-argonian]Argonian[/color] consumption.
+    
+breton: First each resource pool is decreased by the amount of enemy [color=card-khajiit]Khajiit[/color] cards assigned to it. If there are more [color=card-khajiit]Khajiit[/color] cards then of the given resource the resource value is set to zero and the cards remain in play.
+
+breton: After that one gold and one meat is taken for each [color=card-altmer]Altmer[/color] card you have on your table. In case there are not enough resources, [color=card-altmer]Altmer[/color] cards that did not consume the required meat and gold are returned to your hand.
+
+breton: Finally [color=card-argonian]Argonian[/color] cards assigned to gold production consume one meat per card. If there is not enough meat, [color=card-argonian]Argonian[/color] that were unable to consume it are returned to your hand.
+
+@option interaction: Interaction phase
+
+breton: The interaction phase is when you can actually do something by playing and moving cards.
+
+breton: You can play any card from your hand to your side of the table if the current card limit allows for it. [color=card-khajiit]Khajiit[/color] cards are an exception as you play them on your opponent's side.
+
+breton: As for moving cards, you can move [color=card-argonian]Argonian[/color] and [color=card-khajiit]Khajiit[/color] cards between resources. You can only move cards that you have played.
+
+breton: You can always play one card and move one card. If you have [color=card-altmer]Altmer[/color] cards on the table during the start you interaction phase you can also play or move an amount of cards equal to the number of [color=card-altmer]Altmer[/color] cards plus one.
+
+breton: Let's say you have zero [color=card-altmer]Altmer[/color] cards. Available combinations are (p - play, m - move): p, m, pm, mp. With one [color=card-altmer]Altmer[/color] card that changes to: p, m, pm, mp, mm, pp. With two [color=card-altmer]Altmer[/color] cards to: p, m, pm, mp, mm, pp, mmm, ppp.
+
+breton: If you have three [color=card-altmer]Altmer[/color] cards you won the game, so no point in discussing that.
+    
+@option back: (Back)
+
+%pop
+
+@dialog card-game-rules
+
+@prompt
+
+breton: What do you want to know?
+
+@option resources: Resources
+
+khajiit: Tell me about resources.
+
+breton: There are two resources in this game: meat and gold. The maximum amount of each resource you can gather is 20. Resources are used to provide for [color=card-altmer]Altmer[/color] cards in play and to feed [color=card-argonian]Argonian[/color] cards assigned to gold production.
+
+breton: You can control your opponent's resource production by assigning  [color=card-khajiit]Khajiit[/color] cards to enemy resources. One  [color=card-khajiit]Khajiit[/color] card consumes one resource per turn.
+
+@option cards: Card types
+
+khajiit: Tell me about the type of cards in this game.
+
+breton: There are five types of cards: [color=card-altmer]Altmer[/color], [color=card-dunmer]Dunmer[/color], [color=card-bosmer]Bosmer[/color], [color=card-argonian]Argonian[/color] and [color=card-khajiit]Khajiit[/color].
+
+%push card-game-rules-cards
+
+@option hand: The hand
+
+khajiit: What cards do I have in my hand and when do I get them?
+
+breton: At the start of the game you draw 12 [color=card-argonian]Argonian[/color] cards, 4 [color=card-khajiit]Khajiit[/color] cards, and 3 [color=card-dunmer]Dunmer[/color] cards, 3 [color=card-bosmer]Bosmer[/color] and 3 [color=card-altmer]Altmer[/color] cards. You don't get any more cards throughout the game but [color=card-argonian]Argonian[/color] and [color=card-altmer]Altmer[/color] cards can return from the table to your hand under certain circumstances.
+
+@option flow: Game flow
+
+khajiit: Remind me, what's the flow of this game?
+
+breton: We take our turns, one after another. Each turn is divided into three phases: production, consumption and interaction.
+
+%push card-game-rules-phases
+
+@option goal: Goal of the game
+
+khajiit: What exactly did I have to do to win?
+
+breton: You win the game when after the consumption phase of your turn you are left with three [color=card-altmer]Altmer[/color] cards on table.
+
+breton: To say it in simpler words you have to have three [color=card-altmer]Altmer[/color] cards at the start of your turn.
+
+@option exit: (Exit)
+
+khajiit: Let's say I understand a bit more than I did before asking.
+
+%exit
