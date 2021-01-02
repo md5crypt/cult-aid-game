@@ -21,18 +21,19 @@ scripts.register("dialogSelect", DialogId["test-give-item"], id => {
 	}
 })
 
-scripts.register("dialogSelect", DialogId["test-main"], id => {
-	if (id == "game") {
+scripts.register("dialogSelect", DialogId["card-game-test"], id => {
+	if (id != "exit") {
 		context.camera.enabled = false
 		context.ui.cardGame.enabled = true
 		context.ui.cardGame.interactive = false
 		void context.ui.dialog.ensureClosed().then(() => context.ui.cardGame.interactive = true)
-		void context.ui.cardGame.startGame(7)
+		void context.ui.cardGame.startGame(parseInt(id))
 			.then(result => context.speech.executeFragment(result ? FragmentId["card-game-success"] : FragmentId["card-game-fail"], true))
 			.then(() => {
 				context.camera.enabled = true
 				context.ui.cardGame.enabled = false
-				void context.speech.executeDialog(DialogId["test-main"], true)
+				void context.speech.executeDialog(DialogId["card-game-test"], true)
+				context.speech.dialog.unshift(DialogId["test-main"])
 			})
 	}
 })

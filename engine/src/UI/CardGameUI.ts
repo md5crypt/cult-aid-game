@@ -140,6 +140,7 @@ export class CardGameUI {
 	}
 
 	public startGame(depth: number) {
+		console.log(`starting with depth ${depth}`)
 		this.instance = new GameInstance(depth)
 		this.phase = GamePhase.IDLE
 		return this.instance.promise

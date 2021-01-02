@@ -39,7 +39,10 @@ export class MinMaxWorker {
 
 	public constructor() {
 		this.worker = createWebWorker(MinMax)
-		this.worker.onmessage = event => this.resolve(toObject(event.data.state))
+		this.worker.onmessage = event => {
+			console.log(`minmax score: ${event.data.score}`)
+			this.resolve(toObject(event.data.state))
+		}
 		this.worker.onerror = event => this.reject(event.error)
 	}
 
@@ -223,14 +226,6 @@ function MinMax() {
 		const result: number[] = []
 		const miners = getMiners(state)
 		const farmers = getFarmers(state)
-		/* farmers */
-		if (farmers >= 1 && (miners < (1 << getDunmer(state)))) {
-			result.push(setFarmers(setMiners(state, miners + 1), farmers - 1))
-		}
-		/* miners */
-		if (miners >= 1 && (farmers < (1 << getBosmer(state)))) {;
-			result.push(setMiners(setFarmers(state, farmers + 1), miners - 1))
-		}
 		/* thieves */
 		const thievesMeat = getThievesMeat(state)
 		const thievesGold = getThievesGold(state)
@@ -239,6 +234,14 @@ function MinMax() {
 		}
 		if (thievesMeat >= 1) {
 			result.push(setThievesMeat(setThievesGold(state, thievesGold + 1), thievesMeat - 1))
+		}
+		/* farmers */
+		if (farmers >= 1 && (miners < (1 << getDunmer(state)))) {
+			result.push(setFarmers(setMiners(state, miners + 1), farmers - 1))
+		}
+		/* miners */
+		if (miners >= 1 && (farmers < (1 << getBosmer(state)))) {;
+			result.push(setMiners(setFarmers(state, farmers + 1), miners - 1))
 		}
 		return result
 	}
@@ -250,59 +253,74 @@ function MinMax() {
 		const miners = getMiners(state)
 		const farmers = getFarmers(state)
 		const workerLimit = ((farmers + miners) < GameConstants.MAX_WORKERS)
-		/* altemr */
-		const altmer = getAltmer(state)
-		if (altmer < 3) {
-			result.push(setAltmer(state, altmer + 1))
+		/* farmer */
+		if (workerLimit && (farmers < (1 << bosmer))) {
+			result.push(setFarmers(state, farmers + 1))
 		}
 		/* miner */
 		if (workerLimit && (miners < (1 << dunmer))) {
 			result.push(setMiners(state, miners + 1))
 		}
-		/* dunmer */
-		if (dunmer < 3) {
-			result.push(setDunmer(state, dunmer + 1))
+		/* thieves */
+		const thievesMeat = getThievesMeat(state)
+		const thievesGold = getThievesGold(state)
+		if ((thievesMeat + thievesGold) < GameConstants.MAX_THIEVES) {
+			result.push(setThievesGold(state, thievesGold + 1))
+			result.push(setThievesMeat(state, thievesMeat + 1))
 		}
 		/* bosmer */
 		if (bosmer < 3) {
 			result.push(setBosmer(state, bosmer + 1))
 		}
-		/* farmer */
-		if (workerLimit && (farmers < (1 << bosmer))) {
-			result.push(setFarmers(state, farmers + 1))
+		/* dunmer */
+		if (dunmer < 3) {
+			result.push(setDunmer(state, dunmer + 1))
 		}
-		/* thieves */
-		const thievesMeat = getThievesMeat(state)
-		const thievesGold = getThievesGold(state)
-		if ((thievesMeat + thievesGold) < GameConstants.MAX_THIEVES) {
-			result.push(setThievesMeat(state, thievesMeat + 1))
-			result.push(setThievesGold(state, thievesGold + 1))
+		/* altemr */
+		const altmer = getAltmer(state)
+		if (altmer < 3) {
+			result.push(setAltmer(state, altmer + 1))
 		}
 		return result
 	}
 
-	function applyRecursive(states: number[], depth: number, result: Set<number>, transformation: (state: number) => number[]) {
-		for (let i = 0; i < states.length; i++) {
-			const state = states[i]
-			result.add(state)
-			if (depth > 0) {
-				applyRecursive(transformation(state), depth - 1, result, transformation)
+	function applyRecursive(states: number[], depth: number, result: number[], transformation: (state: number) => number[], noAdd: boolean) {
+		if (depth > 0) {
+			for (let i = 0; i < states.length; i++) {
+				applyRecursive(transformation(states[i]), depth - 1, result, transformation, false)
+			}
+		}
+		if (!noAdd) {
+			for (let i = 0; i < states.length; i++) {
+				result.push(states[i])
 			}
 		}
 	}
 
 	function getNextStates(state: number) {
-		const result = new Set<number>()
-		result.add(state)
+		const result: number[] = []
 		const placements = getPlacements(state)
 		const reallocations = getReallocations(state)
 		const altmer = getAltmer(state)
-		applyRecursive(placements, altmer, result, state => getPlacements(state))
-		applyRecursive(reallocations, altmer, result, state => getReallocations(state))
-		for (let i = 0; i < placements.length; i++) {
-			getReallocations(placements[i]).forEach(state => result.add(state))
+		if (altmer > 0) {
+			applyRecursive(placements, altmer, result, state => getPlacements(state), true)
 		}
-		return result
+		for (let i = 0; i < placements.length; i++) {
+			getReallocations(placements[i]).forEach(state => result.push(state))
+		}
+		for (let i = 0; i < placements.length; i++) {
+			result.push(placements[i])
+		}
+		applyRecursive(reallocations, altmer, result, state => getReallocations(state), false)
+		const set = new Set<number>()
+		result.push(state)
+		return result.filter(x => {
+			if (set.has(x)) {
+				return false
+			}
+			set.add(x)
+			return true
+		})
 	}
 
 	function generateLookupTables() {
@@ -442,13 +460,22 @@ function MinMax() {
 		}
 		let value = -Infinity
 		let index = stateTable[maxPlayer & BitMasks.STATE]
+		let isFirst = true
 		while (true) {
 			let state = moveTable[index]
 			if (state == 0) {
 				break
 			}
 			state |= maxPlayer & ~BitMasks.STATE
-			value = Math.max(value, alphaBetaMin(state, minPlayer, alpha, beta, depth - 1))
+			let score = 0
+			if (!isFirst) {
+				score = alphaBetaMin(state, minPlayer, alpha, alpha, depth - 1)
+			}
+			if (isFirst || (score > alpha)) {
+				score = alphaBetaMin(state, minPlayer, alpha, beta, depth - 1)
+				isFirst = false
+			}
+			value = Math.max(value, score)
 			alpha = Math.max(alpha, value)
 			if (alpha >= beta) {
 				break
@@ -469,13 +496,22 @@ function MinMax() {
 		}
 		let value = Infinity
 		let index = stateTable[minPlayer & BitMasks.STATE]
+		let isFirst = true
 		while (true) {
 			let state = moveTable[index]
 			if (state == 0) {
 				break
 			}
 			state |= minPlayer & ~BitMasks.STATE
-			value = Math.min(value, alphaBetaMax(maxPlayer, state, alpha, beta, depth - 1))
+			let score = 0
+			if (!isFirst) {
+				score = alphaBetaMax(maxPlayer, state, beta, beta, depth - 1)
+			}
+			if (isFirst || (score < beta)) {
+				score = alphaBetaMax(maxPlayer, state, alpha, beta, depth - 1)
+				isFirst = false
+			}
+			value = Math.min(value, score)
 			beta = Math.min(beta, value)
 			if (beta <= alpha) {
 				break

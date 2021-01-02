@@ -201,6 +201,10 @@ export class Dialog {
 		this.stack.push({dialog})
 	}
 
+	public unshift(dialog: string) {
+		this.stack.unshift({dialog})
+	}
+
 	public replace(dialog: string) {
 		if (this.stack.length == 0) {
 			throw new Error("can not replace dialog, stack empty")

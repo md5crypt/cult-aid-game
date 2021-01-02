@@ -1,10 +1,33 @@
+@dialog card-game-test
+
+@prompt
+	zombie: Select difficulty
+
+@option 11: Depth 11
+	%exit
+
+@option 9: Depth 9
+	%exit
+
+@option 7: Depth 7
+	%exit
+
+@option 5: Depth 5
+	%exit
+
+@option 3: Depth 3
+	%exit
+
+@option exit: (Back)
+	%pop
+
 @dialog test-main
 
 @prompt
 	zombie: Whatcha wanna do
 
-@option game: Start card game
-	%exit
+@option game: Play card game
+	%push card-game-test
 
 @option technician: Goto technician dialog
 	%push technician-main

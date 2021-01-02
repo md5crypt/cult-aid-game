@@ -30,7 +30,7 @@ breton: [color=card-argonian]Argonian[/color] cards can also be moved between re
 
 @option khajiit: [color=card-khajiit]Khajiit[/color] cards
 
-breton: [color=card-khajiit]Khajiit[/color] cards can be assigned to enemy resources in order to consume them. One [color=card-khajiit]Khajiit[/color] card consumes one resource. If there are not enough resources for the cards to consume, the resource value stays at zero and [color=card-khajiit]Khajiit[/color] cards remain in play.
+breton: [color=card-khajiit]Khajiit[/color] cards can be assigned to enemy resources in order to consume them. One [color=card-khajiit]Khajiit[/color] card consumes one resource. If there are not enough resources for the cards to consume, the resource value stays at zero and the [color=card-khajiit]Khajiit[/color] cards remain in play.
 
 breton: [color=card-khajiit]Khajiit[/color] cards played by you can be moved between resources during your interaction phase.
 
@@ -103,7 +103,7 @@ breton: There are five types of cards: [color=card-altmer]Altmer[/color], [color
 
 khajiit: What cards do I have in my hand and when do I get them?
 
-breton: At the start of the game you draw 12 [color=card-argonian]Argonian[/color] cards, 4 [color=card-khajiit]Khajiit[/color] cards, and 3 [color=card-dunmer]Dunmer[/color] cards, 3 [color=card-bosmer]Bosmer[/color] and 3 [color=card-altmer]Altmer[/color] cards. You don't get any more cards throughout the game but [color=card-argonian]Argonian[/color] and [color=card-altmer]Altmer[/color] cards can return from the table to your hand under certain circumstances.
+breton: At the start of the game you draw 12 [color=card-argonian]Argonian[/color] cards, 4 [color=card-khajiit]Khajiit[/color] cards, 3 [color=card-dunmer]Dunmer[/color] cards, 3 [color=card-bosmer]Bosmer[/color] and 3 [color=card-altmer]Altmer[/color] cards. You don't get any more cards throughout the game but [color=card-argonian]Argonian[/color] and [color=card-altmer]Altmer[/color] cards can return from the table to your hand under certain circumstances.
 
 @option flow: Game flow
 
