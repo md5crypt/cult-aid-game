@@ -42,10 +42,11 @@ class GameInstance {
 		}
 		this.depth = depth
 		this.undoStack = []
-		this.state.player.meat = 5
-		this.state.opponent.meat = 6
-		this.state.player.gold = 4
-		this.state.opponent.gold = 5
+		this.state.player.meat = 7
+		this.state.player.gold = 7
+		this.state.opponent.meat = 7
+		this.state.opponent.gold = 7
+		this.state.opponent.side = 1
 		this.promise = new Promise(resolve => this._resolve = resolve)
 	}
 
@@ -62,22 +63,30 @@ class GameInstance {
 	}
 
 	public endTurn() {
-		this.undoStack = []
+		//this.undoStack = []
 		this.state = {
 			player: this.state.player,
-			opponent: CardGame.updateState(this.state.opponent, this.state.player),
+			opponent: this.state.opponent,
 			altmerPlayed: 0,
 			cardsMoved: 0,
 			cardsPlayed: 0
 		}
 	}
 
-	public queryAI() {
+	public updateOpponent() {
+		if (CardGame.updateState(this.state.opponent, this.state.player).altmer == 3) {
+			return Promise.resolve(true)
+		}
 		return this.worker.query(this.state.opponent, this.state.player, this.depth).then(state => {
+			console.log(this.state.opponent, state)
 			this.state.opponent = state
-			this.state.player = CardGame.updateState(this.state.player, this.state.opponent)
-			return this.state
+			return false
 		})
+	}
+
+	public updatePlayer() {
+		this.state.player = CardGame.updateState(this.state.player, this.state.opponent)
+		return this.state.player.altmer == 3
 	}
 
 	public resolve(victory: boolean) {
@@ -127,14 +136,10 @@ export class CardGameUI {
 				throw new Error()
 			}
 			this.instance.endTurn()
-			if (this.instance.state.opponent.altmer == 3) {
-				this.phase = GamePhase.DEFEAT
-			} else {
-				this.phase = GamePhase.WAIT
-				this.instance.queryAI().then(state => {
-					this.phase = (state.player.altmer == 3) ? GamePhase.VICTORY : GamePhase.IDLE
-				}).catch(error => {throw error})
-			}
+			this.phase = GamePhase.WAIT
+			this.instance.updateOpponent().then(defeat => {
+				this.phase = defeat ? GamePhase.DEFEAT : (this.instance!.updatePlayer() ? GamePhase.VICTORY : GamePhase.IDLE)
+			}).catch(error => {throw error})
 		})
 		this._phase = GamePhase.IDLE
 	}
@@ -243,7 +248,6 @@ export class CardGameUI {
 		}[this.phase]
 		if (this.phase == GamePhase.PLAY_CARD) {
 			const moves = new Set(CardGame.getPlacementMoves(state.player))
-			console.log(moves)
 			const top = this.root.getElement("top")
 			const bottom = this.root.getElement("bottom")
 			moves.has(CardGame.Moves.PLACE_GOLD_THIEF) && this.setIndicator(top.children[0], state.player.thievesGold || 1, 1)
@@ -255,7 +259,6 @@ export class CardGameUI {
 			moves.has(CardGame.Moves.PLACE_FARMER) && this.setIndicator(bottom.children[5], state.player.farmers || 1, -1)
 		} else if (this.phase == GamePhase.MOVE_CARD) {
 			const moves = new Set(CardGame.getReallocationMoves(state.player))
-			console.log(moves)
 			const top = this.root.getElement("top")
 			const bottom = this.root.getElement("bottom")
 			moves.has(CardGame.Moves.REALLOCATE_GOLD_THIEF) && this.setIndicator(top.children[0], state.player.thievesGold - 1)
@@ -299,13 +302,13 @@ export class CardGameUI {
 
 	public applyState(boardName: "top" | "bottom", state: CardGame.StateObject, opponent: CardGame.StateObject) {
 		const board = this.root.getElement(boardName)
-		this.renderStack(board.children[0], opponent.thievesGold, 4)
+		this.renderStack(board.children[0], opponent.thievesGold, CardGame.GameConstants.MAX_THIEVES)
 		this.renderStack(board.children[1], state.miners, 1 << state.dunmer)
 		this.renderStack(board.children[2], state.dunmer, 3)
 		this.renderStack(board.children[3], state.altmer, 3)
 		this.renderStack(board.children[4], state.bosmer, 3)
 		this.renderStack(board.children[5], state.farmers, 1 << state.bosmer)
-		this.renderStack(board.children[6], opponent.thievesMeat, 4)
+		this.renderStack(board.children[6], opponent.thievesMeat, CardGame.GameConstants.MAX_THIEVES)
 		this.root.getElement<TextElement>("gold-" + boardName).setFormattedText(state.gold, state.miners - state.altmer - opponent.thievesGold)
 		this.root.getElement<TextElement>("meat-" + boardName).setFormattedText(state.meat, state.farmers - state.miners - state.altmer - opponent.thievesMeat)
 	}

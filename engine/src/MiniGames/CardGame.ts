@@ -1,6 +1,7 @@
 import { createWebWorker, TypedWorker } from "../utils"
 
 export interface StateObject {
+	side: number
 	gold: number
 	meat: number
 	miners: number
@@ -40,7 +41,7 @@ export class MinMaxWorker {
 	public constructor() {
 		this.worker = createWebWorker(MinMax)
 		this.worker.onmessage = event => {
-			console.log(`minmax score: ${event.data.score}`)
+			console.log(`minmax score: ${(event.data.score).toFixed(5)}`)
 			this.resolve(toObject(event.data.state))
 		}
 		this.worker.onerror = event => this.reject(event.error)
@@ -114,8 +115,8 @@ export function newState() {
 }
 
 export const enum GameConstants {
-	MAX_WORKERS = 12,
-	MAX_THIEVES = 4,
+	MAX_WORKERS = 8,
+	MAX_THIEVES = 3,
 	MAX_GOLD = 20,
 	MAX_MEAT = 20
 }
@@ -129,7 +130,8 @@ const enum BitOffsets {
 	/* 12 - 15 */ MINERS = 12,
 	/* 16 - 19 */ FARMERS = 16,
 	/* 20 - 24 */ GOLD = 20,
-	/* 25 - 29 */ MEAT = 25
+	/* 25 - 29 */ MEAT = 25,
+	/* 30 - 30 */ SIDE = 30
 }
 
 const enum BitMasks {
@@ -142,13 +144,22 @@ const enum BitMasks {
 	FARMERS = 15,
 	DUNMER = 3,
 	BOSMER = 3,
-	ALTMER = 3
+	ALTMER = 3,
+	SIDE = 1
 }
 
 function MinMax() {
 
 	let stateTable: Uint32Array
 	let moveTable: Uint32Array
+
+	function getSide(state: number) {
+		return (state >>> BitOffsets.SIDE) & BitMasks.SIDE
+	}
+
+	function setSide(state: number, value: number) {
+		return (state & ~(BitMasks.SIDE << BitOffsets.SIDE)) | (value << BitOffsets.SIDE)
+	}
 
 	function getGold(state: number) {
 		return (state >>> BitOffsets.GOLD) & BitMasks.GOLD
@@ -253,6 +264,13 @@ function MinMax() {
 		const miners = getMiners(state)
 		const farmers = getFarmers(state)
 		const workerLimit = ((farmers + miners) < GameConstants.MAX_WORKERS)
+		/* thieves */
+		const thievesMeat = getThievesMeat(state)
+		const thievesGold = getThievesGold(state)
+		if ((thievesMeat + thievesGold) < GameConstants.MAX_THIEVES) {
+			result.push(setThievesGold(state, thievesGold + 1))
+			result.push(setThievesMeat(state, thievesMeat + 1))
+		}
 		/* farmer */
 		if (workerLimit && (farmers < (1 << bosmer))) {
 			result.push(setFarmers(state, farmers + 1))
@@ -260,13 +278,6 @@ function MinMax() {
 		/* miner */
 		if (workerLimit && (miners < (1 << dunmer))) {
 			result.push(setMiners(state, miners + 1))
-		}
-		/* thieves */
-		const thievesMeat = getThievesMeat(state)
-		const thievesGold = getThievesGold(state)
-		if ((thievesMeat + thievesGold) < GameConstants.MAX_THIEVES) {
-			result.push(setThievesGold(state, thievesGold + 1))
-			result.push(setThievesMeat(state, thievesMeat + 1))
 		}
 		/* bosmer */
 		if (bosmer < 3) {
@@ -298,12 +309,15 @@ function MinMax() {
 	}
 
 	function getNextStates(state: number) {
-		const result: number[] = []
+		let result: number[] = []
 		const placements = getPlacements(state)
 		const reallocations = getReallocations(state)
-		const altmer = getAltmer(state)
+		const altmer = state == 0 ? 1 : getAltmer(state)
 		if (altmer > 0) {
 			applyRecursive(placements, altmer, result, state => getPlacements(state), true)
+		}
+		if (state == 0) {
+			result = result.map(x => setSide(x, 1))
 		}
 		for (let i = 0; i < placements.length; i++) {
 			getReallocations(placements[i]).forEach(state => result.push(state))
@@ -383,21 +397,27 @@ function MinMax() {
 	}
 
 	function getScore(state: number, opponent: number) {
+		const altmer = getAltmer(state)
+		const gold = Math.min(Math.max(getGold(state) + getMiners(state) - getThievesGold(opponent), 0), 20)
+		const meat = Math.min(Math.max(getMeat(state) + getFarmers(state) - getThievesMeat(opponent), 0), 20)
 		return (
-			(getAltmer(state) * 2) +
-			(getMiners(state) * 1.5) +
-			(getFarmers(state) * 1.5) +
-			(getBosmer(state) * 0.5) +
-			(getDunmer(state) * 0.75) +
-			(getMeat(state) * 0.1) +
-			(getGold(state) * 1) +
-			(Math.max(getMiners(state) - getThievesGold(opponent) - getAltmer(state), 0) * 0.75) +
-			(Math.max(getFarmers(state) - getThievesMeat(opponent) - getAltmer(state) - getMiners(state), 0) * 0.25)
+			Math.min(altmer, gold, meat) +
+			(
+				Math.max(Math.min(getMiners(state), meat - altmer), 0) * 1.09 +
+				getBosmer(state) * 1.07 +
+				getDunmer(state) * 1.06 +
+				getFarmers(state) * 1.08 +
+				getThievesGold(state) * 1.01 +
+				getThievesMeat(state)* 1.02
+			) / 100 +
+			Math.max(gold - altmer, 0) / 1000 +
+			Math.max(meat - altmer - getMiners(state), 0) / 1000
 		)
 	}
 
 	function toObject(state: number) {
 		return {
+			side: getSide(state),
 			gold: getGold(state),
 			meat: getMeat(state),
 			miners: getMiners(state),
@@ -412,6 +432,7 @@ function MinMax() {
 
 	function fromObject(state: StateObject) {
 		let value = 0
+		value = setSide(value, state.side)
 		value = setGold(value, state.gold)
 		value = setMeat(value, state.meat)
 		value = setMiners(value, state.miners)
@@ -424,101 +445,53 @@ function MinMax() {
 		return value
 	}
 
-	function alphaBeta(maxPlayer: number, minPlayer: number, depth: number) {
-		let alpha = -Infinity
-		let beta = Infinity
-		let value = -Infinity
-		let best: number | null = null
-		let index = stateTable[maxPlayer & BitMasks.STATE]
-		while (true) {
-			let state = moveTable[index]
-			if (state == 0) {
-				break
-			}
-			state |= maxPlayer & ~BitMasks.STATE
-			const result = alphaBetaMin(state, minPlayer, alpha, beta, depth - 1)
-			if (result > value || best == null) {
-				best = state
-				value = result
-			}
-			alpha = Math.max(alpha, value)
-			if (alpha >= beta) {
-				break
-			}
-			index += 1
-		}
-		return {state: best || maxPlayer, score: value}
+	function alphaBeta(player: number, opponent: number, depth: number) {
+		const result = {state: 0, score: 0}
+		result.score = negaScout(player, opponent, -Infinity, Infinity, depth, result)
+		return result
 	}
 
-	function alphaBetaMax(maxPlayer: number, minPlayer: number, alpha: number, beta: number, depth: number) {
-		maxPlayer = update(maxPlayer, minPlayer)
-		if (isWinning(maxPlayer)) {
-			return 1000 - getScore(minPlayer, maxPlayer)
+	function negaScout(player: number, opponent: number, alpha: number, beta: number, depth: number, result?: {state: number}) {
+		player = update(player, opponent)
+		if (isWinning(player)) {
+			return 1000 + getScore(player, opponent) - getScore(opponent, player)
 		}
 		if (depth == 0) {
-			return getScore(maxPlayer, maxPlayer) - getScore(minPlayer, maxPlayer)
+			return getScore(player, opponent) - getScore(opponent, player)
 		}
-		let value = -Infinity
-		let index = stateTable[maxPlayer & BitMasks.STATE]
+		let index = stateTable[player & BitMasks.STATE]
 		let isFirst = true
 		while (true) {
 			let state = moveTable[index]
+			index += 1
 			if (state == 0) {
 				break
 			}
-			state |= maxPlayer & ~BitMasks.STATE
-			let score = 0
-			if (!isFirst) {
-				score = alphaBetaMin(state, minPlayer, alpha, alpha, depth - 1)
+			if (getSide(state) && !getSide(player)) {
+				continue
 			}
-			if (isFirst || (score > alpha)) {
-				score = alphaBetaMin(state, minPlayer, alpha, beta, depth - 1)
+			state |= player & ~BitMasks.STATE
+			let score
+			if (isFirst) {
+				score = -negaScout(opponent, state, -beta, -alpha, depth - 1)
 				isFirst = false
+			} else {
+				score = -negaScout(opponent, state, -alpha - 0.0001, -alpha, depth - 1)
+				if (alpha < score && score < beta) {
+					score = -negaScout(opponent, state, -beta, -score, depth - 1)
+				}
 			}
-			value = Math.max(value, score)
-			alpha = Math.max(alpha, value)
+			if (score > alpha) {
+				alpha = score
+				if (result) {
+					result.state = state
+				}
+			}
 			if (alpha >= beta) {
 				break
 			}
-			index += 1
 		}
-		return value
-	}
-
-
-	function alphaBetaMin(maxPlayer: number, minPlayer: number, alpha: number, beta: number, depth: number) {
-		minPlayer = update(minPlayer, maxPlayer)
-		if (isWinning(minPlayer)) {
-			return getScore(maxPlayer, minPlayer) - 1000
-		}
-		if (depth == 0) {
-			return getScore(maxPlayer, minPlayer) - getScore(minPlayer, maxPlayer)
-		}
-		let value = Infinity
-		let index = stateTable[minPlayer & BitMasks.STATE]
-		let isFirst = true
-		while (true) {
-			let state = moveTable[index]
-			if (state == 0) {
-				break
-			}
-			state |= minPlayer & ~BitMasks.STATE
-			let score = 0
-			if (!isFirst) {
-				score = alphaBetaMax(maxPlayer, state, beta, beta, depth - 1)
-			}
-			if (isFirst || (score < beta)) {
-				score = alphaBetaMax(maxPlayer, state, alpha, beta, depth - 1)
-				isFirst = false
-			}
-			value = Math.min(value, score)
-			beta = Math.min(beta, value)
-			if (beta <= alpha) {
-				break
-			}
-			index += 1
-		}
-		return value
+		return alpha
 	}
 
 	if (typeof importScripts === "function") {

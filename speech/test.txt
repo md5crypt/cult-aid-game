@@ -3,9 +3,6 @@
 @prompt
 	zombie: Select difficulty
 
-@option 11: Depth 11
-	%exit
-
 @option 9: Depth 9
 	%exit
 

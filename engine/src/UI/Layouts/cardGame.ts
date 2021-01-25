@@ -115,13 +115,13 @@ function table(name: string, mirrored: boolean): LayoutElementJson {
 			flexVerticalAlign: mirrored ? "top" : "bottom"
 		},
 		children: [
-			cardStack("khajiit", 4, 6, mirrored),
+			cardStack("khajiit", 3, 6, mirrored),
 			cardStack("argonian", 8, 6, mirrored),
 			cardStack("dunmer", 3, 12, mirrored),
 			cardStack("altmer", 3, 12, mirrored),
 			cardStack("bosmer", 3, 6, mirrored),
 			cardStack("argonian", 8, 6, mirrored),
-			cardStack("khajiit", 4, 0, mirrored)
+			cardStack("khajiit", 3, 0, mirrored)
 		]
 	}
 }
