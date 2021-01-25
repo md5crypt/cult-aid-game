@@ -25,7 +25,7 @@ export class RectTileLayer extends PIXI.Container {
 		this.offset = 0
 	}
 
-	public addRect(texture: number, u: number, v: number, x0: number, y0: number, w: number, h: number, scale = 1) {
+	public addRect(texture: number, u: number, v: number, x0: number, y0: number, w: number, h: number, scale: number, flip: boolean) {
 		const offset = this.offset
 		let buffer = this.buffer
 		if ((offset + RectTileRenderer.CONST.STRIDE) > buffer.length) {
@@ -33,9 +33,9 @@ export class RectTileLayer extends PIXI.Container {
 			buffer.set(this.buffer)
 			this.buffer = buffer
 		}
-		const u0 = u + (1/1024)
+		const u0 = flip ? u + w - (1/1024) : u + (1/1024)
+		const u1 = flip ? u + (1/1024) : u + w - (1/1024)
 		const v0 = v + (1/1024)
-		const u1 = u + w - (1/1024)
 		const v1 = v + h - (1/1024)
 		const x1 = x0 + (w * scale)
 		const y1 = y0 + (h * scale)

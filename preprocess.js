@@ -5,48 +5,9 @@ const glob = require("glob")
 const texturePacker = require("./atlas/packer")
 const fontParser = require("./fontParser")
 const speechParser = require("./speechParser")
+const navmap = require("./navmap")
 
 const objectParsers = [
-	(objects, sprite) => {
-		const paths = {up:[], down:[], left:[], right:[]}
-		const leftover = []
-		for (const object of objects) {
-			if (!object.point) {
-				leftover.push(object)
-				continue
-			}
-			const pathMatch = object.name.match(/^(up|down|left|right)-(\d+)$/)
-			if (pathMatch) {
-				paths[pathMatch[1]].push({n: parseInt(pathMatch[2], 10), point: [object.x, object.y]})
-			} else {
-				const centerMatch = object.name.match(/^center\((.+)\)$/)
-				if (!centerMatch) {
-					leftover.push(object)
-					continue
-				}
-				const dirs = centerMatch[1].split(',')
-				for (const dir of dirs) {
-					assert(dir.match(/^(?:up|down|left|right)$/), sprite.resource)
-					paths[dir].push({n: Infinity, point: [object.x, object.y]})
-				}
-			}
-		}
-		const pathsFinal = {}
-		for (const [key, value] of Object.entries(paths)) {
-			if (!value.length) {
-				continue;
-			}
-			assert(value.length > 1, sprite.resource)
-			pathsFinal[key] = value.sort((a, b) => a.n - b.n).map((step, i, array) => {
-				assert(((i == (array.length - 1)) && (step.n == Infinity)) || ((i != array.length - 1) && (step.n == i)), sprite.resource)
-				return step.point
-			})
-		}
-		if (Object.keys(pathsFinal).length > 0) {
-			sprite.paths = pathsFinal
-		}
-		return leftover
-	},
 	(objects, sprite) => {
 		const leftover = []
 		for (const object of objects) {
@@ -77,13 +38,17 @@ function parseProperties(properties, sprite, props) {
 	return sprite
 }
 
-function loadTileset(path, resolveSprite, tileMap) {
-	const tileset = JSON.parse(fs.readFileSync(path))
+function loadTileset(filePath, resolveSprite, tileMap) {
+	const tileset = JSON.parse(fs.readFileSync(filePath))
+	const tileOffset = tileMap.size == 0 ? 0 : Array.from(tileMap.keys()).reduce((a, b) => a > b ? a : b, 0) + 1
 	for (const tile of tileset.tiles) {
-		const name = tile.image.match(/^[^.]+/)[0]
-		const spriteEntry = resolveSprite(name)
-		const sprite = spriteEntry.sprite
-		tileMap && tileMap.set(tile.id, spriteEntry.index)
+		const name = path.basename(tile.image, ".png")
+		if (name.endsWith("-navmap")) {
+			tileMap.set(tile.id + tileOffset, {resource: name.slice(0, -7), index: -1})
+			continue
+		}
+		const sprite = resolveSprite(name)
+		tileMap.set(tile.id + tileOffset, sprite)
 		if (tile.objectgroup && tile.objectgroup.objects) {
 			let data = tile.objectgroup.objects
 			for (parser of objectParsers) {
@@ -118,65 +83,94 @@ function buildMap(resources, mapFile, tilesetFiles) {
 	const sprites = []
 	const spriteMap = new Map()
 	const resolveSprite = name => {
-		let id = spriteMap.get(name)
-		if (id === undefined) {
+		let sprite = spriteMap.get(name)
+		if (!sprite) {
 			if (!(name in resources)){
 				throw new Error(`resource '${name}' not found`)
 			}
-			id = spriteMap.size
-			spriteMap.set(name, id)
-			sprites.push({resource: name})
+			sprite = {resource: name, index: sprites.length}
+			sprites.push(sprite)
+			spriteMap.set(name, sprite)
 		}
-		return {index: id, sprite: sprites[id]}
+		return sprite
 	}
 	Object.keys(resources).forEach(resolveSprite)
 	for (let i = 0; i < tilesetFiles.length; i += 1) {
-		loadTileset(tilesetFiles[i], resolveSprite, i == 0 ? tileMap : null)
+		loadTileset(tilesetFiles[i], resolveSprite, tileMap)
 	}
 	const gidMapper = id => tileMap.get(id - 1)
 	const baseSize = map.tileheight
 	const objects = []
 	for (let i = 1; i < map.layers.length; i += 1) {
 		for (const object of map.layers[i].objects) {
-			const cell = [
-				Math.floor(object.x / baseSize),
-				Math.floor((object.y - (object.text ? 0 : object.height)) / baseSize)
-			]
-			const offset = [
-				object.x % baseSize,
-				object.y % baseSize
-			]
 			if (!object.gid) {
-				const o = {cell}
-				if (object.name) {
-					o.name = object.name
+				if (object.point) {
+					objects.push(parseProperties(object.properties, {
+						type: "point",
+						position: [object.x, object.y],
+						name: object.name
+					}, {zIndex: "int"}))
+				} else {
+					const cell = [
+						Math.floor(object.x / baseSize),
+						Math.floor(object.y / baseSize)
+					]
+					objects.push(parseProperties(object.properties, {cell, type: "script"}, {
+						onCreate: "string",
+						onUse: "string",
+						onExit: "string",
+						onEnter: "string",
+					}))
 				}
-				objects.push(parseProperties(object.properties, o, {
-					onCreate: "string",
-					onMove: "string",
-					onUse: "string",
-					onCenter: "string",
-					onExit: "string",
-					onEnter: "string",
-				}))
 			} else {
-				const sprite = sprites[gidMapper(object.gid)]
-				objects.push(parseProperties(object.properties, {cell, offset, sprite: sprite.name || sprite.resource}, {
-					animation: "json",
-					zIndex: "number",
-					onCreate: "string",
-					onUpdate: "string",
-					onEnterView: "string",
-					onExitView: "string",
-				}))
+				const sprite = gidMapper(object.gid & 0xFFFFFF)
+				if (sprite.index < 0) {
+					objects.push(parseProperties(
+						object.properties,
+						{
+							type: "zone",
+							position: [object.x, object.y - object.height],
+							resource: sprite.resource
+						},
+						{
+							enabled: "bool",
+							name: "string",
+							onUse: "string",
+							onExit: "string",
+							onEnter: "string"
+						}
+					))
+				} else {
+					objects.push(parseProperties(
+						object.properties,
+						{
+							type: "item",
+							position: [object.x, object.y],
+							sprite: sprite.name || sprite.resource,
+							flipped: (object.gid & 0x80000000) ? true : undefined
+						},
+						{
+							name: "string",
+							animation: "json",
+							zIndex: "int",
+							onCreate: "string",
+							onUpdate: "string",
+							onEnterView: "string",
+							onExitView: "string",
+							enabled: "bool"
+						}
+					))
+				}
 			}
 		}
 	}
+	const tiles = map.layers[0].data.map(id => id ? (gidMapper(id).index + 1) : 0)
+	sprites.forEach(sprite => sprite.index = undefined)
 	return {
 		sprites,
 		map: {
 			objects,
-			tiles: map.layers[0].data.map(id => id ? (gidMapper(id) + 1) : 0),
+			tiles: tiles,
 			height: map.layers[0].height,
 			width: map.layers[0].width
 		}
@@ -203,9 +197,12 @@ async function run() {
 	for (const name of ["tiles", "ui"]) {
 		atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
 	}
+	await navmap("build/navmap", "atlas/tiles")
 	const data = buildMap(atlas.tiles, "map/map.json", [
 		"tileset/tileset.json",
-		"tileset/tileset-objects.json"
+		"tileset/tileset-objects.json",
+		"tileset/tileset-zones.json",
+		"tileset/tileset-other.json"
 	])
 	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))
 	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
@@ -213,3 +210,8 @@ async function run() {
 }
 
 run()
+
+process.on('unhandledRejection', error => {
+	console.error(error)
+	process.exit(1)
+})

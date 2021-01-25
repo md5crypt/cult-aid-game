@@ -1,0 +1,24 @@
+{ "columns":0,
+ "grid":
+    {
+     "height":1,
+     "orientation":"orthogonal",
+     "width":1
+    },
+ "margin":0,
+ "name":"tilset-zones",
+ "spacing":0,
+ "tilecount":1,
+ "tiledversion":"1.4.3",
+ "tileheight":55,
+ "tiles":[
+        {
+         "id":0,
+         "image":"..\/atlas\/tiles\/object-snowman-navmap.png",
+         "imageheight":55,
+         "imagewidth":48
+        }],
+ "tilewidth":48,
+ "type":"tileset",
+ "version":1.4
+}

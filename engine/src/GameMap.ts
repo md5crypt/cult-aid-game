@@ -5,25 +5,39 @@ import { Direction } from "./Path"
 import { gameContext } from "./GameContext"
 import { ScriptTimer } from "./ScriptTimer"
 import { ScriptStorage } from "./ScriptStorage"
+import { NavMapRect } from "./NavMap"
 import { Listener } from "./Listener"
 import { modulo } from "./utils"
+
+interface GameMapPosition {
+	readonly offset: readonly [number, number]
+	readonly zIndex: number
+	readonly cell: GameMap.Cell
+}
 
 export class GameMap {
 	private _cells: GameMap.Cell[] = []
 	private width: number = 0
 	private height: number = 0
 	private inViewList: Sprite.Item[]
-	private namedCells: Map<string, GameMap.Cell>
+	private activeZoneList: GameMap.ZoneNavMap[]
+	private namedPositions: Map<string, GameMapPosition>
+	private namedItems: Map<string, Sprite.Item>
+	private namedZones: Map<string, GameMap.ZoneNavMap>
 
 	/** @internal */
 	public readonly alwaysActiveList: Set<Sprite.Item>
-	protected frame: number
+	/** @internal */
+	public frame: number
 
 	constructor() {
 		this.inViewList = []
+		this.activeZoneList = []
 		this.frame = 1
 		this.alwaysActiveList = new Set()
-		this.namedCells = new Map()
+		this.namedPositions = new Map()
+		this.namedItems = new Map()
+		this.namedZones = new Map()
 	}
 
 	public get cells() {
@@ -65,46 +79,62 @@ export class GameMap {
 			callback: ScriptStorage.cellStaticCallback
 		}[] = []
 
-		this.namedCells.clear()
+		this.namedPositions.clear()
+		this.namedItems.clear()
 
 		for (const object of map.objects) {
-			// type asserts seem to be broken with readonly fields
-			// hance the casts...
-			if ((object as GameData.ItemData).sprite) {
-				Sprite.Item.createFromItemData(object as GameData.ItemData)
-			} else {
-				const scripts = (object as GameData.ScriptData)
-				const storage = gameContext.scripts
-				const cell = this.getCell(scripts.cell[0], scripts.cell[1])
-				if (scripts.name) {
-					this.namedCells.set(scripts.name, cell)
-				}
-				if (scripts.onCreate) {
-					defer.push({
-						cell,
-						callback: storage.resolveOrThrow("cellCreate", scripts.onCreate)
+			switch (object.type) {
+				case "item":
+					const item = Sprite.Item.createFromItemData(object)
+					if (object.name) {
+						this.namedItems.set(object.name, item)
+					}
+					break
+				case "point":
+					this.namedPositions.set(object.name, {
+						offset: [object.position[0] % CONST.GRID_BASE, object.position[1] % CONST.GRID_BASE],
+						cell: this.getCell(
+							Math.floor(object.position[0] / CONST.GRID_BASE),
+							Math.floor(object.position[1] / CONST.GRID_BASE)
+						),
+						zIndex: object.zIndex || 0
 					})
-				}
-				if (scripts.onMove) {
-					const callback = storage.resolveOrThrow("cellMove", scripts.onMove)
-					cell.onMove.add((cell, direction) => callback(cell, direction))
-				}
-				if (scripts.onEnter) {
-					const callback = storage.resolveOrThrow("cellEnter", scripts.onEnter)
-					cell.onEnter.add((cell, direction) => callback(cell, direction))
-				}
-				if (scripts.onExit) {
-					const callback = storage.resolveOrThrow("cellExit", scripts.onExit)
-					cell.onExit.add((cell, direction) => callback(cell, direction))
-				}
-				if (scripts.onCenter) {
-					const callback = storage.resolveOrThrow("cellCenter", scripts.onCenter)
-					cell.onCenter.add(cell => callback(cell))
-				}
-				if (scripts.onUse) {
-					const callback = storage.resolveOrThrow("cellUse", scripts.onUse)
-					cell.onUse.add(cell => callback(cell))
-				}
+					break
+				case "script":
+					const storage = gameContext.scripts
+					const cell = this.getCell(object.cell[0], object.cell[1])
+					if (object.onCreate) {
+						defer.push({
+							cell,
+							callback: storage.resolveOrThrow("cellCreate", object.onCreate)
+						})
+					}
+					if (object.onEnter) {
+						cell.onEnter.add(storage.resolveOrThrow("cellEnter", object.onEnter))
+					}
+					if (object.onExit) {
+						cell.onExit.add(storage.resolveOrThrow("cellExit", object.onExit))
+					}
+					if (object.onUse) {
+						cell.onUse.add(storage.resolveOrThrow("cellUse", object.onUse))
+					}
+					break
+				case "zone":
+					const zone = GameMap.ZoneNavMap.create(object)
+					if (object.name) {
+						this.namedZones.set(object.name, zone)
+					}
+					const xStop = Math.floor((zone.x + zone.width) / CONST.GRID_BASE)
+					const yStop = Math.floor((zone.y + zone.height) / CONST.GRID_BASE)
+					for (let y = Math.floor(zone.y / CONST.GRID_BASE); y <= yStop; y += 1) {
+						for (let x = Math.floor(zone.x / CONST.GRID_BASE); x <= xStop; x += 1) {
+							this.getCell(x % this.width, y % this.height).addZone(zone)
+						}
+					}
+					break
+				default:
+					console.error(object)
+					throw new Error("invalid map object")
 			}
 		}
 		defer.forEach(item => item.callback(item.cell))
@@ -163,18 +193,60 @@ export class GameMap {
 				item._cell.renderItem(item)
 			}
 		}
+		this.frame += 1
 	}
 
-	public getCellByName(name: string) {
-		const cell = this.namedCells.get(name)
+	public updateZones(cell: GameMap.Cell, offset: readonly [number, number]) {
+		const zones = cell.collectZones(offset)
+		for (let i = 0; i < zones.length; i += 1) {
+			zones[i].paint = this.frame
+		}
+		for (let i = 0; i < this.activeZoneList.length; i += 1) {
+			const zone = this.activeZoneList[i]
+			if (zone.paint != this.frame) {
+				zone.active = false
+				zone.onExit.invoke(zone)
+			}
+		}
+		for (let i = 0; i < zones.length; i += 1) {
+			const zone = zones[i]
+			if (!zone.active) {
+				zone.active = true
+				zone.onEnter.invoke(zone)
+			}
+		}
+		this.activeZoneList = zones
+	}
+
+	public triggerZones() {
+		for (let i = 0; i < this.activeZoneList.length; i += 1) {
+			const zone = this.activeZoneList[i]
+			zone.onUse.invoke(zone)
+		}
+	}
+
+	public getPositionByName(name: string) {
+		const cell = this.namedPositions.get(name)
 		if (!cell) {
-			throw new Error(`cell '${name}' not found`)
+			throw new Error(`position '${name}' not found`)
 		}
 		return cell
 	}
 
+	public getItemByName(name: string) {
+		const item = this.namedItems.get(name)
+		if (!item) {
+			throw new Error(`item '${name}' not found`)
+		}
+		return item
+	}
+
 	public getCell(x: number, y: number) {
 		return this._cells[x + (y * this.width)]
+	}
+
+	public getClampedCell(x: number, y: number) {
+		return this._cells[modulo(x, this.width) + (modulo(y, this.height) * this.width)]
 	}
 }
 
@@ -185,10 +257,44 @@ export namespace GameMap {
 		PLUG_LEFT = Sprite.Background.Plug.LEFT,
 		PLUG_RIGHT = Sprite.Background.Plug.RIGHT,
 		PLUG_MASK = PLUG_UP | PLUG_DOWN | PLUG_LEFT | PLUG_RIGHT,
-		COMPOSITE_A = 16,
-		COMPOSITE_B = 32,
-		COMPOSITE_MASK = COMPOSITE_A | COMPOSITE_B,
 		FULL = 128,
+	}
+
+	export class ZoneNavMap extends NavMapRect {
+		public onEnter: Listener<ZoneNavMap>
+		public onExit: Listener<ZoneNavMap>
+		public onUse: Listener<ZoneNavMap>
+		public enabled: boolean
+		public paint: number
+		public active: boolean
+
+		private constructor(navMapRect: NavMapRect, offset: readonly [number, number]) {
+			super(navMapRect, offset)
+			this.enabled = true
+			this.paint = 0
+			this.active = false
+			this.onEnter = new Listener()
+			this.onExit = new Listener()
+			this.onUse = new Listener()
+		}
+
+		public static create(data: GameData.ZoneData) {
+			const zone = new ZoneNavMap(gameContext.navMap.getOrThrow(data.resource), data.position)
+			const storage = gameContext.scripts
+			if (data.onEnter) {
+				zone.onEnter.add(storage.resolveOrThrow("zoneEnter", data.onEnter))
+			}
+			if (data.onExit) {
+				zone.onExit.add(storage.resolveOrThrow("zoneExit", data.onExit))
+			}
+			if (data.onUse) {
+				zone.onUse.add(storage.resolveOrThrow("zoneUse", data.onUse))
+			}
+			if (data.enabled !== undefined){
+				zone.enabled = data.enabled
+			}
+			return zone
+		}
 	}
 
 	export class Cell {
@@ -197,24 +303,16 @@ export namespace GameMap {
 		public readonly timer: ScriptTimer
 
 		private background: Sprite.Background | null = null
-		private composite?: Sprite.Background[]
-		private paths?: GameData.PathData
+
 		private visibility: number
 		private pointCache: [number, number][]
+		private navMap?: NavMapRect
+		private zones: ZoneNavMap[]
 
 		private _items: Sprite.Item[] = []
-		private _onMove?: Listener<[Cell, Direction], boolean>
-		private _onEnter?: Listener<[Cell, Direction]>
-		private _onExit?: Listener<[Cell, Direction]>
-		private _onCenter?: Listener<Cell>
-		private _onUse?: Listener<Cell>
-
-		// ugly lazy loaders
-		public get onMove()   { return this._onMove   || (this._onMove = new Listener())   }
-		public get onEnter()  { return this._onEnter  || (this._onEnter = new Listener())  }
-		public get onExit()   { return this._onExit   || (this._onExit = new Listener())   }
-		public get onCenter() { return this._onCenter || (this._onCenter = new Listener()) }
-		public get onUse()    { return this._onUse    || (this._onUse = new Listener())    }
+		public onEnter: Listener<[Cell, Direction]>
+		public onExit: Listener<[Cell, Direction]>
+		public onUse: Listener<Cell>
 
 		private static readonly plugMap = {
 			"up": CellVisibility.PLUG_UP,
@@ -229,6 +327,10 @@ export namespace GameMap {
 			this.visibility = 0
 			this.pointCache = []
 			this.timer = new ScriptTimer()
+			this.onEnter = new Listener()
+			this.onExit = new Listener()
+			this.onUse = new Listener()
+			this.zones = []
 		}
 
 		public get data() {
@@ -240,58 +342,29 @@ export namespace GameMap {
 		}
 
 		public set visible(value: boolean) {
-			if (!(this.visibility & (CellVisibility.COMPOSITE_MASK | CellVisibility.FULL)) == value) {
+			if (!(this.visibility & CellVisibility.FULL) == value) {
 				this.visibility = value ? CellVisibility.FULL : 0
-				if (this.composite) {
-					this.updateConnected(this.composite[0].data.paths!, value)
-					this.updateConnected(this.composite[1].data.paths!, value)
-				} else if (this.paths) {
-					this.updateConnected(this.paths, value)
+				if (this.navMap) {
+					const map = gameContext.map
+					const navMap = this.navMap
+					if (navMap.junctionTop) {
+						map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).setPlug("down", value)
+					}
+					if (navMap.junctionBottom) {
+						map.getCell(this.x, (this.y + 1) % map.tileHeight).setPlug("up", value)
+					}
+					if (navMap.junctionLeft) {
+						map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).setPlug("right", value)
+					}
+					if (navMap.junctionRight) {
+						map.getCell((this.x + 1) % map.tileWidth, this.y).setPlug("left", value)
+					}
 				}
-			}
-		}
-
-		public setVisible(direction?: Direction) {
-			if (this.visibility & CellVisibility.FULL) {
-				// nothing to do
-			} else if (this.composite && direction) {
-				const paths = this.composite[0].data.paths!
-				if (paths[direction]) {
-					this.visibility |= CellVisibility.COMPOSITE_A
-					this.updateConnected(paths, true)
-				} else {
-					this.visibility |= CellVisibility.COMPOSITE_B
-					this.updateConnected(this.composite[1].data.paths!, true)
-				}
-				if ((this.visibility & (CellVisibility.COMPOSITE_MASK)) == (CellVisibility.COMPOSITE_MASK)) {
-					this.visibility |= CellVisibility.FULL
-				}
-			} else {
-				this.visibility |= CellVisibility.FULL
-				if (this.paths) {
-					this.updateConnected(this.paths, true)
-				}
-			}
-		}
-
-		private updateConnected(paths: GameData.PathData, value: boolean) {
-			const map = gameContext.map
-			if (paths.down) {
-				map.getCell(this.x, (this.y + (map.tileHeight - 1)) % map.tileHeight).setPlug("down", value)
-			}
-			if (paths.up) {
-				map.getCell(this.x, (this.y + 1) % map.tileHeight).setPlug("up", value)
-			}
-			if (paths.right) {
-				map.getCell((this.x + (map.tileWidth - 1)) % map.tileWidth, this.y).setPlug("right", value)
-			}
-			if (paths.left) {
-				map.getCell((this.x + 1) % map.tileWidth, this.y).setPlug("left", value)
 			}
 		}
 
 		public setPlug(direction: Direction, value: boolean) {
-			if (this.paths) {
+			if (this.navMap) {
 				if (value) {
 					this.visibility |= this.data?.autoReveal ? CellVisibility.FULL : Cell.plugMap[direction]
 				} else {
@@ -302,14 +375,28 @@ export namespace GameMap {
 
 		public applyMapData(sprite: GameData.SpriteData) {
 			this.background = Sprite.Background.create(sprite)
-			this.paths = sprite.paths
-			if (sprite.composite) {
-				this.composite = sprite.composite
-					.map(name => Sprite.Background.create(Sprite.find(name)))
-			}
+			this.navMap = sprite.resource ? gameContext.navMap.get(sprite.resource) : undefined
 			if (this.background.onCreate) {
 				void this.background.onCreate(this)
 			}
+		}
+
+		public addZone(zone: GameMap.ZoneNavMap) {
+			this.zones.push(zone)
+		}
+
+		/** @internal */
+		public collectZones(offset: readonly [number, number]) {
+			const activeZones = []
+			const x = this.x * CONST.GRID_BASE + Math.floor(offset[0])
+			const y = this.y * CONST.GRID_BASE + Math.floor(offset[1])
+			for (let i = 0; i < this.zones.length; i += 1) {
+				const zone = this.zones[i]
+				if (zone.enabled && zone.contains(x, y)) {
+					activeZones.push(zone)
+				}
+			}
+			return activeZones
 		}
 
 		/** @internal */
@@ -319,7 +406,10 @@ export namespace GameMap {
 			}
 			if (this._items.length) {
 				for (let i = 0; i < this._items.length; i++) {
-					result.push(this._items[i])
+					const item = this._items[i]
+					if (item.enabled) {
+						result.push(this._items[i])
+					}
 				}
 			}
 		}
@@ -341,67 +431,9 @@ export namespace GameMap {
 				if (this._items.length) {
 					this.pointCache.push([x, y])
 				}
-			} else if (!(this.visibility & CellVisibility.COMPOSITE_MASK) && this.background) {
+			} else if (this.background) {
 				this.background.renderPlugs(x, y, this.visibility)
-			} else if (this.composite && (this.visibility & CellVisibility.COMPOSITE_MASK)) {
-				if (this.visibility & CellVisibility.COMPOSITE_A) {
-					this.composite[0].render(x, y)
-					this.composite[1].renderPlugs(x, y, this.visibility)
-				} else {
-					this.composite[1].render(x, y)
-					this.composite[0].renderPlugs(x, y, this.visibility)
-				}
-				if (this._items.length) {
-					this.pointCache.push([x, y])
-				}
 			}
-		}
-
-		public getCenter() {
-			if (this.paths) {
-				const path = this.paths.up || this.paths.down || this.paths.left || this.paths.right!
-				return path[path.length - 1]
-			}
-			return undefined
-		}
-
-		public getEnterPath(direction: Direction) {
-			if (this.paths) {
-				return this.paths[direction]
-			}
-			return undefined
-		}
-
-		public getExitPath(direction: Direction) : readonly (readonly [number, number])[] | undefined
-		public getExitPath(direction: Direction, x: number, y: number) : readonly (readonly [number, number])[] | undefined
-		public getExitPath(direction: Direction, x?: number, y?: number) {
-			if (this.paths) {
-				let path
-				switch (direction) {
-					case "up":
-						path = this.paths.down
-						break
-					case "down":
-						path = this.paths.up
-						break
-					case "left":
-						path = this.paths.right
-						break
-					case "right":
-						path = this.paths.left
-						break
-				}
-				if (typeof x === "undefined") {
-					return path
-				}
-				if (path) {
-					const last = path[path.length - 1]
-					if ((last[0] == x) && (last[1] == y)) {
-						return path.slice(0).reverse()
-					}
-				}
-			}
-			return undefined
 		}
 
 		public getItem(name: string) {
@@ -459,14 +491,10 @@ export namespace GameMap {
 					offsetX = 1
 					break
 			}
-			const map = gameContext.map
-			return map.getCell(
-				modulo(this.x + offsetX, map.tileWidth),
-				modulo(this.y + offsetY, map.tileHeight)
-			)
+			return gameContext.map.getClampedCell(this.x + offsetX, this.y + offsetY)
 		}
 
-		private getGroupNeighbor(direction: Direction) {
+		/*private getGroupNeighbor(direction: Direction) {
 			if (!this.background || !this.paths) {
 				return null
 			}
@@ -478,18 +506,22 @@ export namespace GameMap {
 				}
 			}
 			return null
-		}
+		}*/
 
-		public getGroup() {
+		public get group() {
 			const cells: Set<Cell> = new Set()
 			const stack = [this] as Cell[]
 			const directions = ["up", "down", "left", "right"] as const
+			const group = this.background?.data.group
+			if (!group) {
+				return cells
+			}
 			while (stack.length) {
 				const current = stack.pop()!
 				cells.add(current)
 				for (const direction of directions) {
-					const cell = current.getGroupNeighbor(direction)
-					if (cell && !cells.has(cell)) {
+					const cell = current.getNeighbor(direction)
+					if (cell?.background?.data.group == group && !cells.has(cell)) {
 						stack.push(cell)
 					}
 				}
@@ -500,7 +532,7 @@ export namespace GameMap {
 		public getGroupBounds(cells?: Set<Cell>) {
 			const xSet = new Set<number>()
 			const ySet = new Set<number>()
-			for (const cell of (cells || this.getGroup())) {
+			for (const cell of (cells || this.group)) {
 				xSet.add(cell.x)
 				ySet.add(cell.y)
 			}
@@ -518,6 +550,33 @@ export namespace GameMap {
 				xSet.size,
 				ySet.size
 			]
+		}
+
+		/*public getNeighborCell(x: number, y: number) {
+			return gameContext.map.getClampedCell(this.x + x, this.y + y)
+		}*/
+
+		public getCellContainingPoint(x: number, y: number) {
+			if (x >= CONST.GRID_BASE || x < 0 || y >= CONST.GRID_BASE || y < 0) {
+				return gameContext.map.getClampedCell(
+					this.x + Math.floor(x / CONST.GRID_BASE),
+					this.y + Math.floor(y / CONST.GRID_BASE)
+				)
+			}
+			return this
+		}
+
+		public isPointTraversable(x: number, y: number) {
+			if (x >= CONST.GRID_BASE || x < 0 || y >= CONST.GRID_BASE || y < 0) {
+				const cell = gameContext.map.getClampedCell(
+					this.x + Math.floor(x / CONST.GRID_BASE),
+					this.y + Math.floor(y / CONST.GRID_BASE)
+				)
+				const offsetX = modulo(x, CONST.GRID_BASE)
+				const offsetY = modulo(y, CONST.GRID_BASE)
+				return cell.navMap ? cell.navMap.contains(offsetX, offsetY) : false
+			}
+			return this.navMap ? this.navMap.contains(x, y) : false
 		}
 	}
 }

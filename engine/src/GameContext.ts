@@ -11,6 +11,7 @@ import { Animation } from "./Animation"
 import { Player } from "./Player"
 import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
+import { NavMap } from "./NavMap"
 import { UI } from "./UI/UI"
 
 export interface GameContext {
@@ -38,6 +39,7 @@ export interface GameContext {
 	camera: GameCamera
 	player: Player
 	speech: Speech
+	navMap: NavMap
 	Sprite: typeof Sprite
 	Item: typeof Sprite.Item
 	Path: typeof SimplePath

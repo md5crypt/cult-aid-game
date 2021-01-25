@@ -18,6 +18,7 @@ import { BitmapFont, FontData } from "./Text/BitmapFont"
 import { UI } from "./UI/UI"
 import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
+import { NavMap } from "./NavMap"
 
 import { Animator } from "./UI/Animator"
 import "./TextureAtlasLoader"
@@ -43,6 +44,8 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 		.add("atlasTiles", "atlas-tiles.json")
 		.add("gameData", "data.json")
 		.add("speech", "speech.json")
+		.add("navmap", "navmap.json")
+		.add("navmapData", "navmap.bin", {xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER})
 		.add("fonts", "fonts.json")
 		.add("scripts", "scripts.js")
 		//.add("soundData", "audio.json")
@@ -92,6 +95,7 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 	gameContext.scripts = new ScriptStorage()
 	//resources.sound.sound.addSprites(resources.soundData.data.data)
 	gameContext.speech = new Speech(resources.speech.data.data /*,resources.sound.sound*/)
+	gameContext.navMap = new NavMap(resources.navmap.data.data, resources.navmapData.data)
 	gameContext.input = new GameInput()
 	gameContext.map = new GameMap()
 	gameContext.camera = new GameCamera()
@@ -142,8 +146,8 @@ window.addEventListener("load", async () => {
 		const bounds = [
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
-			Math.floor((top + ((screenHeight * (1 / zoom)) - 1)) / CONST.GRID_BASE),
-			Math.floor((left + ((screenWidth * (1 / zoom)) - 1)) / CONST.GRID_BASE)
+			Math.floor((top + ((screenHeight * (1 / zoom)) - 1)) / CONST.GRID_BASE + 1),
+			Math.floor((left + ((screenWidth * (1 / zoom)) - 1)) / CONST.GRID_BASE + 1)
 		] as const
 		gameContext.timer.update(delta)
 		gameContext.map.update(delta, ...bounds)

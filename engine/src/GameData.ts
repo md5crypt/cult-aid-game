@@ -11,15 +11,12 @@ export namespace GameData {
 	export interface SpriteData {
 		readonly resource?: string
 		readonly name?: string
-		readonly paths?: PathData
 		readonly pivot?: readonly [number, number]
 		readonly scale?: number
 		readonly delay?: number
 		readonly plugs?: readonly string[]
 		readonly autoReveal?: boolean
 		readonly group?: string
-		readonly gateway?: "up" | "down" | "left" | "right"
-		readonly composite?: readonly string[]
 		readonly animation?: Animation.Definition
 		readonly zIndex?: number
 		readonly onCreate?: string
@@ -29,32 +26,50 @@ export namespace GameData {
 	}
 
 	export interface ScriptData {
+		readonly type: "script"
 		readonly cell: readonly [number, number]
-		readonly name?: string
 		readonly onEnter?: string
 		readonly onExit?: string
-		readonly onMove?: string
 		readonly onUse?: string
-		readonly onCenter?: string
 		readonly onCreate?: string
 	}
 
 	export interface ItemData {
-		readonly cell: readonly [number, number]
+		readonly type: "item"
+		readonly position: readonly [number, number]
 		readonly sprite: string
 		readonly name?: string
 		readonly animation?: Animation.Definition
+		readonly flipped?: boolean
 		readonly zIndex?: number
-		readonly offset?: readonly [number, number]
 		readonly onCreate?: string
 		readonly onUpdate?: string
 		readonly onEnterView?: string
 		readonly onExitView?: string
+		readonly enabled?: boolean
+	}
+
+	export interface PositionData {
+		readonly type: "point"
+		readonly name: string
+		readonly position: readonly [number, number]
+		readonly zIndex?: number
+	}
+
+	export interface ZoneData {
+		readonly type: "zone"
+		readonly resource: string
+		readonly position: readonly [number, number]
+		readonly enabled?: boolean
+		readonly name?: string
+		readonly onEnter?: string
+		readonly onExit?: string
+		readonly onUse?: string
 	}
 
 	export interface MapData {
 		readonly tiles: readonly number[]
-		readonly objects: readonly (ItemData | ScriptData)[]
+		readonly objects: readonly (ItemData | ScriptData | PositionData | ZoneData)[]
 		readonly width: number
 		readonly height: number
 	}

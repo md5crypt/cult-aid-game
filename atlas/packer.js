@@ -6,7 +6,7 @@ const texturePacker = require('free-tex-packer-core')
 
 function processSheet(sheet, index) {
 	return Object.keys(sheet.frames).map(filename => {
-		const match = filename.match(/^(.+?)(?:-(\d+))?$/)
+		const match = filename.match(/^(.+?)(?:_(\d+))?$/)
 		const o = sheet.frames[filename]
 		const data = [
 			o.frame.x,
@@ -23,13 +23,17 @@ function processSheet(sheet, index) {
 	})
 }
 
-function checkFolders(folders, cwd, time) {
-	for (const folder of folders) {
-		if (time < fs.statSync(path.resolve(cwd, folder)).mtimeMs) {
-			return false
+function detectChanges(output, sources) {
+	if (!fs.existsSync(output)) {
+		return true
+	}
+	const time = fs.statSync(output).mtimeMs
+	for (const file of sources) {
+		if (time < fs.statSync(file).mtimeMs) {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 module.exports = async (projectFile) => {
@@ -37,17 +41,17 @@ module.exports = async (projectFile) => {
 	const cwd = path.dirname(path.resolve(projectFile))
 	const outputPath = path.resolve(cwd, project.savePath)
 	const target = path.resolve(outputPath, project.packOptions.textureName + ".json")
-	if (fs.existsSync(target) && checkFolders(project.folders, cwd, fs.statSync(target).mtimeMs)) {
+	const files = [].concat(...project.folders.map(folder => 
+		glob.sync(path.resolve(cwd, folder, "*.png")).filter(x => !/-navmap\.png$/.test(x))
+	))
+	if (!detectChanges(target, files)) {
 		return JSON.parse(fs.readFileSync(target)).data.frames
 	}
-	const files = project.folders.reduce((accumulator, folder) => (accumulator.push(
-		...glob.sync(path.resolve(cwd, folder, "*.png")).map(file => ({path: file, contents: fs.readFileSync(file)}))
-	), accumulator), [])
 	const options = {
 		...project.packOptions,
 		exporter: "jsonHash"
 	}
-	const result = await texturePacker.packAsync(files, options)
+	const result = await texturePacker.packAsync(files.map(file => ({path: file, contents: fs.readFileSync(file)})), options)
 	const images = []
 	const sheets = []
 	for (const {name, buffer} of result) {

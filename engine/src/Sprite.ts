@@ -10,6 +10,7 @@ import { Listener } from "./Listener"
 import { ScriptTimer } from "./ScriptTimer"
 import { ScriptStorage } from "./ScriptStorage"
 import { FRAME, TextureFrame } from "./Resources"
+import { PathFinder } from "./PathFinder"
 
 export namespace Sprite {
 	export class Background implements Sprite {
@@ -96,7 +97,9 @@ export namespace Sprite {
 				x + frame[FRAME.left],
 				y + frame[FRAME.top],
 				frame[FRAME.w],
-				frame[FRAME.h]
+				frame[FRAME.h],
+				1,
+				false
 			)
 		}
 	}
@@ -121,17 +124,17 @@ export namespace Sprite {
 		public _cell?: GameMap.Cell
 		protected offset: [number, number]
 		protected animation?: Animation
-		protected path: Path[]
-		protected direction?: Direction
+
 		public readonly name: string
-		public readonly userData: Record<string, any>
 		public readonly timer: ScriptTimer
 		public onUpdate: Listener<Item>
 		public onEnterView: Listener<Item>
 		public onExitView: Listener<Item>
+		public flipped: boolean
 		/** @internal */
 		public paint: number
 		public zIndex: number
+		public enabled: boolean
 
 		public static create(sprite: string, name?: string) {
 			return new Item(Sprite.find(sprite), name)
@@ -141,9 +144,16 @@ export namespace Sprite {
 			const sprite = Sprite.find(data.sprite)
 			const merged = {...sprite, ...data}
 			const item = new Item(merged, data.name)
-			gameContext.map.getCell(data.cell[0], data.cell[1]).addItem(item)
-			if (data.offset) {
-				item.setOffset(data.offset)
+			gameContext.map.getCell(
+				Math.floor(data.position[0] / CONST.GRID_BASE),
+				Math.floor(data.position[1] / CONST.GRID_BASE)
+			).addItem(item)
+			item.setOffset(data.position[0] % CONST.GRID_BASE, data.position[1] % CONST.GRID_BASE)
+			if (data.flipped) {
+				item.flipped = true
+			}
+			if (data.enabled !== undefined) {
+				item.enabled = data.enabled
 			}
 			if (merged.onCreate) {
 				const callback = gameContext.scripts.resolveOrThrow("itemCreate", merged.onCreate)
@@ -157,10 +167,10 @@ export namespace Sprite {
 				const frame = gameContext.textures.tiles.getFrame(data.resource)
 				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
 			}
+			this.enabled = true
 			this.offset = [0, 0]
-			this.path = []
 			this.scale = data.scale || 1
-			this.pivot = data.pivot ? [data.pivot[0], data.pivot[1]] : [0, 0]
+			this.pivot = [0, 0]
 			this._alwaysUpdate = false
 			this._inView = false
 			this._frame = 0
@@ -169,23 +179,20 @@ export namespace Sprite {
 			this.onExitView = new Listener()
 			this.paint = 0
 			this.zIndex = data.zIndex || 0
+			this.flipped = false
 			this.name = name || data.name || data.resource || "anonymous"
-			this.userData = {}
 			this.timer = new ScriptTimer()
 
 			this.setTexture(data)
 
 			if (data.onUpdate) {
-				const callback = gameContext.scripts.resolveOrThrow("itemUpdate", data.onUpdate)
-				this.onUpdate.add(item => callback(item))
+				this.onUpdate.add(gameContext.scripts.resolveOrThrow("itemUpdate", data.onUpdate))
 			}
 			if (data.onEnterView) {
-				const callback = gameContext.scripts.resolveOrThrow("itemEnterView", data.onEnterView)
-				this.onEnterView.add(item => callback(item))
+				this.onEnterView.add(gameContext.scripts.resolveOrThrow("itemEnterView", data.onEnterView))
 			}
 			if (data.onExitView) {
-				const callback = gameContext.scripts.resolveOrThrow("itemExitView", data.onExitView)
-				this.onExitView.add(item => callback(item))
+				this.onExitView.add(gameContext.scripts.resolveOrThrow("itemExitView", data.onExitView))
 			}
 		}
 
@@ -229,10 +236,6 @@ export namespace Sprite {
 			return this._frame
 		}
 
-		public get moving() {
-			return this.path.length > 0
-		}
-
 		public get cell() {
 			if (!this._cell) {
 				throw new Error(`item ${this.name} is not on the map`)
@@ -262,19 +265,6 @@ export namespace Sprite {
 			this.frame = frame
 		}
 
-		public pushPath(path: Path) {
-			this.path.push(path)
-		}
-
-		public clearPath(offset?: [number, number]) {
-			this.path = []
-			if (offset) {
-				this.offset[0] = offset[0]
-				this.offset[1] = offset[1]
-			}
-			this.directionChanged(undefined)
-		}
-
 		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition |  null) {
 			if (data.resource) {
 				const frame = gameContext.textures.tiles.getFrame(data.resource)
@@ -286,7 +276,7 @@ export namespace Sprite {
 				this.pivot[1] = data.pivot[1]
 			} else {
 				this.pivot[0] = 0
-				this.pivot[1] = 0
+				this.pivot[1] = this.textures ? this.textures[0][FRAME.h] : 0
 			}
 			this.animation = undefined
 			this.frame = 0
@@ -307,19 +297,7 @@ export namespace Sprite {
 				this.animation.update(delta)
 				this.frame = this.animation.frame
 			}
-			if (this.path.length > 0) {
-				const path = Path.updateArray(delta, this.path, this.offset)
-				if (this.path.length == 0) {
-					this.directionChanged(undefined)
-				} else if (this.direction != path.direction) {
-					this.directionChanged(path.direction)
-				}
-			}
 			this.timer.update(delta)
-		}
-
-		protected directionChanged(direction: Direction | undefined) {
-			this.direction = direction
 		}
 
 		public getAbsoluteLocation(): [number, number] {
@@ -344,7 +322,8 @@ export namespace Sprite {
 				y + this.offset[1] + (frame[FRAME.top] - this.pivot[1]) * this.scale,
 				frame[FRAME.w],
 				frame[FRAME.h],
-				this.scale
+				this.scale,
+				this.flipped
 			)
 		}
 	}
@@ -371,99 +350,87 @@ export namespace Sprite {
 
 	export class MovableItem extends Item {
 		public readonly walkSequence: WalkSequence
-		private preventWalkSequenceChange: boolean
 		public speed: number
+		protected vector: [number, number]
+		protected moving: boolean
 
-		protected onCellChange(_prev: GameMap.Cell | null) {
+		protected onCellChange(_prev: GameMap.Cell | null, direction?: Direction) {
 		}
 
 		public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 			super(walkSequence.idle)
 			this.walkSequence = walkSequence
 			this.speed = speed
-			this.preventWalkSequenceChange = false
+			this.vector = [0, 0]
+			this.moving = false
 		}
 
-		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition | null) {
-			this.preventWalkSequenceChange = true
-			super.setTexture(data, animation)
-		}
-
-		public clearAnimation(frame = 0) {
-			this.preventWalkSequenceChange = true
-			super.clearAnimation(frame)
-		}
-
-		public enable(x: number, y: number, offset?: [number, number]) {
-			this.clearPath()
-			this.setTexture(this.walkSequence.idle)
-			gameContext.map.getCell(x, y).addItem(this)
-			this.onCellChange(null)
-			if (offset) {
-				this.setOffset(offset)
-			} else {
-				const center = this.cell.getCenter()
-				if (!center) {
-					throw new Error("can not place a Walking sprite on a tile without path data")
-				}
-				this.setOffset(center)
+		public setVector(x: number, y: number) {
+			if (this.vector[0] == x && this.vector[1] == y) {
+				return
 			}
+			this.vector[0] = x
+			this.vector[1] = y
+			super.setTexture(this.walkSequence[(["up", "left", "idle", "right", "down"] as const)[(x + y * 2) + 2]])
+			this.moving = x != 0 || y != 0
+		}
+
+		public moveBy(dx: number, dy: number) {
+			const newX = this.offset[0] + dx
+			const newY = this.offset[1] + dy
+			const cell = this._cell!.getCellContainingPoint(Math.floor(newX), Math.floor(newY))
+			if (cell != this._cell) {
+				const oldCell = this._cell!
+				cell.addItem(this)
+				this.onCellChange(oldCell, dx != 0 ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"))
+				this.offset[0] = modulo(newX, CONST.GRID_BASE)
+				this.offset[1] = modulo(newY, CONST.GRID_BASE)
+			} else {
+				this.offset[0] = newX
+				this.offset[1] = newY
+			}
+		}
+
+		public update(delta: number) {
+			super.update(delta)
+			if (this.moving) {
+				const scalar = delta * (this.speed / CONST.WALK_SPEED_SCALE)
+				for (let queryDelta = Math.ceil(scalar); queryDelta > 0; queryDelta -= 1) {
+					const queryResponse = PathFinder.query(
+						this.cell,
+						Math.floor(this.offset[0]),
+						Math.floor(this.offset[1]),
+						this.vector[0] * queryDelta,
+						this.vector[1] * queryDelta
+					)
+					if (queryResponse) {
+						const norm = Math.sqrt(queryResponse[0] * queryResponse[0] + queryResponse[1] * queryResponse[1])
+						if (norm > scalar + 0.001) {
+							const scaledX = queryResponse[0] * scalar / norm
+							const scaledY = queryResponse[1] * scalar / norm
+							if (this.cell.isPointTraversable(Math.floor(this.offset[0] + scaledX), Math.floor(this.offset[1] + scaledY))) {
+								this.moveBy(scaledX, scaledY)
+								break
+							}
+						} else {
+							this.moveBy(queryResponse[0], queryResponse[1])
+							break
+						}
+					}
+				}
+			}
+		}
+
+		public enable(cell: GameMap.Cell, offset: readonly [number, number]) {
+			this.setTexture(this.walkSequence.idle)
+			cell.addItem(this)
+			this.onCellChange(null)
+			this.setOffset(offset)
 		}
 
 		public disable() {
 			this.clearAnimation()
-			this.clearPath()
 			this.cell.removeItem(this)
-		}
-
-		public setLocation(x: number, y: number, offset?: [number, number]) {
-			const map = gameContext.map
-			this.enable(modulo(x, map.tileWidth), modulo(y, map.tileHeight), offset)
-		}
-
-		public canWalk(direction: Direction): boolean {
-			return (
-				!!this.cell.getExitPath(direction, this.offset[0], this.offset[1]) &&
-				!!this.cell.getNeighbor(direction).getEnterPath(direction)
-			)
-		}
-
-		public walk(direction: Direction): Path | null {
-			const cell = this.cell
-			const exitPath = cell.getExitPath(direction, this.offset[0], this.offset[1])
-			if (!exitPath) {
-				return null
-			}
-			const newCell = this.cell.getNeighbor(direction)
-			const enterPath = newCell.getEnterPath(direction)
-			if (!enterPath) {
-				return null
-			}
-			const path1 = new SimplePath(exitPath, this.speed)
-			path1.onEnd.add(() => {
-				newCell.addItem(this)
-				this.onCellChange(cell)
-			})
-			this.preventWalkSequenceChange = false
-			this.pushPath(path1)
-			const path2 = new SimplePath(enterPath, this.speed)
-			this.pushPath(path2)
-			return path2
-		}
-
-		public waitWalkEnd() {
-			if (this.path.length == 0) {
-				return Promise.resolve()
-			}
-			return new Promise(resolve => this.path[this.path.length - 1].onEnd.add(resolve))
-		}
-
-		protected directionChanged(direction: Direction | undefined) {
-			super.directionChanged(direction)
-			if (!this.preventWalkSequenceChange) {
-				super.setTexture(direction ? this.walkSequence[direction] :this.walkSequence.idle)
-			}
-			this.preventWalkSequenceChange = false
 		}
 	}
 

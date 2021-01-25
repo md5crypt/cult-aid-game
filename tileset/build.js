@@ -7,7 +7,7 @@ const path = require("path");
 	glob.sync(path.resolve(__dirname, "*.png")).forEach(file => fs.unlinkSync(file));
 	for (const file of glob.sync(path.resolve(__dirname, "../atlas/tiles") + "/*.png")) {
 		const name = path.basename(file)
-		const match = name.match(/^(.+?)(-fg+)?(?:-(\d+))?\.png$/)
+		const match = path.basename(file).match(/^(.+?)(-fg+)?(?:_(\d+))?\.png$/)
 		if (!match) {
 			console.warn(`skipping ${name}`)
 			continue

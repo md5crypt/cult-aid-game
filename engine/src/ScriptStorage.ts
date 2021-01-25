@@ -4,12 +4,13 @@ import { Sprite } from "./Sprite"
 import { gameContext } from "./GameContext"
 
 interface Mapping {
-	"cellMove": ScriptStorage.cellQueryCallback
 	"cellEnter": ScriptStorage.cellDynamicCallback
 	"cellExit": ScriptStorage.cellDynamicCallback
-	"cellCenter": ScriptStorage.cellStaticCallback
 	"cellUse": ScriptStorage.cellStaticCallback
 	"cellCreate": ScriptStorage.cellStaticCallback
+	"zoneEnter": ScriptStorage.zoneCallback
+	"zoneExit": ScriptStorage.zoneCallback
+	"zoneUse": ScriptStorage.zoneCallback
 	"itemUpdate": ScriptStorage.itemCallback
 	"itemEnterView": ScriptStorage.itemCallback
 	"itemExitView": ScriptStorage.itemCallback
@@ -47,7 +48,7 @@ export class ScriptStorage {
 }
 
 export namespace ScriptStorage {
-	export type cellQueryCallback = (cell: GameMap.Cell, direction: Direction) => boolean
+	export type zoneCallback = (zone: GameMap.ZoneNavMap) => void | Promise<void>
 	export type cellDynamicCallback = (cell: GameMap.Cell, direction: Direction) => void | Promise<void>
 	export type cellStaticCallback = (cell: GameMap.Cell) => void | Promise<void>
 	export type itemCallback = (item: Sprite.Item) => void | Promise<void>

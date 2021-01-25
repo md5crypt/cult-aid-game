@@ -10,11 +10,7 @@ export class Player extends Sprite.MovableItem {
 
 	public constructor(walkSequence: Sprite.WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 		super(walkSequence, speed)
-		this.onUpdate.add(() => {
-			if (!this.moving) {
-				this.checkInput()
-			}
-		})
+		this.onUpdate.add(() => this.checkInput())
 		this.alwaysUpdate = true
 		this.inputLock = 0
 		this.zIndex = 1
@@ -27,7 +23,7 @@ export class Player extends Sprite.MovableItem {
 	public unlockInput() {
 		this.inputLock -= 1
 		if (this.inputLock < 0) {
-			throw new Error("something bad happend")
+			throw new Error("something bad happened")
 		}
 	}
 
@@ -35,14 +31,15 @@ export class Player extends Sprite.MovableItem {
 		if (this.inputLock) {
 			return
 		}
+		let vector = [0, 0]
 		if (gameContext.input.keyboard.arrowUp || gameContext.input.keyboard.w) {
-			this.walk("up")
+			vector = [0, -1]
 		} else if (gameContext.input.keyboard.arrowDown || gameContext.input.keyboard.s) {
-			this.walk("down")
+			vector = [0, 1]
 		} else if (gameContext.input.keyboard.arrowLeft || gameContext.input.keyboard.a) {
-			this.walk("left")
+			vector = [-1, 0]
 		} else if (gameContext.input.keyboard.arrowRight || gameContext.input.keyboard.d) {
-			this.walk("right")
+			vector = [1, 0]
 		} else if (gameContext.input.keyboard["+"]) {
 			gameContext.camera.zoom *= 1.05
 		} else if (gameContext.input.keyboard["-"]) {
@@ -52,38 +49,28 @@ export class Player extends Sprite.MovableItem {
 		} else if (gameContext.input.keyboard[" "] || gameContext.input.keyboard.e || gameContext.input.keyboard.enter) {
 			if (this.cell.onUse) {
 				this.cell.onUse.invoke(this.cell)
+				gameContext.map.triggerZones()
 			}
 		}
+		this.setVector(vector[0], vector[1])
 	}
 
-	public walk(direction: Direction) {
-		if (this.canWalk(direction)) {
-			if (!this.cell.onMove || this.cell.onMove.collect<boolean>((a, b) => a && b, true, this.cell, direction)) {
-				const value = super.walk(direction)
-				if (value) {
-					value.onEnd.add(() => {
-						const cell = this.cell
-						if (cell.onCenter) {
-							cell.onCenter.invoke(cell)
-						}
-						this.checkInput()
-					})
-				}
-				return value
-			}
-		}
-		return null
-	}
-
-	protected onCellChange(prev: GameMap.Cell | null) {
-		if (this.direction && prev && prev.onExit) {
-			prev.onExit.invoke(prev, this.direction)
+	protected onCellChange(prev: GameMap.Cell | null, direction?: Direction) {
+		if (direction && prev && prev.onExit) {
+			prev.onExit.invoke(prev, direction)
 		}
 		if (this.cell) {
-			if (this.direction && this.cell.onEnter) {
-				this.cell.onEnter.invoke(this.cell, this.direction)
+			if (direction && this.cell.onEnter) {
+				this.cell.onEnter.invoke(this.cell, direction)
 			}
-			this.cell.setVisible(this.direction)
+			this.cell.visible = true
+		}
+	}
+
+	public update(delta: number) {
+		super.update(delta)
+		if (this._cell) {
+			gameContext.map.updateZones(this._cell, this.offset)
 		}
 	}
 }
