@@ -126,16 +126,12 @@ scripts.register("cellEnter", "autoReveal", (cell) => {
 	cell.group.forEach(x => x.visible = true)
 })
 
-scripts.register("zoneUse", "zoneTest", zone => {
-	console.log("use", zone)
+scripts.register("zoneUse", "technician", zone => {
+	void context.speech.executeDialog(DialogId["technician-main"])
 })
 
-scripts.register("zoneEnter", "zoneTest", zone => {
-	console.log("enter", zone)
-})
-
-scripts.register("zoneExit", "zoneTest", zone => {
-	console.log("exit", zone)
+scripts.register("zoneUse", "power-supply", zone => {
+	void context.speech.executeFragment(FragmentId["technician-touch-server"])
 })
 
 scripts.register("cellEnter", "roomEnter", (cell, direction) => {

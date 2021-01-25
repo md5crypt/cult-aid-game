@@ -4,7 +4,7 @@ import { Animator } from "../Animator"
 export default (scroll: BaseElement) => new Animator({
 	"slideIn": {
 		transition: "opening",
-		duration: 500,
+		duration: 250,
 		animation: context => scroll.updateConfig({
 			margin: {top: context.interpolate(172, 0)},
 			width: 48
@@ -12,7 +12,7 @@ export default (scroll: BaseElement) => new Animator({
 	},
 	"opening": {
 		transition: "opened",
-		duration: 500,
+		duration: 400,
 		animation: context => scroll.updateConfig({
 			margin: {top: 0},
 			width: context.interpolate(48, scroll.parent.width)
@@ -27,14 +27,14 @@ export default (scroll: BaseElement) => new Animator({
 	},
 	"closing": {
 		transition: () => "slideOut",
-		duration: 500,
+		duration: 400,
 		animation: context => scroll.updateConfig({
 			width: context.interpolate(scroll.parent.width, 48)
 		})
 	},
 	"slideOut": {
 		transition: "stop",
-		duration: 500,
+		duration: 250,
 		animation: context => scroll.updateConfig({
 			margin: {top: context.interpolate(0, 172)},
 			width: 48

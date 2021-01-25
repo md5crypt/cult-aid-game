@@ -11,7 +11,7 @@ import { modulo } from "./utils"
 
 interface GameMapPosition {
 	readonly offset: readonly [number, number]
-	readonly zIndex: number
+	readonly zOffset: number
 	readonly cell: GameMap.Cell
 }
 
@@ -97,7 +97,7 @@ export class GameMap {
 							Math.floor(object.position[0] / CONST.GRID_BASE),
 							Math.floor(object.position[1] / CONST.GRID_BASE)
 						),
-						zIndex: object.zIndex || 0
+						zOffset: object.zOffset || 0
 					})
 					break
 				case "script":
@@ -160,8 +160,9 @@ export class GameMap {
 			item.update(delta)
 		}
 		for (let i = 0; i < this.inViewList.length; i++) {
-			if (this.inViewList[i].paint != frame) {
-				items[i].inView = false
+			const item = this.inViewList[i]
+			if (item.paint != frame) {
+				item.inView = false
 			}
 		}
 		for (const item of this.alwaysActiveList) {

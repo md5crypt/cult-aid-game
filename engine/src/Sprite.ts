@@ -120,6 +120,7 @@ export namespace Sprite {
 		private _inView: boolean
 		private _frame: number
 		private _alwaysUpdate: boolean
+		private zOffset: number
 		/** @internal */
 		public _cell?: GameMap.Cell
 		protected offset: [number, number]
@@ -133,7 +134,6 @@ export namespace Sprite {
 		public flipped: boolean
 		/** @internal */
 		public paint: number
-		public zIndex: number
 		public enabled: boolean
 
 		public static create(sprite: string, name?: string) {
@@ -178,7 +178,7 @@ export namespace Sprite {
 			this.onEnterView = new Listener()
 			this.onExitView = new Listener()
 			this.paint = 0
-			this.zIndex = data.zIndex || 0
+			this.zOffset = data.zOffset || 0
 			this.flipped = false
 			this.name = name || data.name || data.resource || "anonymous"
 			this.timer = new ScriptTimer()
@@ -194,6 +194,10 @@ export namespace Sprite {
 			if (data.onExitView) {
 				this.onExitView.add(gameContext.scripts.resolveOrThrow("itemExitView", data.onExitView))
 			}
+		}
+
+		public get zIndex() {
+			return this._cell!.y * CONST.GRID_BASE + this.offset[1] + this.zOffset
 		}
 
 		public get alwaysUpdate() {

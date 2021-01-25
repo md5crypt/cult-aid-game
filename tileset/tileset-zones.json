@@ -1,4 +1,12 @@
 { "columns":0,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"",
+         "target":"."
+        }
+    },
  "grid":
     {
      "height":1,
@@ -8,17 +16,29 @@
  "margin":0,
  "name":"tilset-zones",
  "spacing":0,
- "tilecount":1,
+ "tilecount":3,
  "tiledversion":"1.4.3",
- "tileheight":55,
+ "tileheight":71,
  "tiles":[
         {
          "id":0,
          "image":"..\/atlas\/tiles\/object-snowman-navmap.png",
          "imageheight":55,
          "imagewidth":48
+        }, 
+        {
+         "id":1,
+         "image":"..\/atlas\/tiles\/object-power-supply-navmap.png",
+         "imageheight":24,
+         "imagewidth":58
+        }, 
+        {
+         "id":2,
+         "image":"..\/atlas\/tiles\/object-technician-navmap.png",
+         "imageheight":71,
+         "imagewidth":96
         }],
- "tilewidth":48,
+ "tilewidth":96,
  "type":"tileset",
  "version":1.4
 }

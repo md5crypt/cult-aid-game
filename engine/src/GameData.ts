@@ -18,7 +18,7 @@ export namespace GameData {
 		readonly autoReveal?: boolean
 		readonly group?: string
 		readonly animation?: Animation.Definition
-		readonly zIndex?: number
+		readonly zOffset?: number
 		readonly onCreate?: string
 		readonly onUpdate?: string
 		readonly onEnterView?: string
@@ -41,7 +41,7 @@ export namespace GameData {
 		readonly name?: string
 		readonly animation?: Animation.Definition
 		readonly flipped?: boolean
-		readonly zIndex?: number
+		readonly zOffset?: number
 		readonly onCreate?: string
 		readonly onUpdate?: string
 		readonly onEnterView?: string
@@ -53,7 +53,7 @@ export namespace GameData {
 		readonly type: "point"
 		readonly name: string
 		readonly position: readonly [number, number]
-		readonly zIndex?: number
+		readonly zOffset?: number
 	}
 
 	export interface ZoneData {

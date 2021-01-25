@@ -16,7 +16,7 @@
  "margin":0,
  "name":"objects",
  "spacing":0,
- "tilecount":12,
+ "tilecount":16,
  "tiledversion":"1.4.3",
  "tileheight":240,
  "tiles":[
@@ -109,6 +109,53 @@
          "image":"object-snow-small.png",
          "imageheight":12,
          "imagewidth":46
+        }, 
+        {
+         "id":34,
+         "image":"object-power-supply.png",
+         "imageheight":133,
+         "imagewidth":72,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":35,
+         "image":"object-space-heater.png",
+         "imageheight":91,
+         "imagewidth":73,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":36,
+         "image":"object-technician.png",
+         "imageheight":105,
+         "imagewidth":118,
+         "properties":[
+                {
+                 "name":"animation",
+                 "type":"string",
+                 "value":"[[\"delay\", 2000], [\"sequence\", 0, 8], [\"loop\"]]"
+                }, 
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":37,
+         "image":"object-space-heater-glow.png",
+         "imageheight":66,
+         "imagewidth":68
         }],
  "tilewidth":240,
  "type":"tileset",

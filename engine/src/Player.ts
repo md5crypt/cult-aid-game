@@ -13,7 +13,6 @@ export class Player extends Sprite.MovableItem {
 		this.onUpdate.add(() => this.checkInput())
 		this.alwaysUpdate = true
 		this.inputLock = 0
-		this.zIndex = 1
 	}
 
 	public lockInput() {
