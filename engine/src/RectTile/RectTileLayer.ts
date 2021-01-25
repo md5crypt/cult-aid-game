@@ -1,20 +1,23 @@
-import { RectTileRenderer } from "./RectTileRenderer"
+import { RectTileRenderer, RectTileGeometry, CONST as RectTileGeometryConstants } from "./RectTileRenderer"
+import { Container } from "@pixi/display"
+import { Renderer, Texture } from "@pixi/core"
+import { DRAW_MODES } from "@pixi/constants"
 
 const enum CONST {
 	VECTOR_BUFFER_INITIAL_SIZE = 128
 }
 
-export class RectTileLayer extends PIXI.Container {
-	private textures: Array<PIXI.Texture>
+export class RectTileLayer extends Container {
+	private textures: Array<Texture>
 	private buffer: Float32Array
 	private offset: number
 	private dirty: boolean
-	private geometry: RectTileRenderer.Geometry | null
+	private geometry: RectTileGeometry | null
 
-	constructor(textures: PIXI.Texture | PIXI.Texture[]) {
+	constructor(textures: Texture | Texture[]) {
 		super()
 		this.textures = Array.isArray(textures) ? textures : [textures]
-		this.buffer = new Float32Array(RectTileRenderer.CONST.STRIDE * CONST.VECTOR_BUFFER_INITIAL_SIZE)
+		this.buffer = new Float32Array(RectTileGeometryConstants.STRIDE * CONST.VECTOR_BUFFER_INITIAL_SIZE)
 		this.offset = 0
 		this.geometry = null
 		this.dirty = true
@@ -28,7 +31,7 @@ export class RectTileLayer extends PIXI.Container {
 	public addRect(texture: number, u: number, v: number, x0: number, y0: number, w: number, h: number, scale: number, flip: boolean) {
 		const offset = this.offset
 		let buffer = this.buffer
-		if ((offset + RectTileRenderer.CONST.STRIDE) > buffer.length) {
+		if ((offset + RectTileGeometryConstants.STRIDE) > buffer.length) {
 			buffer = new Float32Array(this.buffer.length * 2)
 			buffer.set(this.buffer)
 			this.buffer = buffer
@@ -59,10 +62,10 @@ export class RectTileLayer extends PIXI.Container {
 		buffer[offset + 17] = u0
 		buffer[offset + 18] = v1
 		buffer[offset + 19] = texture
-		this.offset += RectTileRenderer.CONST.STRIDE
+		this.offset += RectTileGeometryConstants.STRIDE
 	}
 
-	public render(renderer: PIXI.Renderer) {
+	public render(renderer: Renderer) {
 		if (this.offset == 0) {
 			return
 		}
@@ -82,7 +85,7 @@ export class RectTileLayer extends PIXI.Container {
 			this.dirty = false
 		}
 		renderer.geometry.bind(this.geometry, plugin.shader)
-		renderer.geometry.draw(PIXI.DRAW_MODES.TRIANGLES, (this.offset / RectTileRenderer.CONST.STRIDE) * 6, 0)
+		renderer.geometry.draw(DRAW_MODES.TRIANGLES, (this.offset / RectTileGeometryConstants.STRIDE) * 6, 0)
 	}
 
 	public destroy(options?: any) {

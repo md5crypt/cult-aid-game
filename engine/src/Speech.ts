@@ -39,9 +39,9 @@ interface SpeechData {
 export class Speech {
 	public readonly data: SpeechData
 	private _dialog: Dialog | null
-	private audio?: PIXI.sound.Sound
+	private audio?: any
 
-	public constructor(data: SpeechData, audio?: PIXI.sound.Sound) {
+	public constructor(data: SpeechData, audio?: any) {
 		this.data = data
 		this._dialog = null
 		this.audio = audio

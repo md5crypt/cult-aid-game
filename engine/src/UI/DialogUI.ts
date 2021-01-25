@@ -12,6 +12,9 @@ import avatarAnimator from "./Animators/dialogAvatar"
 import lockpickAnimator from "./Animators/dialogLockpick"
 import scrollAnimator from "./Animators/dialogScroll"
 
+import { Point } from "@pixi/math"
+import { InteractionEvent } from "@pixi/interaction"
+
 const animatorsBuilder = (scroll: BaseElement) => ({
 	arrowUp: arrowAnimator(scroll.getElement("body.arrow-up"), 34),
 	arrowDown: arrowAnimator(scroll.getElement("body.arrow-down"), -34),
@@ -80,7 +83,7 @@ export class DialogUI {
 		this.ready = false
 		this.releaseQueue = []
 		this.mode = DialogMode.NONE
-		let lastPosition: PIXI.Point
+		let lastPosition: Point
 		let currentOption: number
 		let moved = false
 		this.mask.on("tap", () => {
@@ -93,13 +96,13 @@ export class DialogUI {
 				this.dialogContinue()
 			}
 		})
-		this.mask.on("touchstart", (event: PIXI.InteractionEvent) => {
+		this.mask.on("touchstart", (event: InteractionEvent) => {
 			console.log("touchstart")
 			lastPosition = event.data.getLocalPosition(event.currentTarget).clone()
 			currentOption = this.activeOption
 			moved = false
 		})
-		this.mask.on("touchmove", (event: PIXI.InteractionEvent) => {
+		this.mask.on("touchmove", (event: InteractionEvent) => {
 			const position = event.data.getLocalPosition(event.currentTarget)
 			if (Math.abs(position.x - lastPosition.x) > 16 || Math.abs(position.y - lastPosition.y) > 16) {
 				moved = true
@@ -142,7 +145,7 @@ export class DialogUI {
 		if (this.counter == 0) {
 			return Promise.resolve()
 		}
-		return new Promise(resolve => this.releaseQueue.push(resolve))
+		return new Promise<void>(resolve => this.releaseQueue.push(resolve))
 	}
 
 	public claim() {

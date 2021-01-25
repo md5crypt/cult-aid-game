@@ -1,5 +1,7 @@
 import { BitmapFont, TextCharInfo } from "./BitmapFont"
 import { Colors } from "../Colors"
+import { Container } from "@pixi/display"
+import { Sprite } from "@pixi/sprite"
 
 export interface TextOptions {
 	font?: string | BitmapFont
@@ -26,24 +28,24 @@ function resolveTextOptions(options: TextOptions) {
 	} as const
 }
 
-export class BitmapText extends PIXI.Container {
-	private _width = 0
-	private _height = 0
+export class BitmapText extends Container {
+	private computedWidth = 0
+	private computedHeight = 0
 
 	public set width(value: number) {
-		this._width = value
+		this.computedWidth = value
 	}
 
 	public get width() {
-		return this._width
+		return this.computedWidth
 	}
 
 	public set height(value: number) {
-		this._height = value
+		this.computedHeight = value
 	}
 
 	public get height() {
-		return this._height
+		return this.computedHeight
 	}
 
 	public drawRichText(text: RichText, offset = 0) {
@@ -119,7 +121,7 @@ export class BitmapText extends PIXI.Container {
 			for (const word of line.words) {
 				for (const char of word.data) {
 					if (char.texture) {
-						const sprite = new PIXI.Sprite(char.texture)
+						const sprite = new Sprite(char.texture)
 						sprite.x = xOffset
 						sprite.y = yOffset
 						sprite.scale.set(text.size)
@@ -171,7 +173,7 @@ export class BitmapText extends PIXI.Container {
 		this.removeChildren()
 		for (const char of data) {
 			if (char.texture) {
-				const sprite = new PIXI.Sprite(char.texture)
+				const sprite = new Sprite(char.texture)
 				sprite.x = xOffset
 				sprite.y = yOffset
 				sprite.scale.set(options.size)

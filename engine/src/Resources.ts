@@ -1,3 +1,6 @@
+import { Texture } from "@pixi/core"
+import { Rectangle } from "@pixi/math"
+
 export const enum FRAME {
 	x,
 	y,
@@ -13,12 +16,12 @@ export const enum FRAME {
 export type TextureFrame = readonly number[] | readonly number[][]
 
 export class TextureStorage {
-	public readonly baseTextures: PIXI.Texture[]
+	public readonly baseTextures: Texture[]
 
-	private textures: Map<string, PIXI.Texture | PIXI.Texture[]>
+	private textures: Map<string, Texture | Texture[]>
 	private frames: Map<string, TextureFrame>
 
-	public constructor(frames: Record<string, TextureFrame>, baseTextures: PIXI.Texture[]) {
+	public constructor(frames: Record<string, TextureFrame>, baseTextures: Texture[]) {
 		this.baseTextures = baseTextures
 		this.textures = new Map()
 		this.frames = new Map()
@@ -38,21 +41,21 @@ export class TextureStorage {
 	}
 
 	private createTexture(frame: readonly number[]) {
-		return new PIXI.Texture(
+		return new Texture(
 			this.baseTextures[frame[FRAME.base]].baseTexture,
-			new PIXI.Rectangle(
+			new Rectangle(
 				frame[FRAME.x],
 				frame[FRAME.y],
 				frame[FRAME.w],
 				frame[FRAME.h]
 			),
-			new PIXI.Rectangle(
+			new Rectangle(
 				0,
 				0,
 				frame[FRAME.w] + frame[FRAME.left] + frame[FRAME.right],
 				frame[FRAME.h] + frame[FRAME.top] + frame[FRAME.bottom]
 			),
-			new PIXI.Rectangle(
+			new Rectangle(
 				frame[FRAME.left],
 				frame[FRAME.top],
 				frame[FRAME.w],
@@ -61,8 +64,8 @@ export class TextureStorage {
 		)
 	}
 
-	public getTexture(resource: string, flat?: true): PIXI.Texture
-	public getTexture(resource: string, flat: false): PIXI.Texture | PIXI.Texture[]
+	public getTexture(resource: string, flat?: true): Texture
+	public getTexture(resource: string, flat: false): Texture | Texture[]
 	public getTexture(resource: string, flat = true) {
 		let result = this.textures.get(resource)
 		if (!result) {

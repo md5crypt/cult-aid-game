@@ -1,3 +1,6 @@
+import { Shader, Program } from "@pixi/core"
+import { Matrix } from "@pixi/math"
+
 const rectShaderFrag = (count: number) => `
 	varying vec2 vTextureCoord;
 	varying float vTextureId;
@@ -31,12 +34,12 @@ const rectShaderVert = `
 	}
 `
 
-export class RectTileShader extends PIXI.Shader {
+export class RectTileShader extends Shader {
 	constructor(maxTextures: number) {
-		super(new PIXI.Program(rectShaderVert, rectShaderFrag(maxTextures)), {
+		super(new Program(rectShaderVert, rectShaderFrag(maxTextures)), {
 			uSamplers: new Array(maxTextures).fill(0).map((_, i) => i),
 			uSamplerSize: [],
-			projTransMatrix: new PIXI.Matrix()
+			projTransMatrix: new Matrix()
 		})
 	}
 }

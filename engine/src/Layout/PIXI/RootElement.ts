@@ -1,11 +1,12 @@
 import { BaseElement } from "./BaseElement"
+import { Container } from "@pixi/display"
 
 export class RootElement extends BaseElement {
 	/** @internal */
-	public readonly handle!: PIXI.Container
+	public readonly handle!: Container
 
 	constructor() {
-		super(new PIXI.Container(), "@root")
+		super(new Container(), "@root")
 	}
 
 	protected onUpdate() {

@@ -1,4 +1,6 @@
 import { TextureStorage } from "./Resources"
+import { ILoaderResource, AppLoaderPlugin, ILoaderPlugin, Loader, LoaderResource } from "@pixi/loaders"
+import { Texture } from "@pixi/core"
 
 interface TextureAtlasJson {
 	type: "textureAtlas"
@@ -8,9 +10,9 @@ interface TextureAtlasJson {
 	}
 }
 
-class TextureAtlasLoader implements PIXI.ILoaderPlugin {
-	public static use(this: PIXI.Loader, resource: PIXI.LoaderResource, next: (...params: any[]) => any) {
-		if ((resource.type != PIXI.LoaderResource.TYPE.JSON) || (resource.data?.type != "textureAtlas")) {
+class TextureAtlasLoader implements ILoaderPlugin {
+	public static use(this: Loader, resource: ILoaderResource, next: (...params: any[]) => any) {
+		if ((resource.type != LoaderResource.TYPE.JSON) || (resource.data?.type != "textureAtlas")) {
 			return next()
 		}
 		const loadOptions = {
@@ -19,11 +21,11 @@ class TextureAtlasLoader implements PIXI.ILoaderPlugin {
 			parentResource: resource
 		}
 		const data = (resource.data as TextureAtlasJson).data
-		Promise.all(data.baseTextures.map((path: string) => new Promise<PIXI.Texture>((resolve, reject) => this.add(
+		Promise.all(data.baseTextures.map((path: string) => new Promise<Texture>((resolve, reject) => this.add(
 			path,
 			path,
 			loadOptions,
-			(resource: PIXI.LoaderResource) => resource.error ? reject(resource.error) : resolve(resource.texture)
+			(resource: ILoaderResource) => resource.error ? reject(resource.error) : resolve(resource.texture as Texture)
 		)))).then(textures => {
 			resource.data = new TextureStorage(data.frames, textures)
 			next()
@@ -31,4 +33,4 @@ class TextureAtlasLoader implements PIXI.ILoaderPlugin {
 	}
 }
 
-PIXI.Loader.registerPlugin(TextureAtlasLoader)
+Loader.registerPlugin(TextureAtlasLoader)

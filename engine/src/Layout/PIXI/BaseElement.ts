@@ -1,4 +1,6 @@
 import { LayoutElement, LayoutFactory, LayoutElementJson as BaseLayoutElementJson } from "../LayoutBase"
+import { Container } from "@pixi/display"
+import { Graphics } from "@pixi/graphics"
 
 export const layoutFactory = new LayoutFactory<BaseElement, LayoutElementJson>()
 
@@ -16,11 +18,11 @@ export type LayoutElementJson = BaseLayoutElementJson<BaseElement>
 
 export abstract class BaseElement extends LayoutElement<BaseElement> {
 	/** @internal */
-	public readonly handle: PIXI.Container
+	public readonly handle: Container
 	private hidden: boolean
 	private mask?: boolean
 
-	protected constructor(handle: PIXI.Container, name?: string, config?: BaseConfig) {
+	protected constructor(handle: Container, name?: string, config?: BaseConfig) {
 		super(name)
 		this.handle = handle
 		this.hidden = false
@@ -35,7 +37,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 		}
 	}
 
-	public removeFilter(filter: PIXI.Filter) {
+	/*public removeFilter(filter: PIXI.Filter) {
 		this.handle.filters = this.filters.filter(x => x != filter)
 	}
 
@@ -50,7 +52,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 			this.handle.filters = []
 		}
 		return this.handle.filters
-	}
+	}*/
 
 	public set alpha(value: number) {
 		this.hidden = value === 0
@@ -92,7 +94,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 	}
 
 	public on(event: string, callback: Function) {
-		this.handle.on(event, callback)
+		this.handle.on(event, callback as any)
 	}
 
 	protected onRemoveElement(index: number) {
@@ -111,7 +113,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 	protected onUpdate() {
 		this.handle.visible = this.enabled && !this.hidden
 		if (this.mask) {
-			const graphics = new PIXI.Graphics()
+			const graphics = new Graphics()
 			graphics.beginFill(0xFFFFFF)
 			graphics.drawRect(
 				this.config.padding.left,
@@ -121,7 +123,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 			)
 			graphics.endFill()
 			if (this.handle.mask) {
-				this.handle.removeChild(this.handle.mask as PIXI.Graphics)
+				this.handle.removeChild(this.handle.mask as Graphics)
 			}
 			this.handle.addChild(graphics)
 			this.handle.mask = graphics

@@ -20,14 +20,22 @@ import { TextureStorage } from "./Resources"
 import { Speech } from "./Speech"
 import { NavMap } from "./NavMap"
 
+import { Application } from "@pixi/app"
+import { ILoaderResource, LoaderResource } from "@pixi/loaders"
+import { Container } from "@pixi/display"
+import { settings } from "@pixi/settings"
+import { SCALE_MODES, MIPMAP_MODES } from "@pixi/constants"
+
 import { Animator } from "./UI/Animator"
+
+import "./pixiBootstrap"
 import "./TextureAtlasLoader"
 import "./RectTile/RectTileRenderer"
 
 declare global {
 	interface Window {
 		gameContext: GameContext
-		app: PIXI.Application
+		app: Application
 	}
 }
 
@@ -38,14 +46,14 @@ Object.assign(gameContext, {
 	Sprite
 })
 
-function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, PIXI.LoaderResource>>> {
+function loadResources(app: Application) : Promise<Partial<Record<string, ILoaderResource>>> {
 	return new Promise((resolve, reject) => app.loader
 		.add("atlasUi", "atlas-ui.json")
 		.add("atlasTiles", "atlas-tiles.json")
 		.add("gameData", "data.json")
 		.add("speech", "speech.json")
 		.add("navmap", "navmap.json")
-		.add("navmapData", "navmap.bin", {xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER})
+		.add("navmapData", "navmap.bin", {xhrType: LoaderResource.XHR_RESPONSE_TYPE.BUFFER})
 		.add("fonts", "fonts.json")
 		.add("scripts", "scripts.js")
 		//.add("soundData", "audio.json")
@@ -55,7 +63,7 @@ function loadResources(app: PIXI.Application) : Promise<Partial<Record<string, P
 	)
 }
 
-function resize(app: PIXI.Application) {
+function resize(app: Application) {
 	app.view.width = window.innerWidth
 	app.view.height = window.innerHeight
 	app.view.style.overflow = "hidden"
@@ -78,7 +86,7 @@ function resize(app: PIXI.Application) {
 	app.renderer.resize(width, height)
 }
 
-function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderResource>) {
+function bootstrap(app: Application, resources: Record<string, ILoaderResource>) {
 	window.app = app
 	window.gameContext = gameContext
 	gameContext.data = resources.gameData.data.data as GameData
@@ -103,7 +111,7 @@ function bootstrap(app: PIXI.Application, resources: Record<string, PIXI.LoaderR
 	gameContext.input.register()
 	gameContext.time = 0;
 	(resources.fonts.data.data as FontData[]).forEach(font => BitmapFont.register(font, gameContext.textures.ui))
-	const tile = new PIXI.Container()
+	const tile = new Container()
 	tile.interactive = false
 	tile.addChild(...Object.values(gameContext.layers))
 	BitmapFont.alias("default", "PixAntiqua")
@@ -117,14 +125,12 @@ window.addEventListener("load", async () => {
 	const stats = new Stats()
 	stats.showPanel(0)
 	document.body.appendChild(stats.dom)
-	PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
-	PIXI.settings.MIPMAP_TEXTURES = PIXI.MIPMAP_MODES.OFF
-	PIXI.settings.ROUND_PIXELS = true
-	const app = new PIXI.Application({
-		backgroundColor: 0
-	})
+	settings.SCALE_MODE = SCALE_MODES.NEAREST
+	settings.MIPMAP_TEXTURES = MIPMAP_MODES.OFF
+	settings.ROUND_PIXELS = true
+	const app = new Application({backgroundColor: 0} as any)
 	document.body.appendChild(app.view)
-	const resources = await loadResources(app) as Record<string, PIXI.LoaderResource>
+	const resources = await loadResources(app) as Record<string, ILoaderResource>
 	bootstrap(app, resources)
 	resize(app)
 

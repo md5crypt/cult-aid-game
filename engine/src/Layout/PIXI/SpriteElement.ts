@@ -2,6 +2,14 @@ import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./Bas
 import { gameContext } from "../../GameContext"
 import { Colors } from "../../Colors"
 
+import { Texture } from "@pixi/core"
+import { Rectangle } from "@pixi/math"
+import { Container } from "@pixi/display"
+import { Sprite } from "@pixi/sprite"
+import { TilingSprite } from "@pixi/sprite-tiling"
+import type { Mesh } from "@pixi/mesh"
+import { NineSlicePlane } from "@pixi/mesh-extras"
+
 type ScalingType = "none" | "fixed" | "stretch" | "repeat" | "9slice"
 
 export interface SpriteElementConfig extends BaseConfig {
@@ -21,29 +29,29 @@ export interface SpriteElementJson <T extends LayoutElementJson> extends LayoutE
 
 export class SpriteElement extends BaseElement {
 	/** @internal */
-	private sprite: PIXI.Sprite | PIXI.Mesh
+	private sprite: Sprite | Mesh
 	private scaling: ScalingType
 
 	private static createSprite(config?: SpriteElementConfig) {
-		let texture = PIXI.Texture.WHITE
+		let texture = Texture.WHITE
 		if (typeof config?.image == "string") {
 			texture = (typeof config.image == "string") ? gameContext.textures.ui.getTexture(config.image) : config.image
 			if (config.crop) {
-				texture = new PIXI.Texture(
+				texture = new Texture(
 					texture.baseTexture,
-					new PIXI.Rectangle(
+					new Rectangle(
 						texture.frame.x + config.crop[0],
 						texture.frame.y + config.crop[1],
 						texture.frame.width - config.crop[0] - config.crop[2],
 						texture.frame.height - config.crop[1] - config.crop[3]
 					),
-					new PIXI.Rectangle(
+					new Rectangle(
 						0,
 						0,
 						texture.orig.width - config.crop[0] - config.crop[2],
 						texture.orig.height - config.crop[1] - config.crop[3]
 					),
-					new PIXI.Rectangle(
+					new Rectangle(
 						texture.trim.x + config.crop[0],
 						texture.trim.y + config.crop[1],
 						texture.trim.width - config.crop[0] - config.crop[2],
@@ -54,19 +62,19 @@ export class SpriteElement extends BaseElement {
 		}
 		switch (config?.scaling) {
 			case "repeat":
-				return new PIXI.TilingSprite(texture)
+				return new TilingSprite(texture)
 			case "9slice":
-				return new PIXI.NineSlicePlane(texture, ...(config?.slices ?? []))
+				return new NineSlicePlane(texture, ...(config?.slices ?? []))
 			default:
-				return new PIXI.Sprite(texture)
+				return new Sprite(texture)
 		}
 	}
 
 	constructor(name?: string, config?: SpriteElementConfig) {
 		const sprite = SpriteElement.createSprite(config)
-		let handle: PIXI.Container = sprite
+		let handle: Container = sprite
 		if (config?.container) {
-			handle = new PIXI.Container()
+			handle = new Container()
 			sprite.zIndex = -Infinity
 			handle.addChild(sprite)
 		}
@@ -81,7 +89,7 @@ export class SpriteElement extends BaseElement {
 
 	public set image(value: string | null) {
 		if(!value) {
-			this.sprite.texture = PIXI.Texture.WHITE
+			this.sprite.texture = Texture.WHITE
 		} else {
 			this.sprite.texture = gameContext.textures.ui.getTexture(value)
 		}
@@ -90,7 +98,7 @@ export class SpriteElement extends BaseElement {
 
 	protected onUpdate() {
 		super.onUpdate()
-		if (this.handle instanceof PIXI.Sprite) {
+		if (this.handle instanceof Sprite) {
 			this.handle.anchor.set(0.5, 0.5)
 		} else {
 			this.handle.pivot.set(this.width / 2, this.height / 2)

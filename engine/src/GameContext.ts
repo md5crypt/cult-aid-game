@@ -14,6 +14,8 @@ import { Speech } from "./Speech"
 import { NavMap } from "./NavMap"
 import { UI } from "./UI/UI"
 
+import { Container } from "@pixi/display"
+
 export interface GameContext {
 	time: number
 	map: GameMap
@@ -26,8 +28,8 @@ export interface GameContext {
 	}
 	/** @internal */
 	stage: {
-		tile: PIXI.Container
-		ui: PIXI.Container
+		tile: Container
+		ui: Container
 	}
 	/** @internal */
 	layers: {

@@ -1,22 +1,24 @@
 import { RectTileShader } from "./RectTileShader"
+import { Renderer, ObjectRenderer, Buffer, Texture, Geometry } from "@pixi/core"
+import { createIndicesForQuads } from "@pixi/utils"
 
-export class RectTileRenderer extends PIXI.ObjectRenderer {
-	public readonly indexBuffer: PIXI.Buffer
+export class RectTileRenderer extends ObjectRenderer {
+	public readonly indexBuffer: Buffer
 	public readonly shader: RectTileShader
 	public static MAX_TEXTURES = 4
 
-	constructor(renderer: PIXI.Renderer) {
+	constructor(renderer: Renderer) {
 		super(renderer)
 		this.shader = new RectTileShader(RectTileRenderer.MAX_TEXTURES)
-		this.indexBuffer = new PIXI.Buffer(new ArrayBuffer(0), true, true)
-		this.indexBuffer.update(PIXI.utils.createIndicesForQuads(256 * 256))
+		this.indexBuffer = new Buffer(new ArrayBuffer(0), true, true)
+		this.indexBuffer.update(createIndicesForQuads(256 * 256))
 	}
 
 	public createGeometry() {
-		return new RectTileRenderer.Geometry(this)
+		return new RectTileGeometry(this)
 	}
 
-	public bindTextures(renderer: PIXI.Renderer, textures: Array<PIXI.Texture>) {
+	public bindTextures(renderer: Renderer, textures: Array<Texture>) {
 		let samplerSize: number[] = []
 		for (let i = 0; i < textures.length; i++) {
 			const texture = textures[i]
@@ -30,21 +32,20 @@ export class RectTileRenderer extends PIXI.ObjectRenderer {
 	}
 }
 
-export namespace RectTileRenderer {
-	export const enum CONST {
-		VERT_PER_QUAD = 5,
-		STRIDE = VERT_PER_QUAD * 4,
-	}
-	export class Geometry extends PIXI.Geometry {
-		constructor(renderer: RectTileRenderer) {
-			super()
-			const buf = new PIXI.Buffer(new Float32Array(CONST.VERT_PER_QUAD), true, false)
-			this.addAttribute("aVertexPosition", buf, 0, false, 0, CONST.STRIDE, 0)
-				.addAttribute("aTextureCoord", buf, 0, false, 0, CONST.STRIDE, 2 * 4)
-				.addAttribute("aTextureId", buf, 0, false, 0, CONST.STRIDE, 4 * 4)
-				.addIndex(renderer.indexBuffer)
-		}
+export class RectTileGeometry extends Geometry {
+	constructor(renderer: RectTileRenderer) {
+		super()
+		const buf = new Buffer(new Float32Array(CONST.VERT_PER_QUAD), true, false)
+		this.addAttribute("aVertexPosition", buf, 0, false, 0, CONST.STRIDE, 0)
+			.addAttribute("aTextureCoord", buf, 0, false, 0, CONST.STRIDE, 2 * 4)
+			.addAttribute("aTextureId", buf, 0, false, 0, CONST.STRIDE, 4 * 4)
+			.addIndex(renderer.indexBuffer)
 	}
 }
 
-PIXI.Renderer.registerPlugin("rectTileRenderer", RectTileRenderer as any)
+export const enum CONST {
+	VERT_PER_QUAD = 5,
+	STRIDE = VERT_PER_QUAD * 4,
+}
+
+Renderer.registerPlugin("rectTileRenderer", RectTileRenderer as any)

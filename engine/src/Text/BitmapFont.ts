@@ -1,4 +1,6 @@
 import { TextureStorage, FRAME } from "../Resources"
+import { Texture } from "@pixi/core"
+import { Rectangle } from "@pixi/math"
 
 interface InternalCharData extends TextCharInfo {
 	kernings?: Map<number, number>
@@ -30,7 +32,7 @@ export interface FontData {
 export interface TextCharInfo {
 	advance: number
 	/** @internal */
-	texture: PIXI.Texture | null
+	texture: Texture | null
 }
 
 export class BitmapFont {
@@ -39,7 +41,7 @@ export class BitmapFont {
 	public readonly lineHeight: number
 
 	public static register(font: FontData, textureStorage: TextureStorage) {
-		BitmapFont.registeredFonts.set(name || font.name, new BitmapFont(font, textureStorage))
+		BitmapFont.registeredFonts.set(font.name, new BitmapFont(font, textureStorage))
 	}
 
 	public static alias(name: string, source: string) {
@@ -67,21 +69,21 @@ export class BitmapFont {
 		}
 		for (const char of font.data) {
 			const frame = char.frame
-			const character = frame[FRAME.w] ? new PIXI.Texture(
+			const character = frame[FRAME.w] ? new Texture(
 				texture.baseTexture,
-				new PIXI.Rectangle(
+				new Rectangle(
 					frame[FRAME.x] + texture.frame.x,
 					frame[FRAME.y] + texture.frame.y,
 					frame[FRAME.w],
 					frame[FRAME.h]
 				),
-				new PIXI.Rectangle(
+				new Rectangle(
 					0,
 					0,
 					frame[FRAME.w] + frame[FRAME.left],
 					frame[FRAME.h] + frame[FRAME.top]
 				),
-				new PIXI.Rectangle(
+				new Rectangle(
 					frame[FRAME.left],
 					frame[FRAME.top],
 					frame[FRAME.w],
@@ -117,7 +119,7 @@ export class BitmapFont {
 		// if no '?' char (ascii 63) defined set it to a white square
 		// '?' is used for undefined characters so it has to be defined
 		if (!this.data.has(63)) {
-			this.data.set(63, {texture: PIXI.Texture.WHITE, advance: 16})
+			this.data.set(63, {texture: Texture.WHITE, advance: 16})
 		}
 
 		// ignore new line character
