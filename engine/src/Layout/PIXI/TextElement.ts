@@ -1,9 +1,10 @@
 import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./BaseElement"
-import { BitmapText, TextOptions, RichText } from "../../Text/BitmapText"
+import { BitmapText, RichText } from "../../Text/BitmapText"
+import { BitmapTextOptions } from "../../Text/BitmapTextOptions"
 
 export interface TextElementConfig extends BaseConfig {
 	text?: string
-	style?: TextOptions
+	style?: BitmapTextOptions
 	rich?: boolean
 	formatter?: (...args: any) => string
 }
@@ -21,7 +22,7 @@ export class TextElement extends BaseElement {
 	private text: string | RichText
 	private _offsetNext: number
 	private _offsetCurrent: number
-	private options: TextOptions
+	private options: BitmapTextOptions
 	private textRect: [number, number] | null
 	private formatter?: (...args: any) => string
 
@@ -91,7 +92,7 @@ export class TextElement extends BaseElement {
 		this.setText(this.formatter(...args))
 	}
 
-	public setText(text: string, rich = false, options?: TextOptions) {
+	public setText(text: string, rich = false, options?: BitmapTextOptions) {
 		if (options) {
 			this.options = options
 		}

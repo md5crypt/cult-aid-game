@@ -22,6 +22,7 @@ export abstract class BaseElement extends LayoutElement<BaseElement> {
 	private hidden: boolean
 	private mask?: boolean
 
+	/** @internal */
 	protected constructor(handle: Container, name?: string, config?: BaseConfig) {
 		super(name)
 		this.handle = handle

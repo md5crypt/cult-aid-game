@@ -1,20 +1,10 @@
 import { BitmapFont, TextCharInfo } from "./BitmapFont"
+import { BitmapTextOptions } from "./BitmapTextOptions"
 import { Colors } from "../Colors"
 import { Container } from "@pixi/display"
 import { Sprite } from "@pixi/sprite"
 
-export interface TextOptions {
-	font?: string | BitmapFont
-	lineSpacing?: number
-	letterSpacing?: number
-	wordSpacing?: number
-	xAlign?: "left" | "right" | "center" | "justify"
-	yAlign?: "top" | "bottom" | "middle"
-	color?: number | string
-	size?: number
-}
-
-function resolveTextOptions(options: TextOptions) {
+function resolveTextOptions(options: BitmapTextOptions) {
 	return {
 		xAlign: "left",
 		yAlign: "top",
@@ -23,7 +13,7 @@ function resolveTextOptions(options: TextOptions) {
 		wordSpacing: 0,
 		size: 1,
 		...options,
-		font: typeof options.font == "string" ? BitmapFont.get(options.font) : (options.font || BitmapFont.get("default")),
+		font: BitmapFont.get(options.font || "default"),
 		color: Colors.resolve(options.color === undefined ? "default" : options.color)
 	} as const
 }
@@ -142,14 +132,14 @@ export class BitmapText extends Container {
 		return index
 	}
 
-	public measureText(text: string, textOptions: TextOptions) {
+	public measureText(text: string, textOptions: BitmapTextOptions) {
 		const options = resolveTextOptions(textOptions)
 		const data = options.font.resolve(text)
 		const width = data.reduce((a, b) => a + b.advance, 0) * options.size
 		return [width, width ? options.font.lineHeight : 0] as [number, number]
 	}
 
-	public drawText(text: string, textOptions: TextOptions) {
+	public drawText(text: string, textOptions: BitmapTextOptions) {
 		const options = resolveTextOptions(textOptions)
 		const data = options.font.resolve(text)
 		const width = data.reduce((a, b) => a + b.advance, 0) * options.size
@@ -185,7 +175,7 @@ export class BitmapText extends Container {
 		return width
 	}
 
-	public static createRichText(text: string, textOptions: TextOptions) {
+	public static createRichText(text: string, textOptions: BitmapTextOptions) {
 		return new RichText(text, textOptions)
 	}
 }
@@ -199,7 +189,7 @@ export class RichText {
 	public readonly xAlign: "left" | "right" | "center" | "justify"
 	public readonly yAlign: "top" | "bottom" | "middle"
 
-	constructor(text: string, textOptions: TextOptions) {
+	constructor(text: string, textOptions: BitmapTextOptions) {
 		const options = resolveTextOptions(textOptions)
 		const re = /(?:\[(\w+)(?:=([^\]]+))?\])|(?:\[\/(\w+)\])|([\s]+)|([^\s\[]+)/g
 		const color = [options.color]
