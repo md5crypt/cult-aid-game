@@ -22,19 +22,19 @@
  "tiles":[
         {
          "id":0,
-         "image":"..\/atlas\/tiles\/object-snowman-navmap.png",
+         "image":"..\/atlas\/tiles\/object-snowman-zone.png",
          "imageheight":55,
          "imagewidth":48
         }, 
         {
          "id":1,
-         "image":"..\/atlas\/tiles\/object-power-supply-navmap.png",
+         "image":"..\/atlas\/tiles\/object-power-supply-zone.png",
          "imageheight":24,
          "imagewidth":58
         }, 
         {
          "id":2,
-         "image":"..\/atlas\/tiles\/object-technician-navmap.png",
+         "image":"..\/atlas\/tiles\/object-technician-zone.png",
          "imageheight":71,
          "imagewidth":96
         }],

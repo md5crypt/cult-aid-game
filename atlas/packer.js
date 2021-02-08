@@ -42,7 +42,7 @@ module.exports = async (projectFile) => {
 	const outputPath = path.resolve(cwd, project.savePath)
 	const target = path.resolve(outputPath, project.packOptions.textureName + ".json")
 	const files = [].concat(...project.folders.map(folder => 
-		glob.sync(path.resolve(cwd, folder, "*.png")).filter(x => !/-navmap\.png$/.test(x))
+		glob.sync(path.resolve(cwd, folder, "*.png")).filter(x => !/-(navmap|zone)\.png$/.test(x))
 	))
 	if (!detectChanges(target, files)) {
 		return JSON.parse(fs.readFileSync(target)).data.frames

@@ -116,7 +116,7 @@ function convert(image) {
 async function build(files) {
 	const elements = []
 	for (const file of files) {
-		elements.push({...convert(await jimp.read(file)), name: path.basename(file, "-navmap.png")})
+		elements.push({...convert(await jimp.read(file)), name: path.basename(file.replace(/-(navmap|zone)\.png/, ""))})
 	}
 	const data = new Uint8Array(elements.reduce((a, b) => a + b.data.length, 0))
 	const objects = {}
@@ -148,7 +148,7 @@ function detectChanges(output, sources) {
 
 
 module.exports = async (target, input) => {
-	files = glob.sync(path.resolve(input, "*-navmap.png"))
+	files = glob.sync(path.resolve(input, "*-@(navmap|zone).png"))
 	if (!detectChanges(target + ".bin", files)) {
 		//return
 	}

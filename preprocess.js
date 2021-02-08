@@ -26,7 +26,7 @@ function parseProperties(properties, sprite, props) {
 		return sprite
 	}
 	for (const prop of properties) {
-		assert(prop.name in props, sprite.resource)
+		assert(prop.name in props, JSON.stringify(sprite))
 		if (props[prop.name] == "json") {
 			assert(prop.type == "string", sprite.resource)
 			sprite[prop.name] = JSON.parse(prop.value)
@@ -38,17 +38,21 @@ function parseProperties(properties, sprite, props) {
 	return sprite
 }
 
-function loadTileset(filePath, resolveSprite, tileMap) {
+function loadTileset(filePath, resolveSprite, tileMap, tileOffset) {
 	const tileset = JSON.parse(fs.readFileSync(filePath))
-	const tileOffset = tileMap.size == 0 ? 0 : Array.from(tileMap.keys()).reduce((a, b) => a > b ? a : b, 0) + 1
+	// const tileOffset = tileMap.size == 0 ? 0 : Array.from(tileMap.keys()).reduce((a, b) => a > b ? a : b, 0) + 1
 	for (const tile of tileset.tiles) {
 		const name = path.basename(tile.image, ".png")
-		if (name.endsWith("-navmap")) {
-			tileMap.set(tile.id + tileOffset, {resource: name.slice(0, -7), index: -1})
+		if (name.endsWith("-zone")) {
+			if (tileMap) {
+				tileMap.set(tile.id + tileOffset, {resource: name.slice(0, -5), index: -1})
+			}
 			continue
 		}
 		const sprite = resolveSprite(name)
-		tileMap.set(tile.id + tileOffset, sprite)
+		if (tileMap) {
+			tileMap.set(tile.id + tileOffset, sprite)
+		}
 		if (tile.objectgroup && tile.objectgroup.objects) {
 			let data = tile.objectgroup.objects
 			for (parser of objectParsers) {
@@ -62,6 +66,7 @@ function loadTileset(filePath, resolveSprite, tileMap) {
 				delay: "int",
 				plugs: "string",
 				autoReveal: "bool",
+				revealed: "bool",
 				composite: "json",
 				onCreate: "string",
 				animation: "json",
@@ -95,8 +100,11 @@ function buildMap(resources, mapFile, tilesetFiles) {
 		return sprite
 	}
 	Object.keys(resources).forEach(resolveSprite)
+	for (const tileset of map.tilesets) {
+		loadTileset(path.resolve(path.dirname(mapFile), tileset.source), resolveSprite, tileMap, tileset.firstgid - 1)
+	}
 	for (let i = 0; i < tilesetFiles.length; i += 1) {
-		loadTileset(tilesetFiles[i], resolveSprite, tileMap)
+		loadTileset(tilesetFiles[i], resolveSprite)
 	}
 	const gidMapper = id => tileMap.get(id - 1)
 	const baseSize = map.tileheight
@@ -109,7 +117,7 @@ function buildMap(resources, mapFile, tilesetFiles) {
 						type: "point",
 						position: [object.x, object.y],
 						name: object.name
-					}, {zIndex: "int"}))
+					}, {zOffset: "int"}))
 				} else {
 					const cell = [
 						Math.floor(object.x / baseSize),
@@ -152,7 +160,7 @@ function buildMap(resources, mapFile, tilesetFiles) {
 						{
 							name: "string",
 							animation: "json",
-							zIndex: "int",
+							zOffset: "int",
 							onCreate: "string",
 							onUpdate: "string",
 							onEnterView: "string",
@@ -199,9 +207,6 @@ async function run() {
 	}
 	await navmap("build/navmap", "atlas/tiles")
 	const data = buildMap(atlas.tiles, "map/map.json", [
-		"tileset/tileset.json",
-		"tileset/tileset-objects.json",
-		"tileset/tileset-zones.json",
 		"tileset/tileset-other.json"
 	])
 	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))

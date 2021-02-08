@@ -377,6 +377,9 @@ export namespace GameMap {
 		public applyMapData(sprite: GameData.SpriteData) {
 			this.background = Sprite.Background.create(sprite)
 			this.navMap = sprite.resource ? gameContext.navMap.get(sprite.resource) : undefined
+			if (sprite.revealed) {
+				this.visibility = CellVisibility.FULL
+			}
 			if (this.background.onCreate) {
 				void this.background.onCreate(this)
 			}

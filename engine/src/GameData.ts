@@ -16,6 +16,7 @@ export namespace GameData {
 		readonly delay?: number
 		readonly plugs?: readonly string[]
 		readonly autoReveal?: boolean
+		readonly revealed?: boolean
 		readonly group?: string
 		readonly animation?: Animation.Definition
 		readonly zOffset?: number

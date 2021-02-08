@@ -16,7 +16,7 @@
  "margin":0,
  "name":"objects",
  "spacing":0,
- "tilecount":16,
+ "tilecount":27,
  "tiledversion":"1.4.3",
  "tileheight":240,
  "tiles":[
@@ -156,6 +156,83 @@
          "image":"object-space-heater-glow.png",
          "imageheight":66,
          "imagewidth":68
+        }, 
+        {
+         "id":38,
+         "image":"object-newspapers.png",
+         "imageheight":22,
+         "imagewidth":14
+        }, 
+        {
+         "id":39,
+         "image":"object-armor-1.png",
+         "imageheight":51,
+         "imagewidth":46
+        }, 
+        {
+         "id":40,
+         "image":"object-armor-2.png",
+         "imageheight":68,
+         "imagewidth":50
+        }, 
+        {
+         "id":41,
+         "image":"object-book-1.png",
+         "imageheight":24,
+         "imagewidth":23
+        }, 
+        {
+         "id":42,
+         "image":"object-book-2.png",
+         "imageheight":23,
+         "imagewidth":20
+        }, 
+        {
+         "id":43,
+         "image":"object-book-3.png",
+         "imageheight":20,
+         "imagewidth":22
+        }, 
+        {
+         "id":44,
+         "image":"object-book-4.png",
+         "imageheight":17,
+         "imagewidth":18
+        }, 
+        {
+         "id":45,
+         "image":"object-xero.png",
+         "imageheight":23,
+         "imagewidth":27
+        }, 
+        {
+         "id":46,
+         "image":"object-plant.png",
+         "imageheight":46,
+         "imagewidth":41
+        }, 
+        {
+         "id":47,
+         "image":"object-bookshelve.png",
+         "imageheight":58,
+         "imagewidth":141
+        }, 
+        {
+         "id":48,
+         "image":"object-librarian.png",
+         "imageheight":137,
+         "imagewidth":173,
+         "properties":[
+                {
+                 "name":"animation",
+                 "type":"string",
+                 "value":"[\n    [\"delay\", 2000],\n    [\"sequence\", 1, 5, 111],\n    [\"frame\", 6, 555],\n    [\"sequence\", 5, 0, 111],\n    [\"loop\"]\n]"
+                }, 
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
         }],
  "tilewidth":240,
  "type":"tileset",

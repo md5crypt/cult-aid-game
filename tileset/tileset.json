@@ -21,7 +21,7 @@
          "name":"room",
          "tile":26
         }],
- "tilecount":36,
+ "tilecount":28,
  "tiledversion":"1.4.3",
  "tileheight":120,
  "tiles":[
@@ -408,121 +408,15 @@
                 }]
         }, 
         {
-         "id":40,
-         "image":"room-server-1.png",
+         "id":49,
+         "image":"black.png",
          "imageheight":120,
          "imagewidth":120,
          "properties":[
                 {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":41,
-         "image":"room-server-2.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"gateway",
-                 "type":"string",
-                 "value":"left"
-                }, 
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }, 
-                {
-                 "name":"plugs",
-                 "type":"string",
-                 "value":"maze"
-                }]
-        }, 
-        {
-         "id":42,
-         "image":"room-server-3.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":43,
-         "image":"room-server-4.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":44,
-         "image":"room-server-5.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":45,
-         "image":"room-server-6.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":46,
-         "image":"room-server-7.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":47,
-         "image":"room-server-8.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
-                }]
-        }, 
-        {
-         "id":48,
-         "image":"room-server-9.png",
-         "imageheight":120,
-         "imagewidth":120,
-         "properties":[
-                {
-                 "name":"group",
-                 "type":"string",
-                 "value":"room-server"
+                 "name":"revealed",
+                 "type":"bool",
+                 "value":true
                 }]
         }],
  "tilewidth":120,
