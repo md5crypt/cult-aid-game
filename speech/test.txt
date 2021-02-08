@@ -29,6 +29,12 @@
 @option technician: Goto technician dialog
 	%push technician-main
 
+@option librarian1: Goto librarian dialog
+	%push librarian-main
+
+@option librarian2: Goto unconscious librarian dialog
+	%push librarian-body
+
 @option item: Give item
 	%push test-give-item
 

@@ -106,7 +106,7 @@ const functionTypes = {
 	"restart": ["dialog"],
 	"pop": ["undefined", "number"],
 	"exit": ["undefined"],
-	"seen": ["undefined"],
+	"seen": ["undefined", "fragment"],
 	"show": ["undefined", "fragment"],
 	"hide": ["undefined", "fragment"],
 	"invoke": ["undefined", "string"],

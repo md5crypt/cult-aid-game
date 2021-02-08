@@ -1,0 +1,539 @@
+
+
+
+@fragment librarian-enter-library
+
+librarian: A Khajiit? Your kind has such a distinct heartbeat.
+
+// khajiit should move a few steps back
+%invoke
+
+librarian: No, no, please don't go away, I don't bite.
+
+@fragment librarian-intro
+
+khajiit: So judging by the books, this place is a library?
+
+librarian: Of sorts.
+
+khajiit: I can't say I've been to many libraries in my life but this one seems... a bit excessive as for a cultist cave.
+
+librarian: Oh, this library has nothing to do with the cult.
+
+khajiit: Then why would it be in a cultist cave?
+
+librarian: It's not a "cultist cave". It might be currently used by the cult but it's my property.
+
+khajiit: I'm sorry, your property?
+
+librarian: Yes, I am the rightful owner of this cave complex.
+
+khajiit: You... how... why...
+khajiit: I am so fed up with this cave. Who are you?
+khajiit: What even is this place, because I'm quite sure it's not a library!
+
+// sad face
+librarian: ...
+
+khajiit: Sorry for that, I shouldn't have raised my voice...
+
+librarian: But you are right, it's not a library. I just like to call it that because I always wanted to be a librarian.
+
+khajiit: Then what is it?
+
+librarian: My private book collection?
+
+khajiit: That makes even less sense!
+
+librarian: I'm sorry but that's what it is.
+
+%seen
+
+@fragment librarian-newspaper-read-end
+
+librarian: If you're done with those newspapers then leave them on the table. I'll put them back later on.
+
+@fragment librarian-newspaper-maid
+
+khajiit: Wait... the argonian on that picture... it's unmistakably the maid!
+
+// hide newspaper UI
+%invoke
+
+khajiit: I can't borrow this newspaper for a while, can't I?
+
+librarian: No, but if it's only a few pages I can make you a copy.
+
+%show librarian-main.option.copy
+
+@fragment librarian-body-intro
+
+khajiit: I guess now that she's out cold she won't mind me taking a quick look at her belongings.
+khajiit: There is absolutely nothing wrong with that.
+khajiit: ...right?
+
+%seen
+
+@dialog librarian-body
+
+@prompt
+khajiit: Let's take a look.
+
+@option hidden take-map: (Take map)
+
+khajiit: Sorry ma'am, but I will be taking that map.
+
+%hide
+
+@option search: (Search body)
+
+khajiit: Glasses, books, pen, pencil, random notes, a bucket full of unknown keys, and what's this? A map?
+khajiit: With "Stop forgetting the way to your own forbidden section, silly you!" written on the side.
+khajiit: Interesting...
+
+%hide walk-away-good
+%show walk-away-evil
+%show take-map
+%show search-empty
+%seen search-empty
+%hide
+
+@option hidden search-empty: (Search body)
+
+khajiit: Nope, nothing more to see here.
+
+@option walk-away-good: (Walk away)
+
+khajiit: One small step for a Khajiit.
+khajiit: One giant leap over countless decades of natural selection.
+
+%exit
+
+@option hidden walk-away-evil: (Walk away)
+
+khajiit: Well, that felt terrible.
+khajiit: It turns out that drugging someone and then going through their stuff is not the most diginifing thing to do.
+
+%exit
+
+
+@dialog librarian-sweetroll
+
+@prompt
+    librarian: I'll taste it right away!
+
+@option do-nothing: (Do nothing)
+librarian: He did a stellar job! It never tasted... so... good...
+librarian: Is... is... it just me... or did everything... turn... red?
+librarian: Blood red.
+
+khajiit: I have a feeling I might have just made a huge mistake.
+
+// librarian falls unconscious
+%invoke
+
+khajiit: Or not.
+khajiit: But it hurts to trick her like that.
+
+%exit
+
+@option stop-her: (Stop her)
+
+khajiit: Wait! I'm certain this one has moonsugar in it, I can smell it.
+
+librarian: Are you sure? Why would the chef do such a thing?
+
+khajiit: He um... gave me two, one was for me. I must've mixed them up..
+
+librarian: Oh, I see. Well, thank you for warning me then.
+
+%pop
+
+@dialog librarian-newspaper-select
+
+@prompt
+
+khajiit: Which ones should I look at?
+
+@option chef: "Daedra breeder" issues
+
+@option librarian: "Vampire" issues
+
+@option maid: "She-Who-Erases" issues
+
+@option mage: Cannibal necromancer" issues
+
+@option exit: (Exit)
+    %exit
+
+
+@dialog librarian-fetch
+
+@prompt
+
+librarian: Which issues should I find for you?
+
+@option chef: Form the "Daedra breeder" note
+    
+khajiit: "Daedra breeder" sounds um... interesting.
+
+librarian: Indeed it does! It raises so many questions!
+
+khajiit: Yes, questions I don't really want to know the answer for.
+khajiit: But I'll ask for those issues anyway.
+
+librarian: No problem, wait here for a minute or two, I'll go find them.
+
+// simple black screen?
+%invoke
+
+librarian: Found them!
+
+%hide
+%exit
+
+@option librarian: From the "Vampire" note
+
+khajiit: How about the ones from the note that has "vampire" written all over it.
+
+librarian: Of course. Wait here, I'll be back in a moment.
+
+// simple black screen?
+%invoke
+
+librarian: Sorry for the wait, that took a bit longer than I expected. I could not find one of the issues from that note. I suspect the number is probably incorrect.
+librarian: Anyway here are the other ones.
+
+%hide
+%exit
+
+@option maid: From the "She-Who-Erases" note
+
+khajiit: She-Who-Erases rings any bells?
+
+librarian: Of course! Also known as The Lord of Plots, Deceiver of Nations, The Queen of Shadows, Goddess of Destruction...
+
+khajiit: Shit, you're right.
+
+librarian: You still want me to go look for those issues?
+
+khajiit: Sure, what's the worst that can happen?
+khajiit: And to be clear, that was a rhetorical question.
+
+librarian: I see. Then I'll be right back in a moment.
+
+// simple black screen?
+%invoke
+
+librarian: Here you go, all accounted for as requested.
+
+%hide
+%exit
+
+@option mage: From the "Cannibal necromancer" note
+
+khajiit: You know, one starts to question his life choices when he asks for materials about cannibal necromancers.
+
+librarian: You think they raise what they have eaten or rather eat what they have risen?
+
+khajiit: Just... just find those newspapers please...
+
+librarian: Sure thing! Wait here, I'll be back in a moment.
+
+// simple black screen?
+%invoke
+
+librarian: Got them all. Have fun reading.
+
+%hide
+%exit
+
+@option back: (Go back)
+
+khajiit: Thanks, but for the moment I don't need to see anyone of them.
+
+librarian: I see. Ask anytime you change your mind.
+
+%pop
+
+
+@dialog librarian-main
+
+@prompt
+
+librarian: Anything you would want to ask?
+
+@option sweetroll: (Give sweetroll)
+
+khajiit: I've been in the canteen and the chef told me to give you this sweetroll.
+
+librarian: Oh how nice of both of you! He always makes me a moonsugar free batch. I'm a bit over-sensitive to it.
+
+%seen
+%push librarian-sweetroll
+
+@option scribbles: (Give Investigator's scribbles)
+
+khajiit: Do these scribbles mean anything to you?
+
+librarian: Sure, they are standard newspaper catalog numbers.
+
+khajiit: You have a newspaper archive here alongside all these books?
+
+librarian: It's a little side hobby...
+librarian: Completely harmless and helps me stay in touch with the outside world.
+
+khajiit: Could you find me the issues listed in these notes?
+
+librarian: Sure! Would be glad to!
+
+%seen
+%push librarian-fetch
+
+@option hidden copy: (Take newspaper copy)
+    
+khajiit: Can you make me that copy? I only need one page.
+
+librarian: Sure, just show me which one.
+
+// black screen + copy machine sfx
+%invoke
+
+librarian: Here you go.
+
+khajiit: Thanks.
+
+%hide
+
+@option newspapers: Could you find me more newspapers?
+
+khajiit: Could you find me more newspaper issues from those notes I have you?
+
+librarian: Sure! Would be glad to!
+
+%push librarian-fetch
+
+@option cultists: Why are there cultists here?
+
+khajiit: If this place is your private property and you are not a cultist then why are there cultist's running everywhere?
+
+librarian: Oh, I rent them the space.
+
+khajiit: I see. Let me rephrase that. Why are you renting your cave to a cult?
+
+librarian: Well... no one else wanted to live in this place... and I was kind of broke...
+librarian: Also alone and lonely. It got much more lively down here since they moved in.
+librarian: And the canteen they build has such good food!
+librarian: Although I always have to ask the chef to make me a separate portion.
+librarian: I have a terrible tolerance for moonsugar and he just loves to add a small amount to everything.
+librarian: I talk too much, don't I?
+
+khajiit: Somehow the more answers I get the less everything makes sense.
+
+%seen
+
+@option live-here: You live here? 
+
+khajiit: So you just live here? Among books and cultists?
+
+librarian: Yes! This place is my home!
+librarian: You think I'm some kind of freak, don't you?
+
+khajiit: Is there any particular reason for you living in an underground cave?
+
+librarian: I have nowhere else to go. It's the last family asset I have left. I sold everything else.
+librarian: Also I like it here, it makes me feel... safe. Keeps the book away from fire and sunlight.
+
+khajiit: Family asset?
+
+librarian: Well... you see... I'm the last living heir of a noble line.
+librarian: Technically a countess.
+librarian: There was this large fire and I was the only survivor...
+
+khajiit: Sorry to hear that. We can talk about something else if you want.
+
+librarian: No, no, it's fine. It was a very long time ago.
+
+khajiit: How old were you when it happened?
+khajiit: I'm not exactly of noble blood but I know this and that about growing up without parents.
+
+librarian: Old enough to gain control of my family's fortune.
+
+khajiit: And you sold it all away? Why? To cut ties with your past and begin a new life?
+
+librarian: That does sound poetic, doesn't it?
+librarian: But it's not the truth. The truth is I just wanted more books. And books cost money.
+librarian: So I gradually kept selling everything under my control until all that was left was this cave.
+librarian: You think I'm insane, don't you?
+
+khajiit: No, it's just you err...
+khajiit: Fine. Yes, yes I do. But not less than anyone else I meet in this place.
+
+%seen
+
+@option vampire: Are you a vampire?
+
+khajiit: Um... how to put this...
+khajiit: Are you a vampire?
+
+librarian: Why would you say such a thing!?
+
+khajiit: Let's see, you live away from sunlight in a cultist infested cave, you seem to be significantly too young for your origin story to hold up, and you seem to be suspiciously interested in my heartbeat. Also, fire.
+
+// very sad face
+librarian: ...
+
+khajiit: Oh that's just not fair...
+
+%seen
+
+@option archaeologist: The archaeologist doesn't seem to like you.
+
+khajiit: I heard you had a little discussion with a certain Altmer archaeologist.
+
+librarian: He dismissed my thoughts on Dwemer as being "uneducated hobbyist's gibberish" and called my library a "dirty pile of rubbish".
+librarian: I may not look like it but I don't stay idle when someone openly offends me in such a manner.
+
+khajiit: Oh? What exactly did you do to him?
+
+librarian: Nothing!
+librarian: He ran away after I stood up from my chair...
+
+khajiit: That must have been a beautiful sight... I wish I was there to witness it.
+
+%show dwemer
+%seen
+
+@option hidden dwemer: You know a lot about the Dwemer?
+
+khajiit: So I gather you know a lot about the Dwemer?
+
+librarian: As that archaeologist noted, I can't be called an expert, but he dwemer always fascinated me.
+
+khajiit: So, why did they disappear?
+
+librarian: I'm afraid the sources I had access to don't give a coherent answer to that question.
+
+khajiit: And what about you? Any personal theories?
+
+librarian: You... you really want to hear my opinion?
+librarian: Well, then I agree with the claims that during the battle under the Red Mountain a dragon break occurred.
+librarian: And the countless hours I spend reading contradictory sources led me to believe that the resulting time distortion caused the answer to be forever erased from history itself.
+
+khajiit: So the answer is that there is no answer?
+
+librarian: Yes, yes precisely that!
+librarian: Do you want to hear my reasoning? I could go fetch some materials!
+
+khajiit: I'm sorry, but I fear I know too little about the subject to be a partner for that discussion.
+
+// sad face!
+librarian: I see...
+
+khajiit: But I am grateful for the proposition.
+
+%seen
+
+@option hidden take-inscription: (Take Dwemer inscription)
+
+khajiit: So about that inscription...
+khajiit: Let's go with "Khajiit was given shines to paint a fake dwemer mural"
+
+// writing sfx + optional animation
+%invoke
+
+librarian: Here, make him suffer.
+librarian: ...but maybe not too much.
+%hide
+
+@option inscription: Could you help me with a Dwemer inscription?
+
+khajiit: How well do you know dwemer writing?
+
+librarian: In fact quite well! I can read and write multiple dialects.
+
+khajiit: That's perfect! Listen, I have this little plan to get that annoying altmer off his high horse. Could you write me down a small inscription? It would need to be something he will have a hard time deciphering.
+
+librarian: Oh that last part won't be hard, it could probably even be plain dwemer.
+librarian: But I don't know... it seems wrong...
+
+khajiit: Should I remind you about the "dirty pile of rubbish"?
+
+librarian: What do you want that inscription to say?
+
+khajiit: Give me a moment, I need to think about it.
+
+%seen
+%show take-inscription
+
+@option hidden key: (Take key)
+
+    khajiit: Can you borrow me that key you mentioned?
+
+    librarian: Sure, here you go.
+
+    %hide
+    %show key-info 
+    %hide help
+
+@option hidden key-info: What was that key for?
+
+khajiit: Could you remind me what was the key you gave me for?
+
+librarian: But we just talked about it... and it's not Monday! At least I think it's not Monday.
+librarian: It's not Monday, right?
+
+khajiit: I know, I know. Please ignore my wavering attention span.
+
+librarian: Well, it's to an unused section of the cave system that should have an unmaintained back exit. The entrance is not far from here, shouldn't be that hard to find.
+
+%seen
+
+@option help: Can you help me escape?
+
+khajiit: Could you somehow help me get out of this cave?
+
+librarian: I can show you the way to the main exit?
+
+khajiit: Um... yes, but I'm trying to leave unnoticed. For an err... prank.
+
+librarian: Oh! That's why you are wearing a daedra costume!
+librarian: I was afraid to ask about it...
+
+khajiit: Yes, exactly! So any ideas?
+
+librarian: I guess you could try the unused sections of the cave system. There should be a back exit somewhere in there.
+librarian: But no one's been there since forever.
+
+khajiit: Sound's perfect, how do I get in there?
+
+librarian: There is an entrance not far from here. It's sealed shut but I can give you a key.
+
+%show key
+%hide
+
+@option borrow-book: Can I borrow a book?
+
+khajiit: So if this is a library can I borrow a book?
+
+librarian: You sure can!
+librarian: There are but two rules: you can not take books outside the library and books from the forbidden section are well... forbidden.
+
+khajiit: And what's in the forbidden section?
+
+librarian: Books so dangerous they have to be kept hidden from the common eye!
+librarian: Well... mainly one book. Someone kindly asked me to keep an eye on it.
+librarian: Anyway, you have something in particular on your mind?
+
+khajiit: No, not for the moment.
+
+%seen
+
+@option exit: (Exit)
+
+khajiit: It's been nice talking to you, but I have to go.
+
+librarian: Visit me anytime!
+
+%exit
+

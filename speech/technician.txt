@@ -1,6 +1,3 @@
-
-
-
 @fragment technician-touch-server
 
 technician: Hey! Keep your dirty paws off that!
@@ -21,6 +18,7 @@ technician: As long as they keep paying me per hour.
 
 khajiit: I see.
 
+%seen
 
 @dialog technician-main
 
@@ -69,7 +67,7 @@ technician: On whose request?
 
 khajiit: Er... mine?
 
-technician: Then I'll make you a favor and pretend I didn't hear that.
+technician: Then I'll do you a favor and pretend I didn't hear that.
 
 %seen
 

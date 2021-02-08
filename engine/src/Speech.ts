@@ -81,7 +81,7 @@ export class Speech {
 			if ("function" in item) {
 				switch (item.function) {
 					case "seen":
-						gameContext.storage.dialog.seen[id] = true
+						gameContext.storage.dialog.seen[item.argument || id] = true
 						break
 					case "hide":
 						gameContext.storage.dialog.hidden[item.argument || id] = true

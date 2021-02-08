@@ -1,22 +1,23 @@
-interface Storage {
-	dialog: {
-		hidden: Record<FragmentId, boolean | undefined>
-		seen: Record<FragmentId, boolean | undefined>
-	}
+const storageInitializer = {
 	items: {
-		book?: boolean
-		sweetroll?: boolean
-	}
+		book: false,
+		sweetroll: false,
+		scribbles: false,
+		newspaper: false,
+		key: false,
+		inscription: false,
+		map: false
+	},
+	librarian: {
+		libraryEntered: false
+	},
 	technician: {
-		introSeen?: boolean
+	},
+	dialog: {
+		hidden: {} as Record<FragmentId, boolean | undefined>,
+		seen: {} as Record<FragmentId, boolean | undefined>
 	}
 }
 
-Object.assign(storage, {
-	dialog: {
-		hidden: {},
-		seen: {}
-	},
-	items: {},
-	technician: {}
-})
+type Storage = typeof storageInitializer
+Object.assign(storage, storageInitializer)

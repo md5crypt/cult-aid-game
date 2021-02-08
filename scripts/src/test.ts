@@ -14,6 +14,14 @@ namespace utils {
 		player.unlockInput()
 		camera.enabled = true
 	}
+
+	export async function blackScreen(delay: number) {
+		context.camera.enabled = false
+		context.ui.root.enabled = false
+		await context.timer.wait(delay)
+		context.camera.enabled = true
+		context.ui.root.enabled = true
+	}
 }
 
 scripts.register("dialogSelect", DialogId["test-give-item"], id => {
@@ -36,16 +44,6 @@ scripts.register("dialogSelect", DialogId["card-game-test"], id => {
 				void context.speech.executeDialog(DialogId["card-game-test"], true)
 				context.speech.dialog.unshift(DialogId["test-main"])
 			})
-	}
-})
-
-
-scripts.register("dialogStart", DialogId["technician-main"], async () => {
-	storage.dialog.hidden["technician-main.option.book"] = !(storage.items.book && storage.dialog.seen["technician-main.option.reading"])
-	storage.dialog.hidden["technician-main.option.sweetroll"] = !storage.items.sweetroll
-	if (!storage.technician.introSeen) {
-		storage.technician.introSeen = true
-		await context.speech.executeFragment(FragmentId["technician-intro"])
 	}
 })
 
@@ -124,14 +122,6 @@ scripts.register("cellEnter", "spiderTrap", async (cell) => {
 
 scripts.register("cellEnter", "autoReveal", (cell) => {
 	cell.group.forEach(x => x.visible = true)
-})
-
-scripts.register("zoneUse", "technician", zone => {
-	void context.speech.executeDialog(DialogId["technician-main"])
-})
-
-scripts.register("zoneUse", "power-supply", zone => {
-	void context.speech.executeFragment(FragmentId["technician-touch-server"])
 })
 
 scripts.register("cellEnter", "roomEnter", (cell, direction) => {

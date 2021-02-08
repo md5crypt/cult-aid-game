@@ -10,6 +10,8 @@
 		"outFile": "./build/bundle.js",           /* Concatenate and emit output to single file. */
 		"moduleResolution": "node",               /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
 		"noImplicitUseStrict": true,
-		"alwaysStrict": false
+		"alwaysStrict": false,
+		"lib": ["ESNext"],
+		"types": []
 	}
 }
