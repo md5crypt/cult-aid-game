@@ -36,10 +36,10 @@ export class RectTileLayer extends Container {
 			buffer.set(this.buffer)
 			this.buffer = buffer
 		}
-		const u0 = flip ? u + w - (1/1024) : u + (1/1024)
-		const u1 = flip ? u + (1/1024) : u + w - (1/1024)
-		const v0 = v + (1/1024)
-		const v1 = v + h - (1/1024)
+		const u0 = flip ? u + w - (1/128) : u + (1/128)
+		const u1 = flip ? u + (1/128) : u + w - (1/128)
+		const v0 = v + (1/128)
+		const v1 = v + h - (1/128)
 		const x1 = x0 + (w * scale)
 		const y1 = y0 + (h * scale)
 		buffer[offset + 0] = x0

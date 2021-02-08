@@ -147,19 +147,19 @@ window.addEventListener("load", async () => {
 		const pivot = gameContext.camera.position
 		const screenWidth = app.renderer.width
 		const screenHeight = app.renderer.height
-		const left = modulo(pivot[0] - ((screenWidth >> 1) * (1 / zoom)), gameContext.map.pixelWidth)
-		const top = modulo(pivot[1] - ((screenHeight >> 1) * (1 / zoom)), gameContext.map.pixelHeight)
+		const left = modulo(pivot[0] - ((screenWidth >> 1) * (1 / zoom)) - CONST.GRID_BASE, gameContext.map.pixelWidth)
+		const top = modulo(pivot[1] - ((screenHeight >> 1) * (1 / zoom)) - CONST.GRID_BASE, gameContext.map.pixelHeight)
 		const bounds = [
 			Math.floor(top / CONST.GRID_BASE),
 			Math.floor(left / CONST.GRID_BASE),
-			Math.floor((top + ((screenHeight * (1 / zoom)) - 1)) / CONST.GRID_BASE + 1),
-			Math.floor((left + ((screenWidth * (1 / zoom)) - 1)) / CONST.GRID_BASE + 1)
+			Math.floor((top + ((screenHeight * (1 / zoom)) - 1)) / CONST.GRID_BASE + 2),
+			Math.floor((left + ((screenWidth * (1 / zoom)) - 1)) / CONST.GRID_BASE + 2)
 		] as const
 		gameContext.timer.update(delta)
 		gameContext.map.update(delta, ...bounds)
 		gameContext.map.render(...bounds)
 		gameContext.stage.tile.scale.set(zoom)
-		gameContext.stage.tile.pivot.set(left, top)
+		gameContext.stage.tile.pivot.set(left + CONST.GRID_BASE, top + CONST.GRID_BASE)
 		Animator.update()
 		gameContext.ui.root.update()
 		stats.end()
