@@ -33,7 +33,7 @@ export class SpriteElement extends BaseElement {
 	private scaling: ScalingType
 
 	private static createSprite(config?: SpriteElementConfig) {
-		let texture = Texture.WHITE
+		let texture = Texture.WHITE as Texture<any>
 		if (typeof config?.image == "string") {
 			texture = (typeof config.image == "string") ? gameContext.textures.ui.getTexture(config.image) : config.image
 			if (config.crop) {
