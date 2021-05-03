@@ -2,19 +2,16 @@ import { GameMap } from "./GameMap"
 import { Direction } from "./Path"
 import { Sprite } from "./Sprite"
 import { gameContext } from "./GameContext"
+import { Listener } from "./Listener"
 
 interface Mapping {
-	"cellEnter": ScriptStorage.cellDynamicCallback
-	"cellExit": ScriptStorage.cellDynamicCallback
-	"cellUse": ScriptStorage.cellStaticCallback
-	"cellCreate": ScriptStorage.cellStaticCallback
+	"mapLoad": ScriptStorage.mapCallback
 	"zoneEnter": ScriptStorage.zoneCallback
 	"zoneExit": ScriptStorage.zoneCallback
 	"zoneUse": ScriptStorage.zoneCallback
 	"itemUpdate": ScriptStorage.itemCallback
 	"itemEnterView": ScriptStorage.itemCallback
 	"itemExitView": ScriptStorage.itemCallback
-	"itemCreate": ScriptStorage.itemCallback
 	"fragmentBefore": ScriptStorage.fragmentCallback
 	"fragmentAfter": ScriptStorage.fragmentCallback
 	"fragmentInvoke": ScriptStorage.fragmentInvokeCallback
@@ -27,6 +24,23 @@ export class ScriptStorage {
 
 	public register<T extends keyof Mapping>(event: T, name: string, callback: Mapping[T]) {
 		this.map.set(name + "." + event, callback)
+	}
+
+	public resolveAll<T extends keyof Mapping>(event: T, listener: Listener<any>, name?: string, classList?: string[]) {
+		if (name) {
+			const callback = this.resolve(event, name)
+			if (callback) {
+				listener.add(callback)
+			}
+		}
+		if (classList) {
+			for (const className of classList) {
+				const callback = this.resolve(event, className)
+				if (callback) {
+					listener.add(callback)
+				}
+			}
+		}
 	}
 
 	public resolve<T extends keyof Mapping>(event: T, name: string) {
@@ -48,7 +62,8 @@ export class ScriptStorage {
 }
 
 export namespace ScriptStorage {
-	export type zoneCallback = (zone: GameMap.ZoneNavMap) => void | Promise<void>
+	export type mapCallback = (map: GameMap) => void | Promise<void>
+	export type zoneCallback = (zone: GameMap.Zone) => void | Promise<void>
 	export type cellDynamicCallback = (cell: GameMap.Cell, direction: Direction) => void | Promise<void>
 	export type cellStaticCallback = (cell: GameMap.Cell) => void | Promise<void>
 	export type itemCallback = (item: Sprite.Item) => void | Promise<void>

@@ -4,40 +4,80 @@ import { CONST } from "./Constants"
 import { Direction } from "./Path"
 import { gameContext } from "./GameContext"
 import { ScriptTimer } from "./ScriptTimer"
-import { ScriptStorage } from "./ScriptStorage"
 import { NavMapRect } from "./NavMap"
 import { Listener } from "./Listener"
 import { modulo } from "./utils"
-
-interface GameMapPosition {
-	readonly offset: readonly [number, number]
-	readonly zOffset: number
-	readonly cell: GameMap.Cell
-}
 
 export class GameMap {
 	private _cells: GameMap.Cell[] = []
 	private width: number = 0
 	private height: number = 0
 	private inViewList: Sprite.Item[]
-	private activeZoneList: GameMap.ZoneNavMap[]
-	private namedPositions: Map<string, GameMapPosition>
-	private namedItems: Map<string, Sprite.Item>
-	private namedZones: Map<string, GameMap.ZoneNavMap>
+	private activeZoneList: GameMap.Zone[]
+	private namedObjects: Map<string, GameData.PathData | GameData.PositionData | Sprite.Item | GameMap.Zone>
+	private currentMap?: string
 
 	/** @internal */
 	public readonly alwaysActiveList: Set<Sprite.Item>
 	/** @internal */
 	public frame: number
 
-	constructor() {
+	private readonly maps: Map<string, GameData.MapData>
+	private readonly mapStates: Map<string, number[]>
+
+	public constructor(data: GameData) {
 		this.inViewList = []
 		this.activeZoneList = []
 		this.frame = 1
 		this.alwaysActiveList = new Set()
-		this.namedPositions = new Map()
-		this.namedItems = new Map()
-		this.namedZones = new Map()
+		this.namedObjects = new Map()
+		this.maps = new Map()
+		this.mapStates = new Map()
+		for (const map of data.maps) {
+			this.maps.set(map.name, map)
+		}
+	}
+
+	private saveState() {
+		this.mapStates.set(this.currentMap!, this._cells.map(x => x.visibility))
+	}
+
+	private restoreState() {
+		const state = this.mapStates.get(this.currentMap!)
+		if (state) {
+			for (let i = 0; i < state.length; i++) {
+				this._cells[i].visibility = state[i]
+			}
+		}
+	}
+
+	private reset() {
+		this.inViewList = []
+		this.activeZoneList = []
+		this.frame = 1
+		this.alwaysActiveList.clear()
+		this.namedObjects.clear()
+		this._cells = []
+	}
+
+	private setObject(name: string, object: Sprite.Item | GameMap.Zone | GameData.PositionData | GameData.PathData) {
+		if (this.namedObjects.has(name)) {
+			throw new Error(`const not add ${name} of type ${typeof object}, object already exists with type ${typeof this.namedObjects.get(name)}`)
+		}
+		this.namedObjects.set(name, object)
+	}
+
+	public getObject<T extends "item" | "zone" | "point" | "path">(name: string) {
+		const object = this.namedObjects.get(name)
+		if (!object) {
+			throw new Error(`object ${name} not found`)
+		}
+		return object as ({
+			"item": Sprite.Item
+			"zone": GameMap.Zone
+			"point": GameData.PositionData
+			"path": GameData.PathData
+		}[T])
 	}
 
 	public get cells() {
@@ -60,7 +100,16 @@ export class GameMap {
 		return this.height * CONST.GRID_BASE
 	}
 
-	public loadMap(map: GameData.MapData) {
+	public async loadMap(name: string) {
+		if (this.currentMap) {
+			this.saveState()
+		}
+		const map = this.maps.get(name)
+		if (!map) {
+			throw new Error(`map ${name} not found`)
+		}
+		this.reset()
+		this.currentMap = name
 		const cells: GameMap.Cell[] = new Array(map.width * map.height)
 			.fill(null)
 			.map((_, i) => new GameMap.Cell(i % map.width, Math.floor(i / map.width)))
@@ -74,60 +123,27 @@ export class GameMap {
 		this.width = map.width
 		this.height = map.height
 
-		const defer: {
-			cell: GameMap.Cell
-			callback: ScriptStorage.cellStaticCallback
-		}[] = []
-
-		this.namedPositions.clear()
-		this.namedItems.clear()
-
 		for (const object of map.objects) {
 			switch (object.type) {
 				case "item":
 					const item = Sprite.Item.createFromItemData(object)
 					if (object.name) {
-						this.namedItems.set(object.name, item)
+						this.setObject(object.name, item)
 					}
 					break
+				case "path":
 				case "point":
-					this.namedPositions.set(object.name, {
-						offset: [object.position[0] % CONST.GRID_BASE, object.position[1] % CONST.GRID_BASE],
-						cell: this.getCell(
-							Math.floor(object.position[0] / CONST.GRID_BASE),
-							Math.floor(object.position[1] / CONST.GRID_BASE)
-						),
-						zOffset: object.zOffset || 0
-					})
-					break
-				case "script":
-					const storage = gameContext.scripts
-					const cell = this.getCell(object.cell[0], object.cell[1])
-					if (object.onCreate) {
-						defer.push({
-							cell,
-							callback: storage.resolveOrThrow("cellCreate", object.onCreate)
-						})
-					}
-					if (object.onEnter) {
-						cell.onEnter.add(storage.resolveOrThrow("cellEnter", object.onEnter))
-					}
-					if (object.onExit) {
-						cell.onExit.add(storage.resolveOrThrow("cellExit", object.onExit))
-					}
-					if (object.onUse) {
-						cell.onUse.add(storage.resolveOrThrow("cellUse", object.onUse))
-					}
+					this.setObject(object.name, object)
 					break
 				case "zone":
-					const zone = GameMap.ZoneNavMap.create(object)
+					const zone = GameMap.Zone.create(object)
 					if (object.name) {
-						this.namedZones.set(object.name, zone)
+						this.setObject(object.name, zone)
 					}
-					const xStop = Math.floor((zone.x + zone.width) / CONST.GRID_BASE)
-					const yStop = Math.floor((zone.y + zone.height) / CONST.GRID_BASE)
-					for (let y = Math.floor(zone.y / CONST.GRID_BASE); y <= yStop; y += 1) {
-						for (let x = Math.floor(zone.x / CONST.GRID_BASE); x <= xStop; x += 1) {
+					const xStop = Math.floor((object.position[0] + object.dimensions[0]) / CONST.GRID_BASE)
+					const yStop = Math.floor((object.position[1] + object.dimensions[1]) / CONST.GRID_BASE)
+					for (let y = Math.floor(object.position[1] / CONST.GRID_BASE); y <= yStop; y += 1) {
+						for (let x = Math.floor(object.position[0] / CONST.GRID_BASE); x <= xStop; x += 1) {
 							this.getCell(x % this.width, y % this.height).addZone(zone)
 						}
 					}
@@ -137,7 +153,8 @@ export class GameMap {
 					throw new Error("invalid map object")
 			}
 		}
-		defer.forEach(item => item.callback(item.cell))
+		await gameContext.scripts.resolve("mapLoad", name)?.(this)
+		this.restoreState()
 	}
 
 	public update(delta: number, top: number, left: number, bottom: number, right: number) {
@@ -197,8 +214,8 @@ export class GameMap {
 		this.frame += 1
 	}
 
-	public updateZones(cell: GameMap.Cell, offset: readonly [number, number]) {
-		const zones = cell.collectZones(offset)
+	public updateZones(cell: GameMap.Cell, offsetX: number, offsetY: number) {
+		const zones = cell.collectZones(offsetX, offsetY)
 		for (let i = 0; i < zones.length; i += 1) {
 			zones[i].paint = this.frame
 		}
@@ -226,20 +243,14 @@ export class GameMap {
 		}
 	}
 
-	public getPositionByName(name: string) {
-		const cell = this.namedPositions.get(name)
-		if (!cell) {
-			throw new Error(`position '${name}' not found`)
+	public resolvePosition(x: number, y: number) {
+		return {
+			offset: [x % CONST.GRID_BASE, y % CONST.GRID_BASE] as [number, number],
+			cell: this.getCell(
+				Math.floor(x / CONST.GRID_BASE),
+				Math.floor(y / CONST.GRID_BASE)
+			)
 		}
-		return cell
-	}
-
-	public getItemByName(name: string) {
-		const item = this.namedItems.get(name)
-		if (!item) {
-			throw new Error(`item '${name}' not found`)
-		}
-		return item
 	}
 
 	public getCell(x: number, y: number) {
@@ -261,40 +272,72 @@ export namespace GameMap {
 		FULL = 128,
 	}
 
-	export class ZoneNavMap extends NavMapRect {
-		public onEnter: Listener<ZoneNavMap>
-		public onExit: Listener<ZoneNavMap>
-		public onUse: Listener<ZoneNavMap>
+	export abstract class Zone {
+		public readonly onEnter: Listener<Zone>
+		public readonly onExit: Listener<Zone>
+		public readonly onUse: Listener<Zone>
 		public enabled: boolean
 		public paint: number
 		public active: boolean
 
-		private constructor(navMapRect: NavMapRect, offset: readonly [number, number]) {
-			super(navMapRect, offset)
+		public constructor(data: GameData.ZoneData) {
 			this.enabled = true
 			this.paint = 0
 			this.active = false
 			this.onEnter = new Listener()
 			this.onExit = new Listener()
 			this.onUse = new Listener()
+			const storage = gameContext.scripts
+			storage.resolveAll("zoneEnter", this.onEnter, data.name, data.class)
+			storage.resolveAll("zoneExit", this.onExit, data.name, data.class)
+			storage.resolveAll("zoneUse", this.onUse, data.name, data.class)
+			if (data.enabled !== undefined){
+				this.enabled = data.enabled
+			}
 		}
 
 		public static create(data: GameData.ZoneData) {
-			const zone = new ZoneNavMap(gameContext.navMap.getOrThrow(data.resource), data.position)
-			const storage = gameContext.scripts
-			if (data.onEnter) {
-				zone.onEnter.add(storage.resolveOrThrow("zoneEnter", data.onEnter))
+			if (data.resource) {
+				return new ZoneNavMap(data)
+			} else {
+				return new ZoneRect(data)
 			}
-			if (data.onExit) {
-				zone.onExit.add(storage.resolveOrThrow("zoneExit", data.onExit))
-			}
-			if (data.onUse) {
-				zone.onUse.add(storage.resolveOrThrow("zoneUse", data.onUse))
-			}
-			if (data.enabled !== undefined){
-				zone.enabled = data.enabled
-			}
-			return zone
+		}
+
+		abstract contains(x: number, y: number): boolean
+	}
+
+	class ZoneRect extends Zone {
+		private rect: [number, number, number, number]
+
+		public constructor(data: GameData.ZoneData) {
+			super(data)
+			this.rect = [
+				data.position[0],
+				data.position[1],
+				data.dimensions[0] + data.position[0],
+				data.dimensions[1] + data.position[1]
+			]
+		}
+
+		public contains(x: number, y: number) {
+			return (
+				x >= this.rect[0] && x < this.rect[2] &&
+				y >= this.rect[1] && y < this.rect[3]
+			)
+		}
+	}
+
+	class ZoneNavMap extends Zone {
+		private zone: NavMapRect
+
+		public constructor(data: GameData.ZoneData) {
+			super(data)
+			this.zone = new NavMapRect(gameContext.navMap.getOrThrow(data.resource!), data.position)
+		}
+
+		public contains(x: number, y: number) {
+			return this.zone.contains(x, y)
 		}
 	}
 
@@ -305,15 +348,13 @@ export namespace GameMap {
 
 		private background: Sprite.Background | null = null
 
-		private visibility: number
+		/** @internal */
+		public visibility: number
 		private pointCache: [number, number][]
 		private navMap?: NavMapRect
-		private zones: ZoneNavMap[]
+		private zones: Zone[]
 
 		private _items: Sprite.Item[] = []
-		public onEnter: Listener<[Cell, Direction]>
-		public onExit: Listener<[Cell, Direction]>
-		public onUse: Listener<Cell>
 
 		private static readonly plugMap = {
 			"up": CellVisibility.PLUG_UP,
@@ -328,9 +369,6 @@ export namespace GameMap {
 			this.visibility = 0
 			this.pointCache = []
 			this.timer = new ScriptTimer()
-			this.onEnter = new Listener()
-			this.onExit = new Listener()
-			this.onUse = new Listener()
 			this.zones = []
 		}
 
@@ -380,20 +418,17 @@ export namespace GameMap {
 			if (sprite.revealed) {
 				this.visibility = CellVisibility.FULL
 			}
-			if (this.background.onCreate) {
-				void this.background.onCreate(this)
-			}
 		}
 
-		public addZone(zone: GameMap.ZoneNavMap) {
+		public addZone(zone: GameMap.Zone) {
 			this.zones.push(zone)
 		}
 
 		/** @internal */
-		public collectZones(offset: readonly [number, number]) {
+		public collectZones(offsetX: number, offsetY: number) {
 			const activeZones = []
-			const x = this.x * CONST.GRID_BASE + Math.floor(offset[0])
-			const y = this.y * CONST.GRID_BASE + Math.floor(offset[1])
+			const x = this.x * CONST.GRID_BASE + Math.floor(offsetX)
+			const y = this.y * CONST.GRID_BASE + Math.floor(offsetY)
 			for (let i = 0; i < this.zones.length; i += 1) {
 				const zone = this.zones[i]
 				if (zone.enabled && zone.contains(x, y)) {

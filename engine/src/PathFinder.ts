@@ -75,10 +75,10 @@ export class PathFinder {
 		let diamond
 		let delta
 		if (dx != 0) {
-			delta = Math.min(Math.abs(dx), CONST.SEARCH_DIAMOND_MAX_SIZE)
+			delta = Math.min(Math.abs(Math.floor(dx)), CONST.SEARCH_DIAMOND_MAX_SIZE - 1)
 			diamond = dx > 0 ? PathFinder.diamonds[delta].right : PathFinder.diamonds[delta].left
 		} else if (dy != 0) {
-			delta = Math.min(Math.abs(dy), CONST.SEARCH_DIAMOND_MAX_SIZE)
+			delta = Math.min(Math.abs(Math.floor(dy)), CONST.SEARCH_DIAMOND_MAX_SIZE - 1)
 			diamond = dy > 0 ? PathFinder.diamonds[delta].bottom : PathFinder.diamonds[delta].top
 		} else {
 			return null

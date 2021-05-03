@@ -4,26 +4,25 @@ import { Listener } from "./Listener"
 export type Direction = "up" | "down" | "left" | "right"
 
 export namespace Path {
-	export function updateArray(delta: number, paths: Path[], target: [number, number]) {
+	export function updateArray(delta: number, paths: Path[], callback: (x: number, y: number, direction: Direction | "idle") => void) {
 		let diff = delta
 		let path = paths[0]
 		while (true) {
 			diff = path.update(diff)
 			if (diff >= 0) {
 				paths.shift()
-				target[0] = path.x
-				target[1] = path.y
-				path.onEnd.invoke(path)
 				if (paths.length > 0) {
+					path.onEnd.invoke(path)
 					path = paths[0]
 					continue
 				}
+				callback(path.x, path.y, "idle")
+				path.onEnd.invoke(path)
+				break
 			}
+			callback(path.x, path.y, path.direction)
 			break
 		}
-		target[0] = path.x
-		target[1] = path.y
-		return path
 	}
 }
 

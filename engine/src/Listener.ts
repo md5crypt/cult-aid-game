@@ -8,6 +8,12 @@ export class Listener<T = void, K = void> {
 		return listener
 	}
 
+	public promise() {
+		return new Promise<T>(resolve => {
+			this.list.push(resolve as Callback<T, K>)
+		})
+	}
+
 	public remove(listener: Callback<T, K>) {
 		const i = this.list.indexOf(listener)
 		if (i >= 0) {

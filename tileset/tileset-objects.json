@@ -16,7 +16,7 @@
  "margin":0,
  "name":"objects",
  "spacing":0,
- "tilecount":27,
+ "tilecount":42,
  "tiledversion":"1.4.3",
  "tileheight":240,
  "tiles":[
@@ -228,6 +228,108 @@
                  "type":"string",
                  "value":"[\n    [\"delay\", 2000],\n    [\"sequence\", 1, 5, 111],\n    [\"frame\", 6, 555],\n    [\"sequence\", 5, 0, 111],\n    [\"loop\"]\n]"
                 }, 
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":49,
+         "image":"object-forbidden-bookshelf.png",
+         "imageheight":71,
+         "imagewidth":45
+        }, 
+        {
+         "id":50,
+         "image":"item-kitchen-wall.png",
+         "imageheight":50,
+         "imagewidth":208
+        }, 
+        {
+         "id":51,
+         "image":"item-kitchen-hobo.png",
+         "imageheight":32,
+         "imagewidth":20
+        }, 
+        {
+         "id":52,
+         "image":"item-kitchen-table.png",
+         "imageheight":77,
+         "imagewidth":69,
+         "properties":[
+                {
+                 "name":"zOffset",
+                 "type":"int",
+                 "value":-30
+                }]
+        }, 
+        {
+         "id":53,
+         "image":"item-kitchen-chef.png",
+         "imageheight":45,
+         "imagewidth":42
+        }, 
+        {
+         "id":54,
+         "image":"object-plantation-plant.png",
+         "imageheight":65,
+         "imagewidth":42
+        }, 
+        {
+         "id":55,
+         "image":"object-study-display-case.png",
+         "imageheight":99,
+         "imagewidth":33
+        }, 
+        {
+         "id":56,
+         "image":"object-paper.png",
+         "imageheight":20,
+         "imagewidth":23
+        }, 
+        {
+         "id":57,
+         "image":"object-bookshelve-diagonal.png",
+         "imageheight":78,
+         "imagewidth":46
+        }, 
+        {
+         "id":58,
+         "image":"object-pet-house.png",
+         "imageheight":56,
+         "imagewidth":55
+        }, 
+        {
+         "id":59,
+         "image":"object-bowl-2.png",
+         "imageheight":13,
+         "imagewidth":21
+        }, 
+        {
+         "id":60,
+         "image":"objects-bowl-1.png",
+         "imageheight":15,
+         "imagewidth":24
+        }, 
+        {
+         "id":61,
+         "image":"object-study-desk.png",
+         "imageheight":60,
+         "imagewidth":96
+        }, 
+        {
+         "id":62,
+         "image":"object-khajiit-skeleton.png",
+         "imageheight":54,
+         "imagewidth":24
+        }, 
+        {
+         "id":63,
+         "image":"object-archeologist.png",
+         "imageheight":119,
+         "imagewidth":51,
+         "properties":[
                 {
                  "name":"scale",
                  "type":"float",

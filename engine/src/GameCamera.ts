@@ -19,7 +19,7 @@ export class GameCamera {
 	private zoomPaths: Path[]
 
 	private _pivot: [number, number]
-	private _zoom: [number, number]
+	private _zoom: number
 
 	private _screen: readonly [number, number]
 
@@ -33,7 +33,7 @@ export class GameCamera {
 		this.pivotPaths = []
 		this.zoomPaths = []
 		this._pivot = [0, 0]
-		this._zoom = [1, 0]
+		this._zoom = 1
 		this.lock = null
 		this._screen = [0, 0]
 		this._zoomDefault = 1
@@ -127,22 +127,22 @@ export class GameCamera {
 
 	public zoomBy(dz: number, duration: number) {
 		const speed = Math.abs(dz / duration) * CONST.WALK_SPEED_SCALE
-		const path = new SimplePath([this._zoom.slice(0), [this._zoom[0] + dz, 0]], speed)
+		const path = new SimplePath([[this._zoom, 0], [this._zoom + dz, 0]], speed)
 		this.pushZoomPath(path)
 		return new Promise(resolve => path.onEnd.add(resolve as (arg?: any) => void))
 	}
 
 	public zoomTo(zoom: number, duration: number) {
-		return this.zoomBy(zoom - this._zoom[0], duration)
+		return this.zoomBy(zoom - this._zoom, duration)
 	}
 
 	public get zoom() {
-		return this._zoom[0]
+		return this._zoom
 	}
 
 	public set zoom(value: number) {
 		if (this.zoomPaths.length == 0) {
-			this._zoom[0] = value
+			this._zoom = value
 		}
 	}
 
@@ -175,16 +175,23 @@ export class GameCamera {
 		this.lock = target
 	}
 
+	public unlock() {
+		this.lock = null
+	}
+
 	public update(delta: number) {
 		if (this.lock) {
 			this._pivot = this.lock.getAbsoluteLocation()
 		} else {
 			if (this.pivotPaths.length > 0) {
-				Path.updateArray(delta, this.pivotPaths, this._pivot)
+				Path.updateArray(delta, this.pivotPaths, (x, y) => {
+					this._pivot[0] = x,
+					this._pivot[1] = y
+				})
 			}
 		}
 		if (this.zoomPaths.length > 0) {
-			Path.updateArray(delta, this.zoomPaths, this._zoom)
+			Path.updateArray(delta, this.zoomPaths, zoom => this.zoom = zoom)
 		}
 		const shaker = this.shaker
 		if (shaker) {

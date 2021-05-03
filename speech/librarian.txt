@@ -10,6 +10,8 @@ librarian: A Khajiit? Your kind has such a distinct heartbeat.
 
 librarian: No, no, please don't go away, I don't bite.
 
+%seen
+
 @fragment librarian-intro
 
 khajiit: So judging by the books, this place is a library?
@@ -53,18 +55,6 @@ librarian: I'm sorry but that's what it is.
 
 librarian: If you're done with those newspapers then leave them on the table. I'll put them back later on.
 
-@fragment librarian-newspaper-maid
-
-khajiit: Wait... the argonian on that picture... it's unmistakably the maid!
-
-// hide newspaper UI
-%invoke
-
-khajiit: I can't borrow this newspaper for a while, can't I?
-
-librarian: No, but if it's only a few pages I can make you a copy.
-
-%show librarian-main.option.copy
 
 @fragment librarian-body-intro
 
@@ -185,9 +175,13 @@ khajiit: But I'll ask for those issues anyway.
 librarian: No problem, wait here for a minute or two, I'll go find them.
 
 // simple black screen?
-%invoke
+%invoke wait
 
 librarian: Found them!
+
+%invoke show
+
+%call librarian-newspaper-read-end
 
 %hide
 %exit
@@ -199,10 +193,14 @@ khajiit: How about the ones from the note that has "vampire" written all over it
 librarian: Of course. Wait here, I'll be back in a moment.
 
 // simple black screen?
-%invoke
+%invoke wait
 
 librarian: Sorry for the wait, that took a bit longer than I expected. I could not find one of the issues from that note. I suspect the number is probably incorrect.
 librarian: Anyway here are the other ones.
+
+%invoke show
+
+%call librarian-newspaper-read-end
 
 %hide
 %exit
@@ -223,9 +221,23 @@ khajiit: And to be clear, that was a rhetorical question.
 librarian: I see. Then I'll be right back in a moment.
 
 // simple black screen?
-%invoke
+%invoke wait
 
 librarian: Here you go, all accounted for as requested.
+
+%invoke show
+
+khajiit: Wait... the argonian on that picture... it's unmistakably the maid!
+
+%invoke hide
+
+khajiit: I can't borrow this newspaper for a while, can't I?
+
+librarian: No, but if it's only a few pages I can make you a copy.
+
+%call librarian-newspaper-read-end
+
+%show librarian-main.option.copy
 
 %hide
 %exit
@@ -241,9 +253,13 @@ khajiit: Just... just find those newspapers please...
 librarian: Sure thing! Wait here, I'll be back in a moment.
 
 // simple black screen?
-%invoke
+%invoke wait
 
 librarian: Got them all. Have fun reading.
+
+%invoke show
+
+%call librarian-newspaper-read-end
 
 %hide
 %exit
@@ -536,4 +552,81 @@ khajiit: It's been nice talking to you, but I have to go.
 librarian: Visit me anytime!
 
 %exit
+
+@fragment forbidden-section-bookshelf-intro
+
+khajiit: Let's see... The Lusty Argonian Maid, The Lusty Argonian Maid, The Lusty Argonian Maid...
+khajiit: Wait... it's all just copies of The Lusty Argonian Maid! There's literally nothing else in here!
+
+%seen
+
+@dialog forbidden-section-bookshelf
+
+@prompt
+
+khajiit: I don't know what I was suspecting but not this...
+
+@option take: (Take book)
+
+khajiit: I'll take one copy. For um... research.
+
+%hide
+
+@option exit-normal: (Exit)
+
+khajiit: Well, that was disappointing.
+khajiit: Or not. Depends how you look at it.
+
+%exit
+
+@option exit-newspaper: (Exit)
+
+khajiit: Hmm... I just noticed a newspaper stuffed in the corner.
+
+%seen
+%show view-newspaper
+%show exit-final
+
+@option hidden view-newspaper: (View newspaper)
+
+khajiit: Is that... yes it is. It's that "lost" issue the librarian could not find. Interesting...
+%seen
+
+@option hidden exit-final: (Exit)
+
+khajiit: I guess there's nothing else to see here.
+
+%exit
+
+@fragment forbidden-section-enter-attempt
+
+khajiit: I don't think going deeper into an underground library run by a totally-not-a-vampire orc is a good idea, but here goes nothing.
+
+%invoke walk-in
+
+khajiit: And I'm lost. Between never-ending rows of bookcases. Great.
+
+%invoke inside
+
+khajiit: Um, hello? No, I'm afraid I don't have any bananas with me. This way and to the right? And that will lead me back to where I came from?
+
+%invoke walk-out
+
+khajiit: That was close. If not for a friendly orangutan I would never find my way back.
+
+%seen
+
+@fragment forbidden-section-enter-deny
+
+khajiit: I'm not going back into there, not without some kind of map. Or at least a lot of bananas.
+
+@fragment forbidden-section-enter
+
+khajiit: Here goes nothing. Forbidden section here I come.
+
+%invoke
+
+khajiit: I guess this is it. I wonder what dark secrets are hidden within this place.
+
+%seen
 

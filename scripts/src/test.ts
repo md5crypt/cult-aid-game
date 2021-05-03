@@ -1,29 +1,3 @@
-namespace utils {
-	export async function reset() {
-		const {camera, player, map} = context
-		camera.enabled = false
-		player.cell.clearItems()
-		const position = map.getPositionByName("init-room")
-		player.enable(position.cell, position.offset)
-		player.setTexture(player.walkSequence.idle)
-		camera.zoom = camera.zoomDefault
-		camera.lockOn(player)
-		map.cells.forEach(cell => cell.visible = false)
-		position.cell.visible = true
-		await context.timer.wait(500)
-		player.unlockInput()
-		camera.enabled = true
-	}
-
-	export async function blackScreen(delay: number) {
-		context.camera.enabled = false
-		context.ui.root.enabled = false
-		await context.timer.wait(delay)
-		context.camera.enabled = true
-		context.ui.root.enabled = true
-	}
-}
-
 scripts.register("dialogSelect", DialogId["test-give-item"], id => {
 	if (id == "book" || id == "sweetroll") {
 		storage.items[id] = true
@@ -47,17 +21,23 @@ scripts.register("dialogSelect", DialogId["card-game-test"], id => {
 	}
 })
 
-scripts.register("cellUse", "test", (_cell) => {
+scripts.register("zoneUse", ZoneId["debug"], () => {
 	void context.speech.executeDialog(DialogId["test-main"])
 })
 
-scripts.register("cellCreate", "placePlayer", async (cell) => {
-	const position = context.map.getPositionByName("init-room")
-	context.player.enable(position.cell, position.offset)
+scripts.register("mapLoad", MapId["main"], () => {
+	const point = utils.getPoint(PointId["init-room"])
+	utils.resolvePosition(point).cell.group.forEach(x => x.visible = true)
+	context.player.setMapPosition(point[0], point[1])
 	context.camera.lockOn(context.player)
-	//void context.speech.executeDialog(DialogId["test-main"])
+	void regionLoader.execute(MapId["main"])
 })
 
+scripts.register("zoneEnter", ClassId["auto-reveal"], () => {
+	context.player.cell.group.forEach(x => x.visible = true)
+})
+
+/*
 scripts.register("cellEnter", "fireTrap", async (cell) => {
 	const {camera, player} = context
 	player.lockInput()
@@ -88,6 +68,7 @@ scripts.register("cellEnter", "fireTrap", async (cell) => {
 	]))
 	player.cell.addItem(fire)
 })
+
 
 scripts.register("cellEnter", "spiderTrap", async (cell) => {
 	const {camera, player, map} = context
@@ -120,12 +101,8 @@ scripts.register("cellEnter", "spiderTrap", async (cell) => {
 	player.setTexture(context.Sprite.find("khajiit-spider"), animation)
 })
 
-scripts.register("cellEnter", "autoReveal", (cell) => {
-	cell.group.forEach(x => x.visible = true)
-})
-
 scripts.register("cellEnter", "roomEnter", (cell, direction) => {
-	/*const reverse = {
+	const reverse = {
 		up: "down",
 		down: "up",
 		left: "right",
@@ -147,11 +124,11 @@ scripts.register("cellEnter", "roomEnter", (cell, direction) => {
 				500
 			)
 		]).then(() => context.player.unlockInput())
-	}*/
+	}
 })
 
 scripts.register("cellExit", "roomExit", (cell, direction) => {
-	/*if (direction == cell.data?.gateway) {
+	if (direction == cell.data?.gateway) {
 		const next = cell.getNeighbor(direction)
 		const path = next.getEnterPath(direction)!
 		const center = path[path.length - 1]
@@ -167,5 +144,6 @@ scripts.register("cellExit", "roomExit", (cell, direction) => {
 			context.camera.lockOn(context.player)
 			context.player.unlockInput()
 		})
-	}*/
+	}
 })
+*/

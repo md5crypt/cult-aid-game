@@ -105,7 +105,7 @@ function bootstrap(app: Application, resources: Record<string, ILoaderResource>)
 	gameContext.speech = new Speech(resources.speech.data.data /*,resources.sound.sound*/)
 	gameContext.navMap = new NavMap(resources.navmap.data.data, resources.navmapData.data)
 	gameContext.input = new GameInput()
-	gameContext.map = new GameMap()
+	gameContext.map = new GameMap(gameContext.data)
 	gameContext.camera = new GameCamera()
 	gameContext.timer = new ScriptTimer()
 	gameContext.input.register()
@@ -136,7 +136,7 @@ window.addEventListener("load", async () => {
 
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts.data)
-	gameContext.map.loadMap(gameContext.data.map)
+	void gameContext.map.loadMap("map-main")
 
 	app.ticker.add(() => {
 		stats.begin()

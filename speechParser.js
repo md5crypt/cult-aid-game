@@ -107,6 +107,7 @@ const functionTypes = {
 	"pop": ["undefined", "number"],
 	"exit": ["undefined"],
 	"seen": ["undefined", "fragment"],
+	"call": ["fragment"],
 	"show": ["undefined", "fragment"],
 	"hide": ["undefined", "fragment"],
 	"invoke": ["undefined", "string"],

@@ -117,26 +117,37 @@ export class DialogUI {
 			}
 		})
 		this.animators.scroll.onStateChange.add(state => {
-			if (state == null) {
-				this.ready = false
-				gameContext.player.unlockInput()
-				this.root.enabled = false
-				this.animators.arrowDown.stop()
-				this.animators.arrowUp.stop()
-				this.animators.avatar.stop()
-				this.root.getElement("avatar").enabled = false
-				this.root.getElement("body.arrow-up").enabled = false
-				this.root.getElement("body.arrow-down").enabled = false
-				this.releaseQueue.forEach(x => x())
-				this.releaseQueue = []
-			} else if (state == "opened") {
-				this.ready = true
-				this.animators.arrowUp.start("closed")
-				this.animators.arrowDown.start("closed")
-			} else if (state == "opening") {
-				this.animators.avatar.start("closed")
-			} else if (state == "closing") {
-				this.animators.avatar.parameters.visible = false
+			switch (state) {
+				case null:
+					this.ready = false
+					gameContext.player.unlockInput()
+					this.root.enabled = false
+					this.animators.arrowDown.stop()
+					this.animators.arrowUp.stop()
+					this.animators.avatar.stop()
+					this.root.getElement("avatar").enabled = false
+					this.root.getElement("body.arrow-up").enabled = false
+					this.root.getElement("body.arrow-down").enabled = false
+					this.releaseQueue.forEach(x => x())
+					this.releaseQueue = []
+					break
+				case "opened":
+					if (!this.ready) {
+						this.ready = true
+						this.animators.arrowUp.start("closed")
+						this.animators.arrowDown.start("closed")
+					}
+					break
+				case "opening":
+					this.animators.avatar.start("closed")
+					break
+				case "revealing":
+					this.animators.avatar.parameters.visible = true
+					break
+				case "hiding":
+				case "closing":
+					this.animators.avatar.parameters.visible = false
+					break
 			}
 		})
 	}
@@ -146,6 +157,14 @@ export class DialogUI {
 			return Promise.resolve()
 		}
 		return new Promise<void>(resolve => this.releaseQueue.push(resolve))
+	}
+
+	public hide() {
+		this.animators.scroll.parameters.hidden = true
+	}
+
+	public show() {
+		this.animators.scroll.parameters.hidden = false
 	}
 
 	public claim() {

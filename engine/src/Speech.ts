@@ -90,10 +90,14 @@ export class Speech {
 						gameContext.storage.dialog.hidden[item.argument || id] = false
 						break
 					case "exit":
+						console.log(this._dialog)
 						this._dialog!.exit()
 						break
 					case "pop":
 						this._dialog!.pop(item.argument ? parseInt(item.argument, 10) : 1)
+						break
+					case "call":
+						await this.executeFragment(item.argument!)
 						break
 					case "invoke":
 						await gameContext.scripts.resolveOrThrow("fragmentInvoke", id)(item.argument, id)
@@ -149,6 +153,10 @@ export class Dialog {
 		while (this.stack.length > 0) {
 			const element = this.stack[this.stack.length - 1]
 			await gameContext.scripts.resolve("dialogStart", element.dialog)?.(element.dialog)
+			if (this.stack.length == 0) {
+				// dialogStart script could have ended the dialog
+				break
+			}
 			const data = gameContext.speech.data
 			const dialog = data.dialogs[element.dialog]
 			const prompt = data.fragments[`${element.dialog}.prompt.default`][0] as SpeechFragmentElement

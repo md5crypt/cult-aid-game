@@ -1,0 +1,227 @@
+
+
+
+@fragment chef-intro
+
+chef: Are this one's eyes deceiving him? Is this a fellow Khajiit standing before him?
+
+khajiit: Um, yes? Hello?
+
+chef: Finally! Finally someone to appreciate traditional Khajiit cuisine!
+
+khajiit: I gather you work as a chef here?
+
+chef: Let us waste no more time! This one shall prepare a feast!
+
+khajiit: That sounds wonderful and all but I got a bit more pressing matters at the moment.
+
+chef: Fellow Khajiit is not hungry?
+
+khajiit: No, it's just... actually you know what? Screw it. How could I say no to free food?
+
+chef: Finally words worthy of a Khajiit! Sit, this one has work to do!
+
+// black screen + cooking sfx, khajiit get's moved to a table with an empty plate
+%invoke
+
+khajiit: That must've been one of the best meals I had in my life.
+khajiit: A tad too spicy but on the other hand it's been a while since I ate anything with moonsugar in it.
+
+%seen
+%exit
+
+@fragment chef-post-intro
+
+chef: Speak, how was the food this one prepared?
+
+khajiit: You are an artist. There is not much more to add to that.
+
+chef: Khajiit knew a fellow Khajiit would appreciate it, not like those tasteless mer. You brought a smile on this one's face.
+
+khajiit: Thank you, I'm glad I could make you happy.
+
+chef: This one has one more thing for you. A sweetroll for desert.
+
+khajiit: Right, I can smell the moonsugar in that thing from here. How much of the stuff did you put in that thing?
+
+chef: Khajiit does not want it?
+
+khajiit: No, no, I'll gladly take it, I'll just leave it for later. I want to have a clear mind for the time being.
+
+chef: This one has no objections to that.
+
+khajiit: So, would you mind talking for a bit?
+
+@dialog chef-moonsugar
+
+@prompt
+chef: This one will say nothing more on the subject.
+
+@option press: (Press on)
+
+khajiit: Common, you tell a fellow Khajiit. How do you manage to get all that moonsugar?
+
+chef: Look pal, I really don't like repeating myself. Don't ask questions you don't want to know the answer to, 'kay?
+
+khajiit: What... what happened to your accent?
+
+chef: Khajiit does not know what you are talking about.
+
+%seen
+%pop
+
+@option drop: (Drop the subject)
+
+%seen
+%pop
+
+
+@dialog chef-main
+
+@prompt
+chef: Speak friend, Khajiit listens.
+
+@option take-sweetroll: (Take sweetroll)
+
+khajiit: I'll take that sweetroll please.
+
+chef: Let it's sweetness bring calmness to your mind.
+
+%seen
+
+@option hidden take-food: (Take food)
+
+khajiit: I'll take that meal you created.
+
+chef: Here it is. This one hopes it will be enough to show fellow Khajiit's friend the true nature of Khajiit cousine.
+
+khajiit: Thanks, I'm sure she'll love it.
+
+%hide
+
+@option make-food: Could you pack me some food for a um... friend?
+
+khajiit: Listen, I have a... um... friend that keeps saying that Khajiit food is primitive rubbish that's made only to get you high on moonsugar.
+
+chef: Such disrespectful words often reach this one's ears. As long as Khajiit breathes he will fight with such falsehoods!
+
+khajiit: Could you pack me a meal for that friend? I would give it to her so she can see how wrong she was.
+
+chef: Such an idea pleases Khajiit greatly! With his own hands will he open her eyes to the true nature of Khajiit cuisine!
+
+khajiit: Maybe you could add just a little bit less moonsugar then you normally do? You know, "rubbish that's made only to get you high"?
+
+chef: Yes, perhaps fellow Khajiit's words are not without wisdom. This one will keep this in mind.
+
+// black screen, cooking sounds
+%invoke
+
+chef: It is done. When ready, take this one's creation and give it to your friend.
+
+%hide
+%show take-food
+
+@option breeder: Do you um... breed daedra?
+
+khajiit: So I've talked with a certain Bomser.
+
+chef: Ah, and fellow Khajiit came to ask about this one's daedric breeding practices?
+
+khajiit: Well... yes?
+
+chef: And what does fellow Khajiit think is the answer?
+
+khajiit: That the Bomser is utterly insane?
+
+chef: Yes, but his words always seem to hold a grain of truth.
+chef: To this one the Bosmer is a shattered mirror. Broken and fragmented, yet still trying to show the world as it is.
+
+khajiit: And what exactly would be that grain in case of the "daedra breeder"?
+
+chef: This one never said he understood him.
+
+%seen
+
+@option door: About that door behind the kitchen...
+
+khajiit: There's a strange door with a keypad behind the kitchen, where does it lead to?
+
+chef: It's nothing but this one's storage cellar. He had to have it locked as pesky cultists kept stealing food.
+
+khajiit: I really don't know what else I was expecting.
+
+%seen
+
+@option plantation: I've seen the plantation.
+
+khajiit: Who are you?
+
+chef: This one does not understand?
+
+khajiit: I've seen the plantation under the kitchen. Clearly you're not just some random chef.
+
+chef: I see little Khajiit couldn't keep his little sticky Khajiit paws off other people's stuff.
+chef: I mean I can't really blame you, I'm a Khajiit too after all, but let's end this little drama. It's nothing personal, I just have a business to protect.
+
+// claps hands, cultists enter the room
+%invoke call
+
+chef: Take this one away and make sure he does not see any sunlight ever again.
+
+// the cultists grab the chef
+%invoke grab
+
+chef: Not me you morons, HIM!
+
+%exit
+
+@option moonsugar: How do manage to get all that moonsugar?
+
+khajiit: So where do you get all the moonsugar from? As far as I can tell we are not on khajiit controlled land.
+
+chef: Khajiit has his secrets, he shall not reveal them.
+
+%seen
+%push chef-moonsugar
+
+@option why-work-here: Why do you work here?
+
+khajiit: I don't understand, why would someone of such talent work in a cultist cave? Is there something holding you here?
+
+chef: While khajiit is grateful for such kind words, he would prefer not to discuss his reasons.
+
+khajiit: But you're not being forced to work here against your will?
+
+chef: No, this one is a prisoner to no one but himself.
+
+%seen
+
+@option dont-like-food: You mentioned tasteless Mer?
+
+khajiit: The cultists don't like the food you prepare?
+
+chef: No, no, khajiit's creations are beloved by all, it's just his finest work that finds no appreciation.
+chef: All those subtle flavors of traditional khajiit cousine are lost in their smooth-tongued mouths as they fall off chairs and drool like little children.
+
+khajiit: Ah, I see... and adding less moonsugar would be...
+
+chef: Heresy!
+
+khajiit: Yeah, I thought so. You don't get to make much "traditional" food, don't you?
+
+chef: That would be true, but khajiit has chosen to fight. He prepares traditional dishes once every week.
+
+khajiit: And the cultists are fine with that?
+
+chef: Khajiit does not leave them much choice. Their mouths have to be filled with something, don't they?
+
+%hide
+
+@option exit: (Exit)
+
+khajiit: You seem busy, I'll leave you alone.
+
+chef: This one will always find time to talk with his Khajiit friend.
+
+%exit
+

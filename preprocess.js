@@ -1,189 +1,11 @@
 const fs = require("fs")
 const path = require("path")
-const assert = require("assert")
 const glob = require("glob")
 const texturePacker = require("./atlas/packer")
 const fontParser = require("./fontParser")
 const speechParser = require("./speechParser")
+const tileParser = require("./tileParser")
 const navmap = require("./navmap")
-
-const objectParsers = [
-	(objects, sprite) => {
-		const leftover = []
-		for (const object of objects) {
-			if (!object.point || object.name != "pivot") {
-				leftover.push(object)
-			} else {
-				sprite.pivot = [object.x, object.y]
-			}
-		}
-		return leftover
-	}
-]
-
-function parseProperties(properties, sprite, props) {
-	if (!properties) {
-		return sprite
-	}
-	for (const prop of properties) {
-		assert(prop.name in props, JSON.stringify(sprite))
-		if (props[prop.name] == "json") {
-			assert(prop.type == "string", sprite.resource)
-			sprite[prop.name] = JSON.parse(prop.value)
-		} else {
-			assert(prop.type == props[prop.name], sprite.resource)
-			sprite[prop.name] = prop.value
-		}
-	}
-	return sprite
-}
-
-function loadTileset(filePath, resolveSprite, tileMap, tileOffset) {
-	const tileset = JSON.parse(fs.readFileSync(filePath))
-	// const tileOffset = tileMap.size == 0 ? 0 : Array.from(tileMap.keys()).reduce((a, b) => a > b ? a : b, 0) + 1
-	for (const tile of tileset.tiles) {
-		const name = path.basename(tile.image, ".png")
-		if (name.endsWith("-zone")) {
-			if (tileMap) {
-				tileMap.set(tile.id + tileOffset, {resource: name.slice(0, -5), index: -1})
-			}
-			continue
-		}
-		const sprite = resolveSprite(name)
-		if (tileMap) {
-			tileMap.set(tile.id + tileOffset, sprite)
-		}
-		if (tile.objectgroup && tile.objectgroup.objects) {
-			let data = tile.objectgroup.objects
-			for (parser of objectParsers) {
-				data = parser(data, sprite)
-			}
-			assert(data.length == 0, tile.image)
-		}
-		if (tile.properties) {
-			parseProperties(tile.properties, sprite, {
-				scale: "float",
-				delay: "int",
-				plugs: "string",
-				autoReveal: "bool",
-				revealed: "bool",
-				composite: "json",
-				onCreate: "string",
-				animation: "json",
-				group: "string",
-				gateway: "string"
-			})
-			if (sprite.plugs && sprite.plugs[0] == "[") {
-				sprite.plugs = JSON.parse(sprite.plugs)
-			} else if (sprite.plugs) {
-				sprite.plugs = ["-plug-up", "-plug-down", "-plug-left", "-plug-right"].map(x => sprite.plugs + x)
-			}
-		}
-	}
-}
-
-function buildMap(resources, mapFile, tilesetFiles) {
-	const map = JSON.parse(fs.readFileSync(mapFile))
-	const tileMap = new Map()
-	const sprites = []
-	const spriteMap = new Map()
-	const resolveSprite = name => {
-		let sprite = spriteMap.get(name)
-		if (!sprite) {
-			if (!(name in resources)){
-				throw new Error(`resource '${name}' not found`)
-			}
-			sprite = {resource: name, index: sprites.length}
-			sprites.push(sprite)
-			spriteMap.set(name, sprite)
-		}
-		return sprite
-	}
-	Object.keys(resources).forEach(resolveSprite)
-	for (const tileset of map.tilesets) {
-		loadTileset(path.resolve(path.dirname(mapFile), tileset.source), resolveSprite, tileMap, tileset.firstgid - 1)
-	}
-	for (let i = 0; i < tilesetFiles.length; i += 1) {
-		loadTileset(tilesetFiles[i], resolveSprite)
-	}
-	const gidMapper = id => tileMap.get(id - 1)
-	const baseSize = map.tileheight
-	const objects = []
-	for (let i = 1; i < map.layers.length; i += 1) {
-		for (const object of map.layers[i].objects) {
-			if (!object.gid) {
-				if (object.point) {
-					objects.push(parseProperties(object.properties, {
-						type: "point",
-						position: [object.x, object.y],
-						name: object.name
-					}, {zOffset: "int"}))
-				} else {
-					const cell = [
-						Math.floor(object.x / baseSize),
-						Math.floor(object.y / baseSize)
-					]
-					objects.push(parseProperties(object.properties, {cell, type: "script"}, {
-						onCreate: "string",
-						onUse: "string",
-						onExit: "string",
-						onEnter: "string",
-					}))
-				}
-			} else {
-				const sprite = gidMapper(object.gid & 0xFFFFFF)
-				if (sprite.index < 0) {
-					objects.push(parseProperties(
-						object.properties,
-						{
-							type: "zone",
-							position: [object.x, object.y - object.height],
-							resource: sprite.resource
-						},
-						{
-							enabled: "bool",
-							name: "string",
-							onUse: "string",
-							onExit: "string",
-							onEnter: "string"
-						}
-					))
-				} else {
-					objects.push(parseProperties(
-						object.properties,
-						{
-							type: "item",
-							position: [object.x, object.y],
-							sprite: sprite.name || sprite.resource,
-							flipped: (object.gid & 0x80000000) ? true : undefined
-						},
-						{
-							name: "string",
-							animation: "json",
-							zOffset: "int",
-							onCreate: "string",
-							onUpdate: "string",
-							onEnterView: "string",
-							onExitView: "string",
-							enabled: "bool"
-						}
-					))
-				}
-			}
-		}
-	}
-	const tiles = map.layers[0].data.map(id => id ? (gidMapper(id).index + 1) : 0)
-	sprites.forEach(sprite => sprite.index = undefined)
-	return {
-		sprites,
-		map: {
-			objects,
-			tiles: tiles,
-			height: map.layers[0].height,
-			width: map.layers[0].width
-		}
-	}
-}
 
 function parseFonts(fontsPath) {
 	return glob.sync(path.resolve(fontsPath, "*.fnt"))
@@ -195,9 +17,49 @@ function parseSpeech(speechPath) {
 	glob.sync(path.resolve(speechPath, "*.txt"))
 		.forEach(file => speechParser.parse(fs.readFileSync(file, "utf8"), file, data))
 	speechParser.finalize(data)
-	fs.writeFileSync(path.resolve("scripts/src", "fragments.d.ts"), "declare const enum FragmentId { " + Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
-	fs.writeFileSync(path.resolve("scripts/src", "dialogs.d.ts"), "declare const enum DialogId { " + Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
+	fs.mkdirSync("scripts/src/types", {recursive: true})
+	fs.writeFileSync(path.resolve("scripts/src/types", "fragments.d.ts"), "declare const enum FragmentId { " + Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
+	fs.writeFileSync(path.resolve("scripts/src/types", "dialogs.d.ts"), "declare const enum DialogId { " + Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
 	return data
+}
+
+function buildObjectEnums(maps) {
+	fs.mkdirSync("scripts/src/types", {recursive: true})
+	const idSet = new Set()
+	const typeSets = new Map()
+	typeSets.set("map", new Set())
+	typeSets.set("class", new Set())
+	for (const map of maps) {
+		typeSets.get("map").add(map.name)
+		for (const object of map.objects) {
+			if (object.class) {
+				object.class.forEach(x => typeSets.get("class").add(x))
+			}
+			if (!object.name) {
+				continue
+			}
+			if (idSet.has(object.name)) {
+				throw new Error(`non-unique object name: ${object.name}`)
+			}
+			idSet.add(object.name)
+			let set = typeSets.get(object.type)
+			if (!set) {
+				set = new Set()
+				typeSets.set(object.type, set)
+			}
+			set.add(object.name)
+		}
+	}
+	for (const [type, set] of typeSets.entries()) {
+		if (!set.size) {
+			continue
+		}
+		const re = new RegExp(`^${type}-`)
+		fs.writeFileSync(
+			path.resolve("scripts/src/types", type + ".d.ts"),
+			`declare const enum ${type[0].toUpperCase() + type.slice(1)}Id { ` + Array.from(set.values()).map(x => JSON.stringify(x.replace(re, "")) + " = " + JSON.stringify(x)).join(", ") + "}"
+		)
+	}
 }
 
 async function run() {
@@ -206,10 +68,10 @@ async function run() {
 		atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
 	}
 	await navmap("build/navmap", "atlas/tiles")
-	const data = buildMap(atlas.tiles, "map/map.json", [
-		"tileset/tileset-other.json"
-	])
-	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data}))
+	const tilesets = tileParser.buildTilesets(glob.sync("tileset/tileset*.json"), atlas.tiles)
+	const maps = tileParser.buildMaps(glob.sync("map/map*.json"), tilesets)
+	buildObjectEnums(maps)
+	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data: {sprites: tilesets.list, maps}}))
 	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
 	fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))
 }

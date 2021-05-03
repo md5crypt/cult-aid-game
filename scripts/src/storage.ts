@@ -2,14 +2,18 @@ const storageInitializer = {
 	items: {
 		book: false,
 		sweetroll: false,
-		scribbles: false,
+		scribbles: true,
 		newspaper: false,
 		key: false,
 		inscription: false,
 		map: false
 	},
+	library: {
+		newspapers: false
+	},
 	librarian: {
-		libraryEntered: false
+		vampPaperSeen: false,
+		knockedOut: false
 	},
 	technician: {
 	},

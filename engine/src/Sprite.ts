@@ -1,6 +1,6 @@
 import { RectTileLayer } from "./RectTile/RectTileLayer"
 import { GameData } from "./GameData"
-import { Path, SimplePath, Direction } from "./Path"
+import { Path, SimplePath } from "./Path"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
 import { GameMap } from "./GameMap"
@@ -8,14 +8,12 @@ import { gameContext } from "./GameContext"
 import { Animation } from "./Animation"
 import { Listener } from "./Listener"
 import { ScriptTimer } from "./ScriptTimer"
-import { ScriptStorage } from "./ScriptStorage"
 import { FRAME, TextureFrame } from "./Resources"
-import { PathFinder } from "./PathFinder"
+import { MovementSmoother } from "./MovementSmoother"
 
 export namespace Sprite {
 	export class Background implements Sprite {
 		public readonly data: GameData.SpriteData
-		public readonly onCreate?: ScriptStorage.cellStaticCallback
 		private plugs?: (Background | undefined)[]
 		private texture?: TextureFrame
 		private fgTexture?: TextureFrame
@@ -44,9 +42,6 @@ export namespace Sprite {
 			}
 			if (data.plugs) {
 				this.plugs = data.plugs.map(x => Background.createPlug(x))
-			}
-			if (data.onCreate) {
-				this.onCreate = gameContext.scripts.resolveOrThrow("cellCreate", data.onCreate)
 			}
 		}
 
@@ -125,6 +120,7 @@ export namespace Sprite {
 		public _cell?: GameMap.Cell
 		protected offset: [number, number]
 		protected animation?: Animation
+		protected currentTexture?: GameData.SpriteData
 
 		public readonly name: string
 		public readonly timer: ScriptTimer
@@ -142,27 +138,29 @@ export namespace Sprite {
 
 		public static createFromItemData(data: GameData.ItemData) {
 			const sprite = Sprite.find(data.sprite)
-			const merged = {...sprite, ...data}
-			const item = new Item(merged, data.name)
-			gameContext.map.getCell(
-				Math.floor(data.position[0] / CONST.GRID_BASE),
-				Math.floor(data.position[1] / CONST.GRID_BASE)
-			).addItem(item)
-			item.setOffset(data.position[0] % CONST.GRID_BASE, data.position[1] % CONST.GRID_BASE)
+			const item = new Item(sprite, data.name, data.class)
+			if (data.zOffset) {
+				item.zOffset = data.zOffset
+			}
 			if (data.flipped) {
 				item.flipped = true
 			}
 			if (data.enabled !== undefined) {
 				item.enabled = data.enabled
 			}
-			if (merged.onCreate) {
-				const callback = gameContext.scripts.resolveOrThrow("itemCreate", merged.onCreate)
-				void callback(item)
+			if (data.animation) {
+				item.setAnimation(data.animation)
 			}
+			gameContext.map.getCell(
+				Math.floor(data.position[0] / CONST.GRID_BASE),
+				Math.floor(data.position[1] / CONST.GRID_BASE)
+			).addItem(item)
+			item.offset[0] = data.position[0] % CONST.GRID_BASE
+			item.offset[1] = data.position[1] % CONST.GRID_BASE
 			return item
 		}
 
-		constructor(data: GameData.SpriteData, name = "") {
+		constructor(data: GameData.SpriteData, name?: string, classList?: string[]) {
 			if (data.resource) {
 				const frame = gameContext.textures.tiles.getFrame(data.resource)
 				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
@@ -180,20 +178,12 @@ export namespace Sprite {
 			this.paint = 0
 			this.zOffset = data.zOffset || 0
 			this.flipped = false
-			this.name = name || data.name || data.resource || "anonymous"
+			this.name = name ||data.resource || "anonymous"
 			this.timer = new ScriptTimer()
-
 			this.setTexture(data)
-
-			if (data.onUpdate) {
-				this.onUpdate.add(gameContext.scripts.resolveOrThrow("itemUpdate", data.onUpdate))
-			}
-			if (data.onEnterView) {
-				this.onEnterView.add(gameContext.scripts.resolveOrThrow("itemEnterView", data.onEnterView))
-			}
-			if (data.onExitView) {
-				this.onExitView.add(gameContext.scripts.resolveOrThrow("itemExitView", data.onExitView))
-			}
+			gameContext.scripts.resolveAll("itemUpdate", this.onUpdate, name, classList)
+			gameContext.scripts.resolveAll("itemEnterView", this.onEnterView, name, classList)
+			gameContext.scripts.resolveAll("itemExitView", this.onExitView, name, classList)
 		}
 
 		public get zIndex() {
@@ -247,18 +237,6 @@ export namespace Sprite {
 			return this._cell
 		}
 
-		public setOffset(offset: readonly number[]): void
-		public setOffset(x: number, y: number): void
-		public setOffset(arg1: any, arg2?: number) {
-			if (arg2) {
-				this.offset[0] = arg1
-				this.offset[1] = arg2
-			} else {
-				this.offset[0] = arg1[0]
-				this.offset[1] = arg1[1]
-			}
-		}
-
 		public setAnimation(animation: Animation | Animation.Definition) {
 			this.animation = animation instanceof Animation ? animation : new Animation(animation)
 			return this.animation
@@ -269,7 +247,11 @@ export namespace Sprite {
 			this.frame = frame
 		}
 
-		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition |  null) {
+		public setTexture(data: GameData.SpriteData, animation?: Animation | Animation.Definition | null) {
+			if (this.currentTexture == data && !animation) {
+				return
+			}
+			this.currentTexture = data
 			if (data.resource) {
 				const frame = gameContext.textures.tiles.getFrame(data.resource)
 				this.textures = (Array.isArray(frame[0]) ? frame : [frame]) as number[][]
@@ -355,81 +337,79 @@ export namespace Sprite {
 	export class MovableItem extends Item {
 		public readonly walkSequence: WalkSequence
 		public speed: number
-		protected vector: [number, number]
 		protected moving: boolean
-
-		protected onCellChange(_prev: GameMap.Cell | null, direction?: Direction) {
-		}
+		protected path: Path[]
+		protected movementSmoother: MovementSmoother
 
 		public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 			super(walkSequence.idle)
 			this.walkSequence = walkSequence
 			this.speed = speed
-			this.vector = [0, 0]
 			this.moving = false
+			this.movementSmoother = new MovementSmoother()
+			this.path = []
 		}
 
-		public setVector(x: number, y: number) {
-			if (this.vector[0] == x && this.vector[1] == y) {
-				return
+		protected onCellChange() {
+		}
+
+		public get pathActive() {
+			return this.path.length > 0
+		}
+
+		public moveTo(x: number, y: number, smooth = true) {
+			this.movementSmoother.moveTo(x, y)
+			if (!smooth) {
+				this.movementSmoother.reset()
 			}
-			this.vector[0] = x
-			this.vector[1] = y
-			super.setTexture(this.walkSequence[(["up", "left", "idle", "right", "down"] as const)[(x + y * 2) + 2]])
-			this.moving = x != 0 || y != 0
 		}
 
-		public moveBy(dx: number, dy: number) {
-			const newX = this.offset[0] + dx
-			const newY = this.offset[1] + dy
-			const cell = this._cell!.getCellContainingPoint(Math.floor(newX), Math.floor(newY))
+		public moveBy(dx: number, dy: number, smooth = true) {
+			this.movementSmoother.moveBy(dx, dy)
+			if (!smooth) {
+				this.movementSmoother.reset()
+			}
+		}
+
+		public setMapPosition(x: number, y: number, force = true) {
+			const cell = gameContext.map.getClampedCell(
+				Math.floor(x / CONST.GRID_BASE),
+				Math.floor(y / CONST.GRID_BASE)
+			)
 			if (cell != this._cell) {
-				const oldCell = this._cell!
 				cell.addItem(this)
-				this.onCellChange(oldCell, dx != 0 ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"))
-				this.offset[0] = modulo(newX, CONST.GRID_BASE)
-				this.offset[1] = modulo(newY, CONST.GRID_BASE)
-			} else {
-				this.offset[0] = newX
-				this.offset[1] = newY
+				this.onCellChange()
+			}
+			this.offset[0] = modulo(x, CONST.GRID_BASE)
+			this.offset[1] = modulo(y, CONST.GRID_BASE)
+			if (force) {
+				this.clearPath()
+				this.movementSmoother.moveTo(x, y)
+				this.movementSmoother.reset()
 			}
 		}
 
 		public update(delta: number) {
 			super.update(delta)
-			if (this.moving) {
-				const scalar = delta * (this.speed / CONST.WALK_SPEED_SCALE)
-				for (let queryDelta = Math.ceil(scalar); queryDelta > 0; queryDelta -= 1) {
-					const queryResponse = PathFinder.query(
-						this.cell,
-						Math.floor(this.offset[0]),
-						Math.floor(this.offset[1]),
-						this.vector[0] * queryDelta,
-						this.vector[1] * queryDelta
-					)
-					if (queryResponse) {
-						const norm = Math.sqrt(queryResponse[0] * queryResponse[0] + queryResponse[1] * queryResponse[1])
-						if (norm > scalar + 0.001) {
-							const scaledX = queryResponse[0] * scalar / norm
-							const scaledY = queryResponse[1] * scalar / norm
-							if (this.cell.isPointTraversable(Math.floor(this.offset[0] + scaledX), Math.floor(this.offset[1] + scaledY))) {
-								this.moveBy(scaledX, scaledY)
-								break
-							}
-						} else {
-							this.moveBy(queryResponse[0], queryResponse[1])
-							break
-						}
-					}
-				}
+			if (this.pathActive) {
+				Path.updateArray(delta, this.path, (x, y, direction) => {
+					this.moveTo(x, y, false)
+					this.setTexture(this.walkSequence[direction])
+				})
 			}
+			this.movementSmoother.update(this.moving ? 0.4 : 0.65)
+			this.setMapPosition(this.movementSmoother.x, this.movementSmoother.y, false)
 		}
 
-		public enable(cell: GameMap.Cell, offset: readonly [number, number]) {
+		public pushPath(path: readonly (readonly [number, number])[], speed?: number) {
+			const object = new SimplePath(path.map(point => [point[0] + this.movementSmoother.tX, point[1] + this.movementSmoother.tY]), speed || this.speed)
+			this.path.push(object)
+			return object
+		}
+
+		public clearPath() {
+			this.path = []
 			this.setTexture(this.walkSequence.idle)
-			cell.addItem(this)
-			this.onCellChange(null)
-			this.setOffset(offset)
 		}
 
 		public disable() {
@@ -444,9 +424,8 @@ export namespace Sprite {
 	export function find(name: string, noThrow = false) {
 		if (spriteCache.size == 0) {
 			for (const sprite of gameContext.data.sprites) {
-				const name = sprite.name || sprite.resource
-				if (name) {
-					spriteCache.set(name, sprite)
+				if (sprite.resource) {
+					spriteCache.set(sprite.resource, sprite)
 				}
 			}
 		}

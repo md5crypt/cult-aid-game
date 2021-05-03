@@ -15,3 +15,17 @@ export function createWebWorker<QUERY = any, RESPONSE = any>(func: Function) {
 	URL.revokeObjectURL(blob)
 	return worker as TypedWorker<QUERY, RESPONSE>
 }
+
+/*export function mergeClassLists(...classLists: (string[] | undefined)[]) {
+	let result: string[] | undefined = undefined
+	for (const classList of classLists) {
+		if (classList && classList.length > 0) {
+			if (result) {
+				result.push(...classList)
+			} else {
+				result = classList
+			}
+		}
+	}
+	return result
+}*/

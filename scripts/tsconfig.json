@@ -1,6 +1,7 @@
 {
 	"extends": "../tsconfig.json",
 	"include": [
+		"src/before/**/*.ts",
 		"src/**/*.ts"
 	],
 	"compilerOptions": {

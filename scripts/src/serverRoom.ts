@@ -1,15 +1,13 @@
-scripts.register("dialogStart", DialogId["technician-main"], async () => {
+scripts.register("dialogStart", DialogId["technician-main"], () => {
 	storage.dialog.hidden["technician-main.option.book"] = !(storage.items.book && storage.dialog.seen["technician-main.option.reading"])
 	storage.dialog.hidden["technician-main.option.sweetroll"] = !storage.items.sweetroll
-	if (!storage.dialog.seen["technician-intro"]) {
-		await context.speech.executeFragment(FragmentId["technician-intro"])
-	}
+	return utils.executeIfUnseen("technician-intro")
 })
 
-scripts.register("zoneUse", "technician", zone => {
-	void context.speech.executeDialog(DialogId["technician-main"])
+scripts.register("zoneUse", ZoneId["server-technician"], () => {
+	void utils.executeDialog("technician-main")
 })
 
-scripts.register("zoneUse", "power-supply", zone => {
-	void context.speech.executeFragment(FragmentId["technician-touch-server"])
+scripts.register("zoneUse", ZoneId["server-power-supply"], () => {
+	void utils.executeFragment("technician-touch-server")
 })
