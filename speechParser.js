@@ -47,7 +47,7 @@ function parse(input, fname, data) {
 				throw new Error(`error parsing ${fname} on line ${lineNumber}: prompt outside of dialog`)
 			}
 			const id = groups.promptId || "default"
-			const fragmentId = currentDialogId + '.prompt.' + id
+			const fragmentId = currentDialogId + ".prompt." + id
 			if (fragmentId in data.fragments) {
 				throw new Error(`error parsing ${fname} on line ${lineNumber}: prompt with id "${id}" already exists in current dialog`)
 			}
@@ -58,7 +58,7 @@ function parse(input, fname, data) {
 			if (currentDialog == null) {
 				throw new Error(`error parsing ${fname} on line ${lineNumber}: option outside of dialog`)
 			}
-			const fragmentId = currentDialogId + '.option.' + groups.optionId
+			const fragmentId = currentDialogId + ".option." + groups.optionId
 			if (fragmentId in data.fragments) {
 				throw new Error(`error parsing ${fname} on line ${lineNumber}: option with id "${groups.optionId}" already exists in current dialog`)
 			}
@@ -90,7 +90,7 @@ function parse(input, fname, data) {
 			}
 			currentFragment.push({
 				function: groups.funcName,
-				argument: groups.funcArg || undefined,
+				argument: groups.funcArg || undefined
 			})
 		} else {
 			console.error(groups)
@@ -110,7 +110,7 @@ const functionTypes = {
 	"call": ["fragment"],
 	"show": ["undefined", "fragment"],
 	"hide": ["undefined", "fragment"],
-	"invoke": ["undefined", "string"],
+	"invoke": ["undefined", "string"]
 }
 
 const argParsers = {

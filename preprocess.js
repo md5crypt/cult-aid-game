@@ -76,9 +76,9 @@ async function run() {
 	fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))
 }
 
-run()
+void run()
 
-process.on('unhandledRejection', error => {
+process.on("unhandledRejection", error => {
 	console.error(error)
 	process.exit(1)
 })

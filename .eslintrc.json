@@ -3,6 +3,9 @@
 	"plugins": [
 		"@typescript-eslint"
 	],
+	"parserOptions": {
+		"project": ["tsconfig.eslint.json"]
+	},
 	"rules": {
 		"@typescript-eslint/adjacent-overload-signatures": "error",
 		"@typescript-eslint/await-thenable": "error",
@@ -38,7 +41,7 @@
 			"error",
 			"never"
 		],
-		"dot-notation": "error",
+		// "dot-notation": "error",
 		"eol-last": "error",
 		// "guard-for-in": "error",
 		"new-parens": "error",

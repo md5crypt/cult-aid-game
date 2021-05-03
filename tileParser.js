@@ -26,11 +26,11 @@ function parseProperties(properties, sprite, props) {
 			case "list":
 				assert(prop.type == "string", sprite.resource)
 				sprite[prop.name] = prop.value.trim().split(/\s+/)
-				break;
+				break
 			case "json":
 				assert(prop.type == "string", sprite.resource)
 				sprite[prop.name] = JSON.parse(prop.value)
-				break;
+				break
 			default:
 				assert(prop.type == props[prop.name], sprite.resource)
 				sprite[prop.name] = prop.value
@@ -145,7 +145,7 @@ function buildMap(mapFile, tilesetStorage) {
 							type: "zone",
 							name: object.name && !object.name.startsWith("@") ? object.name : undefined,
 							position: [object.x, object.y],
-							dimensions: [object.width, object.height],
+							dimensions: [object.width, object.height]
 						},
 						{
 							enabled: "bool",

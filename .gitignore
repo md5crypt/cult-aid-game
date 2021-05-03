@@ -4,5 +4,4 @@ build
 static/pixi.js
 tileset/*.png
 speech/audio
-scripts/src/dialogs.d.ts
-scripts/src/fragments.d.ts
+scripts/src/types

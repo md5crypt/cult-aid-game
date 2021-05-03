@@ -42,7 +42,7 @@ function buildFontData(input) {
 					char.yoffset
 				],
 				ligatures: ligatures.get(char.id),
-				kernings: kernings.get(char.id),
+				kernings: kernings.get(char.id)
 			}
 		})
 	}
