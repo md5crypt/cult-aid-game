@@ -1,4 +1,4 @@
-import { SpriteElement } from "../../Layout/LayoutPIXI"
+import { SpriteElement } from "../../Layout"
 import { Animator } from "@md5crypt/animator"
 
 export default (element: SpriteElement, direction: number) => new Animator({

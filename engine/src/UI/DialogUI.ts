@@ -1,6 +1,7 @@
+// @ts-nocheck
 import { gameContext } from "../GameContext"
 import { ListenerTracker } from "../Listener"
-import { layoutFactory, SpriteElement, TextElement, BaseElement } from "../Layout/LayoutPIXI"
+import { layoutFactory, SpriteElement, BitmapTextElement, BaseElement } from "../Layout"
 
 import optionLayout from "./Layouts/dialogOption"
 import choiceLayout from "./Layouts/dialogChoice"
@@ -60,7 +61,8 @@ const enum DialogMode {
 }
 
 export class DialogUI {
-	private root: BaseElement
+	/** @internal */
+	public readonly root: BaseElement
 	private mask: BaseElement
 	private animators: ReturnType<typeof animatorsBuilder>
 	private activeOption: number
@@ -73,6 +75,7 @@ export class DialogUI {
 	private resolveSpeech?: () => void
 	private resolveDialog?: (option: number) => void
 
+	/** @internal */
 	constructor(root: BaseElement) {
 		this.root = layoutFactory.create(mainLayout(), root)
 		this.animators = animatorsBuilder(this.root)
@@ -206,7 +209,7 @@ export class DialogUI {
 		const nextIndex = Math.max(0, Math.min(value, body.children.length - 2))
 		const current = body.children[this.activeOption + 1]
 		const next = body.children[nextIndex + 1]
-		const position = Math.floor((this.mask.height / 2) - (next.top + (next.outerHeight / 2)))
+		const position = Math.floor((this.mask.height / 2) - (next.innerTop + (next.outerHeight / 2)))
 		const delta = this.mask.height - body.outerHeight
 		const top = Math.min(0, Math.max(position, delta))
 		if (delta < 0) {
@@ -226,7 +229,7 @@ export class DialogUI {
 	}
 
 	private speechContinue() {
-		const element = this.mask.getElement<TextElement>("speech")
+		const element = this.mask.getElement<BitmapTextElement>("speech")
 		if (!element.next()) {
 			this.mode = DialogMode.NONE
 			this.listenerTracker.clear()
@@ -244,7 +247,7 @@ export class DialogUI {
 			this.claim()
 			this.mode = DialogMode.SPEECH
 			this.mask.deleteChildren()
-			const element = layoutFactory.create(speechLayout(text), this.mask) as TextElement
+			const element = layoutFactory.create(speechLayout(text), this.mask) as BitmapTextElement
 			this.setAvatar(avatar)
 			this.root.enabled = true
 			gameContext.ui.root.update()

@@ -1,5 +1,5 @@
 import { gameContext } from "../GameContext"
-import { layoutFactory, SpriteElement, TextElement, BaseElement } from "../Layout/LayoutPIXI"
+import { layoutFactory, SpriteElement, BitmapTextElement, BaseElement } from "../Layout"
 import * as CardGame from "../MiniGames/CardGame"
 import { Colors } from "../Colors"
 
@@ -96,12 +96,14 @@ class GameInstance {
 }
 
 export class CardGameUI {
+	/** @internal */
 	public readonly root: BaseElement
 
 	private _phase: GamePhase
 
 	private instance?: GameInstance
 
+	/** @internal */
 	public constructor(root: BaseElement) {
 		([
 			["card-altmer", 0x584900],
@@ -274,11 +276,12 @@ export class CardGameUI {
 	}
 
 	public set statusText(value: string) {
-		this.root.getElement<TextElement>("status").setText(value)
+		this.root.getElement<BitmapTextElement>("status").setText(value)
 	}
 
+	/** @internal */
 	protected renderStack(stack: BaseElement, count: number, max: number) {
-		stack.getElement<TextElement>("count").setFormattedText(count, max)
+		stack.getElement<BitmapTextElement>("count").setFormattedText(count, max)
 		let cards
 		if (this.phase == GamePhase.MOVE_CARD || this.phase == GamePhase.PLAY_CARD || count == 0) {
 			cards = stack.getElement("cards-inactive")
@@ -309,7 +312,7 @@ export class CardGameUI {
 		this.renderStack(board.children[4], state.bosmer, 3)
 		this.renderStack(board.children[5], state.farmers, 1 << state.bosmer)
 		this.renderStack(board.children[6], opponent.thievesMeat, CardGame.GameConstants.MAX_THIEVES)
-		this.root.getElement<TextElement>("gold-" + boardName).setFormattedText(state.gold, state.miners - state.altmer - opponent.thievesGold)
-		this.root.getElement<TextElement>("meat-" + boardName).setFormattedText(state.meat, state.farmers - state.miners - state.altmer - opponent.thievesMeat)
+		this.root.getElement<BitmapTextElement>("gold-" + boardName).setFormattedText(state.gold, state.miners - state.altmer - opponent.thievesGold)
+		this.root.getElement<BitmapTextElement>("meat-" + boardName).setFormattedText(state.meat, state.farmers - state.miners - state.altmer - opponent.thievesMeat)
 	}
 }

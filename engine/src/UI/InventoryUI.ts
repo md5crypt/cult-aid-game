@@ -1,9 +1,10 @@
-import { layoutFactory, BaseElement, SpriteElement } from "../Layout/LayoutPIXI"
+import { layoutFactory, BaseElement, SpriteElement } from "../Layout"
 
 import mainLayout from "./Layouts/inventory"
 import inventoryAnimator from "./Animators/inventory"
 
 export class InventoryUI {
+	/** @internal */
 	public readonly root: BaseElement
 
 	private leftHand: SpriteElement
@@ -11,6 +12,7 @@ export class InventoryUI {
 	private leftHandAnimator: ReturnType<typeof inventoryAnimator>
 	private rightHandAnimator: ReturnType<typeof inventoryAnimator>
 
+	/** @internal */
 	public constructor(root: BaseElement) {
 		this.root = layoutFactory.create(mainLayout(), root)
 		this.leftHand = this.root.getElement("left")

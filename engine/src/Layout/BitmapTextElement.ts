@@ -1,22 +1,15 @@
-import { BaseElement, BaseConfig, layoutFactory, LayoutElementJson } from "./BaseElement"
-import { BitmapText, RichText } from "../../Text/BitmapText"
-import { BitmapTextOptions } from "../../Text/BitmapTextOptions"
+import { BaseElement, BaseConfig, layoutFactory } from "./index"
+import { BitmapText, RichText } from "../Text/BitmapText"
+import { BitmapTextOptions } from "../Text/BitmapTextOptions"
 
-export interface TextElementConfig extends BaseConfig {
+export interface BitmapTextElementConfig extends BaseConfig {
 	text?: string
 	style?: BitmapTextOptions
 	rich?: boolean
 	formatter?: (...args: any) => string
 }
 
-export interface TextElementJson <T extends LayoutElementJson> extends LayoutElementJson {
-	type: "text"
-	config?: TextElementConfig
-	children?: T[]
-}
-
-export class TextElement extends BaseElement {
-	/** @internal */
+export class BitmapTextElement extends BaseElement {
 	public readonly handle!: BitmapText
 
 	private text: string | RichText
@@ -26,8 +19,8 @@ export class TextElement extends BaseElement {
 	private textRect: [number, number] | null
 	private formatter?: (...args: any) => string
 
-	public constructor(name?: string, config?: TextElementConfig) {
-		super(new BitmapText(), name, config)
+	public constructor(name?: string, config?: BitmapTextElementConfig) {
+		super(new BitmapText(), "text-bitmap", name, config)
 		this.textRect = null
 		this._offsetNext = 0
 		this._offsetCurrent = 0
@@ -73,6 +66,7 @@ export class TextElement extends BaseElement {
 
 	protected onUpdate() {
 		super.onUpdate()
+		this.handle.position.set(this.innerLeft + this.width / 2, this.innerTop + this.height / 2)
 		this.handle.pivot.set(this.width / 2, this.height / 2)
 		this.handle.width = this.innerWidth
 		this.handle.height = this.innerHeight
@@ -126,4 +120,10 @@ export class TextElement extends BaseElement {
 	}
 }
 
-layoutFactory.register("text", (name, config) => new TextElement(name, config))
+declare module "@md5crypt/layout-pixi/lib/ElementTypes" {
+	export interface ElementTypes {
+		"text-bitmap": {config: BitmapTextElementConfig, element: BitmapTextElement}
+	}
+}
+
+layoutFactory.register("text-bitmap", (name, config) => new BitmapTextElement(name, config))

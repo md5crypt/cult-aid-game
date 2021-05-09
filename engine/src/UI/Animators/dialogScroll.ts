@@ -1,4 +1,4 @@
-import { BaseElement } from "../../Layout/LayoutPIXI"
+import { BaseElement } from "../../Layout"
 import { Animator } from "@md5crypt/animator"
 
 export default (scroll: BaseElement) => new Animator({

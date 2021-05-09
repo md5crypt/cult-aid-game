@@ -26,7 +26,7 @@ import { Container } from "@pixi/display"
 import { settings } from "@pixi/settings"
 import { SCALE_MODES, MIPMAP_MODES } from "@pixi/constants"
 
-import { Animator } from "./UI/Animator"
+import { Animator } from "@md5crypt/animator"
 
 import "./pixiBootstrap"
 import "./TextureAtlasLoader"

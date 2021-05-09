@@ -17,10 +17,10 @@ class Utils {
 
 	static async blackScreen(delay: number) {
 		context.camera.enabled = false
-		context.ui.root.enabled = false
+		context.ui.enabled = false
 		await context.timer.wait(delay)
 		context.camera.enabled = true
-		context.ui.root.enabled = true
+		context.ui.enabled = true
 	}
 
 	static executeDialog(dialog: keyof typeof DialogId) {

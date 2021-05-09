@@ -56,7 +56,7 @@ scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.maid"], as
 			context.ui.dialog.show()
 			break
 		case "hide":
-			context.ui.newspaper.root.enabled = false
+			context.ui.newspaper.enabled = false
 			break
 	}
 })
