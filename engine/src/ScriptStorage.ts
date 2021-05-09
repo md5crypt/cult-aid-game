@@ -69,6 +69,6 @@ export namespace ScriptStorage {
 	export type itemCallback = (item: Sprite.Item) => void | Promise<void>
 	export type dialogStartCallback = (dialogId: string) => void | Promise<void>
 	export type dialogSelectCallback = (optionId: string, dialogId: string) => void | Promise<void> | Promise<boolean> | boolean
-	export type fragmentCallback = (fragmentId: string) => void | Promise<void>
-	export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | Promise<void>
+	export type fragmentCallback = (fragmentId: string) => void | boolean | Promise<void | boolean>
+	export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | boolean | Promise<void | boolean>
 }

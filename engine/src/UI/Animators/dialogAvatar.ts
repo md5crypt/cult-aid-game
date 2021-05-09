@@ -1,5 +1,5 @@
 import { BaseElement } from "../../Layout/LayoutPIXI"
-import { Animator } from "../Animator"
+import { Animator } from "@md5crypt/animator"
 
 export default (avatar: BaseElement) => new Animator({
 	"opened": {
@@ -18,7 +18,7 @@ export default (avatar: BaseElement) => new Animator({
 		})
 	},
 	"closed": {
-		transition: context => context.parameters.visible ? "opening" : false,
+		transition: context => context.parameters.visible && context.parameters.enabled ? "opening" : false,
 		duration: 0,
 		animation: () => avatar.enabled = false
 	},
@@ -30,4 +30,4 @@ export default (avatar: BaseElement) => new Animator({
 			enabled: true
 		})
 	}
-}, {visible: false})
+}, {visible: false, enabled: true})

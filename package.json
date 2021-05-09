@@ -9,6 +9,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@md5crypt/animator": "^1.0.1",
+    "@md5crypt/layout": "^1.0.1",
+    "@md5crypt/layout-pixi": "^1.0.1",
     "@types/node": "^13.13.0",
     "@types/stats.js": "^0.17.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",

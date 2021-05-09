@@ -116,7 +116,7 @@ export class DialogUI {
 				this.setActive(value)
 			}
 		})
-		this.animators.scroll.onStateChange.add(state => {
+		this.animators.scroll.onStateChange = state => {
 			switch (state) {
 				case null:
 					this.ready = false
@@ -149,7 +149,7 @@ export class DialogUI {
 					this.animators.avatar.parameters.visible = false
 					break
 			}
-		})
+		}
 	}
 
 	public ensureClosed() {
@@ -193,9 +193,11 @@ export class DialogUI {
 			this.root.getElement<SpriteElement>("avatar").image = resource
 			this.mask.updateConfig({margin: {left: 150}})
 			this.animators.avatar.parameters.visible = true
+			this.animators.avatar.parameters.enabled = true
 		} else {
 			this.mask.updateConfig({margin: {left: 15}})
 			this.animators.avatar.parameters.visible = false
+			this.animators.avatar.parameters.enabled = false
 		}
 	}
 

@@ -1,13 +1,9 @@
 const storageInitializer = {
-	items: {
-		book: false,
-		sweetroll: false,
-		scribbles: true,
-		newspaper: false,
-		key: false,
-		inscription: false,
-		map: false
+	hands: {
+		left: null as (InventoryItemName | null),
+		right: null as (InventoryItemName | null)
 	},
+	chest: {} as Record<InventoryItemName, boolean>,
 	library: {
 		newspapers: false
 	},
@@ -15,7 +11,23 @@ const storageInitializer = {
 		vampPaperSeen: false,
 		knockedOut: false
 	},
+	chef: {
+		isBreeder: false
+	},
+	plantation: {
+		seenDoor: false,
+		visited: false
+	},
+	thief: {
+		visited: false
+	},
 	technician: {
+	},
+	archeologist: {
+		visited: false
+	},
+	maid: {
+		needsInscription: false
 	},
 	dialog: {
 		hidden: {} as Record<FragmentId, boolean | undefined>,

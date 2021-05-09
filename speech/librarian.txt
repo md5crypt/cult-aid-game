@@ -184,6 +184,7 @@ librarian: Found them!
 %call librarian-newspaper-read-end
 
 %hide
+%seen
 %exit
 
 @option librarian: From the "Vampire" note
@@ -203,6 +204,7 @@ librarian: Anyway here are the other ones.
 %call librarian-newspaper-read-end
 
 %hide
+%seen
 %exit
 
 @option maid: From the "She-Who-Erases" note
@@ -240,6 +242,7 @@ librarian: No, but if it's only a few pages I can make you a copy.
 %show librarian-main.option.copy
 
 %hide
+%seen
 %exit
 
 @option mage: From the "Cannibal necromancer" note
@@ -262,6 +265,7 @@ librarian: Got them all. Have fun reading.
 %call librarian-newspaper-read-end
 
 %hide
+%seen
 %exit
 
 @option back: (Go back)
@@ -279,13 +283,14 @@ librarian: I see. Ask anytime you change your mind.
 
 librarian: Anything you would want to ask?
 
-@option sweetroll: (Give sweetroll)
+@option hidden sweetroll: (Give sweetroll)
 
 khajiit: I've been in the canteen and the chef told me to give you this sweetroll.
 
 librarian: Oh how nice of both of you! He always makes me a moonsugar free batch. I'm a bit over-sensitive to it.
 
 %seen
+%hide
 %push librarian-sweetroll
 
 @option scribbles: (Give Investigator's scribbles)
@@ -321,7 +326,7 @@ khajiit: Thanks.
 
 %hide
 
-@option newspapers: Could you find me more newspapers?
+@option hidden newspapers: Could you find me more newspapers?
 
 khajiit: Could you find me more newspaper issues from those notes I have you?
 
@@ -387,7 +392,7 @@ khajiit: Fine. Yes, yes I do. But not less than anyone else I meet in this place
 
 %seen
 
-@option vampire: Are you a vampire?
+@option hidden vampire: Are you a vampire?
 
 khajiit: Um... how to put this...
 khajiit: Are you a vampire?
@@ -403,7 +408,7 @@ khajiit: Oh that's just not fair...
 
 %seen
 
-@option archaeologist: The archaeologist doesn't seem to like you.
+@option hidden archaeologist: The archaeologist doesn't seem to like you.
 
 khajiit: I heard you had a little discussion with a certain Altmer archaeologist.
 
@@ -419,6 +424,7 @@ khajiit: That must have been a beautiful sight... I wish I was there to witness 
 
 %show dwemer
 %seen
+%hide
 
 @option hidden dwemer: You know a lot about the Dwemer?
 
@@ -462,7 +468,7 @@ librarian: Here, make him suffer.
 librarian: ...but maybe not too much.
 %hide
 
-@option inscription: Could you help me with a Dwemer inscription?
+@option hidden inscription: Could you help me with a Dwemer inscription?
 
 khajiit: How well do you know dwemer writing?
 
@@ -480,6 +486,7 @@ librarian: What do you want that inscription to say?
 khajiit: Give me a moment, I need to think about it.
 
 %seen
+%hide
 %show take-inscription
 
 @option hidden key: (Take key)

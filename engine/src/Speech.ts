@@ -74,9 +74,11 @@ export class Speech {
 
 	public async executeFragment(id: string, noRelease = false): Promise<void> {
 		const fragment = this.data.fragments[id]
-		await gameContext.scripts.resolve("fragmentBefore", id)?.(id)
+		if (await gameContext.scripts.resolve("fragmentBefore", id)?.(id)) {
+			return
+		}
 		gameContext.ui.dialog.claim()
-		for (let i = 0; i < fragment.length; i++) {
+		loop: for (let i = 0; i < fragment.length; i++) {
 			const item = fragment[i]
 			if ("function" in item) {
 				switch (item.function) {
@@ -90,7 +92,6 @@ export class Speech {
 						gameContext.storage.dialog.hidden[item.argument || id] = false
 						break
 					case "exit":
-						console.log(this._dialog)
 						this._dialog!.exit()
 						break
 					case "pop":
@@ -100,7 +101,9 @@ export class Speech {
 						await this.executeFragment(item.argument!)
 						break
 					case "invoke":
-						await gameContext.scripts.resolveOrThrow("fragmentInvoke", id)(item.argument, id)
+						if (await gameContext.scripts.resolveOrThrow("fragmentInvoke", id)(item.argument, id)) {
+							break loop
+						}
 						break
 					case "push":
 					case "replace":
@@ -117,7 +120,7 @@ export class Speech {
 					void this.audio.play(soundId)
 				}
 				await gameContext.ui.dialog.renderSpeech(
-					`[color=${character.color}]${character.name}:[/color] ${item.text}`,
+					character.name ? `[color=${character.color}]${character.name}:[/color] ${item.text}` : item.text,
 					character.avatars[item.avatar || "default"]
 				)
 				if (this.audio && soundId in this.audio.sprites) {

@@ -1,5 +1,5 @@
 import { BaseElement } from "../../Layout/LayoutPIXI"
-import { Animator } from "../Animator"
+import { Animator } from "@md5crypt/animator"
 
 export default (arrow: BaseElement, delta: number) => new Animator({
 	"opened": {

@@ -1,11 +1,7 @@
 class RegionLoader {
-	private callbacks: Map<string, Array<() => void | Promise<void>>>
+	private static callbacks: Map<string, Array<() => void | Promise<void>>> = new Map()
 
-	public constructor() {
-		this.callbacks = new Map()
-	}
-
-	public register(map: MapId, callback: () => void | Promise<void>) {
+	static register(map: MapId, callback: () => void | Promise<void>) {
 		let array = this.callbacks.get(map)
 		if (!array) {
 			array = []
@@ -14,7 +10,7 @@ class RegionLoader {
 		array.push(callback)
 	}
 
-	public async execute(map: MapId) {
+	static async execute(map: MapId) {
 		for (const callback of (this.callbacks.get(map) || [])) {
 			const result = callback()
 			if (result instanceof Promise) {
@@ -23,5 +19,3 @@ class RegionLoader {
 		}
 	}
 }
-
-const regionLoader = new RegionLoader()

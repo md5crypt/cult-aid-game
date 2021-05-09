@@ -52,6 +52,8 @@ chef: This one has no objections to that.
 
 khajiit: So, would you mind talking for a bit?
 
+%seen
+
 @dialog chef-moonsugar
 
 @prompt
@@ -67,7 +69,7 @@ khajiit: What... what happened to your accent?
 
 chef: Khajiit does not know what you are talking about.
 
-%seen
+%hide chef-main.option.moonsugar
 %pop
 
 @option drop: (Drop the subject)
@@ -83,23 +85,41 @@ chef: Speak friend, Khajiit listens.
 
 @option take-sweetroll: (Take sweetroll)
 
+%invoke test
+
 khajiit: I'll take that sweetroll please.
+
+%invoke open
+
+null: Item added: "Traditional" Sweatroll
+
+%invoke close
 
 chef: Let it's sweetness bring calmness to your mind.
 
 %seen
+%hide
 
 @option hidden take-food: (Take food)
+
+    %invoke test
 
 khajiit: I'll take that meal you created.
 
 chef: Here it is. This one hopes it will be enough to show fellow Khajiit's friend the true nature of Khajiit cousine.
 
+%invoke open
+
+null: Item added: Food That Almost Has No Moonsugar In It
+
+%invoke close
+
 khajiit: Thanks, I'm sure she'll love it.
 
+%seen
 %hide
 
-@option make-food: Could you pack me some food for a um... friend?
+@option hidden make-food: Could you pack me some food for a um... friend?
 
 khajiit: Listen, I have a... um... friend that keeps saying that Khajiit food is primitive rubbish that's made only to get you high on moonsugar.
 
@@ -118,10 +138,11 @@ chef: Yes, perhaps fellow Khajiit's words are not without wisdom. This one will 
 
 chef: It is done. When ready, take this one's creation and give it to your friend.
 
+%seen
 %hide
 %show take-food
 
-@option breeder: Do you um... breed daedra?
+@option hidden breeder: Do you um... breed daedra?
 
 khajiit: So I've talked with a certain Bomser.
 
@@ -133,8 +154,8 @@ chef: And what does fellow Khajiit think is the answer?
 
 khajiit: That the Bomser is utterly insane?
 
-chef: Yes, but his words always seem to hold a grain of truth.
-chef: To this one the Bosmer is a shattered mirror. Broken and fragmented, yet still trying to show the world as it is.
+chef: Fellow Khajiit is correct, but at the same time mistaken.
+chef: The Bomser's words always seem to carry a grain of truth. This one sees him as a shattered mirror: broken into a thousand pieces, yet still reflecting the world as it is. Just differently.
 
 khajiit: And what exactly would be that grain in case of the "daedra breeder"?
 
@@ -142,7 +163,7 @@ chef: This one never said he understood him.
 
 %seen
 
-@option door: About that door behind the kitchen...
+@option hidden door: About that door behind the kitchen...
 
 khajiit: There's a strange door with a keypad behind the kitchen, where does it lead to?
 
@@ -152,7 +173,7 @@ khajiit: I really don't know what else I was expecting.
 
 %seen
 
-@option plantation: I've seen the plantation.
+@option hidden plantation: I've seen the plantation.
 
 khajiit: Who are you?
 

@@ -140,5 +140,8 @@
 		"tts": {
 			"voice": "en+Gene"
 		}
+	},
+	"null": {
+		"avatars": {}
 	}
 }

@@ -1,6 +1,17 @@
+scripts.register("fragmentInvoke", FragmentId["test-equip"], async value => {
+	if (value == "show") {
+		context.ui.dialog.hide()
+		Inventory.add("book", true)
+		await context.timer.wait(2000)
+		context.ui.dialog.show()
+	} else {
+		Inventory.close()
+	}
+})
+
 scripts.register("dialogSelect", DialogId["test-give-item"], id => {
 	if (id == "book" || id == "sweetroll") {
-		storage.items[id] = true
+		Inventory.add(id)
 	}
 })
 
@@ -26,11 +37,11 @@ scripts.register("zoneUse", ZoneId["debug"], () => {
 })
 
 scripts.register("mapLoad", MapId["main"], () => {
-	const point = utils.getPoint(PointId["init-room"])
-	utils.resolvePosition(point).cell.group.forEach(x => x.visible = true)
+	const point = Utils.getPoint(PointId["init-room"])
+	Utils.resolvePosition(point).cell.group.forEach(x => x.visible = true)
 	context.player.setMapPosition(point[0], point[1])
 	context.camera.lockOn(context.player)
-	void regionLoader.execute(MapId["main"])
+	void RegionLoader.execute(MapId["main"])
 })
 
 scripts.register("zoneEnter", ClassId["auto-reveal"], () => {
@@ -64,7 +75,7 @@ scripts.register("cellEnter", "fireTrap", async (cell) => {
 			["sequence", 9, 10, 200],
 			["loop", 4]
 		],
-		["invoke", () => (utils.reset(), true)]
+		["invoke", () => (Utils.reset(), true)]
 	]))
 	player.cell.addItem(fire)
 })
@@ -91,7 +102,7 @@ scripts.register("cellEnter", "spiderTrap", async (cell) => {
 		], 200)
 		animation.onEnd.add(() => {
 			player.cell.addItem(context.Item.create("spider-web"))
-			void context.timer.wait(200).then(utils.reset)
+			void context.timer.wait(200).then(Utils.reset)
 		})
 		animation.onInvoke.add(() => (camera.shake(400, 1), false))
 		spider.setAnimation(animation)

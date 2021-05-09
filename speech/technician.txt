@@ -1,3 +1,6 @@
+
+
+
 @fragment technician-touch-server
 
 technician: Hey! Keep your dirty paws off that!
@@ -38,6 +41,12 @@ khajiit: Fair enough.
 @option hidden book: (Give book)
 
 khajiit: Here, I brought you a book from the library. Should be a better read then that server manual.
+
+%invoke open
+
+null: Item removed: Lusty Argonian Maid
+
+%invoke close
 
 technician: Really? And look at that, a classic!
 technician: That's... actually the kindest thing that happened to me for a long time.

@@ -15,12 +15,12 @@ scripts.register("zoneEnter", ZoneId["forbidden-section-exit"], async () => {
 	context.player.unlockInput()
 })
 
-scripts.register("zoneUse", ZoneId["forbidden-section-bookshelf"], () => utils.executeDialog("forbidden-section-bookshelf"))
+scripts.register("zoneUse", ZoneId["forbidden-section-bookshelf"], () => Utils.executeDialog("forbidden-section-bookshelf"))
 
 scripts.register("dialogStart", DialogId["forbidden-section-bookshelf"], async () => {
 	storage.dialog.hidden["forbidden-section-bookshelf.option.exit-normal"] = storage.librarian.vampPaperSeen
 	storage.dialog.hidden["forbidden-section-bookshelf.option.exit-newspaper"] = !storage.librarian.vampPaperSeen || storage.dialog.seen["forbidden-section-bookshelf.option.exit-newspaper"]
-	await utils.executeIfUnseen("forbidden-section-bookshelf-intro")
+	await Fragment.executeIfUnseen("forbidden-section-bookshelf-intro")
 })
 
 scripts.register("fragmentAfter", FragmentId["forbidden-section-bookshelf.option.view-newspaper"], async () => {

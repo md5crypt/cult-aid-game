@@ -160,7 +160,7 @@ window.addEventListener("load", async () => {
 		gameContext.map.render(...bounds)
 		gameContext.stage.tile.scale.set(zoom)
 		gameContext.stage.tile.pivot.set(left + CONST.GRID_BASE, top + CONST.GRID_BASE)
-		Animator.update()
+		Animator.update(delta)
 		gameContext.ui.root.update()
 		stats.end()
 	})
