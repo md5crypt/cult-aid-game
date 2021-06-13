@@ -7,7 +7,8 @@ export default (): LayoutElementJson => ({
 		enabled: false,
 		width: element => Math.min(800, element.parent.width - 16),
 		left: element => (element.parent.width - element.width) / 2,
-		height: "100%"
+		height: "100%",
+		volatile: true
 	},
 	children: [
 		{
