@@ -37,12 +37,14 @@ scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror"], valu
 scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror-2"], value => {
 	if (value == "open") {
 		Inventory.open("mirror")
-	} else if (value == "close")  {
+	} else if (value == "close") {
 		Inventory.close()
 	} else {
 		Inventory.replace("mirror", "watcher", true)
 	}
 })
+
+scripts.register("fragmentAfter", FragmentId["bosmer-main.option.hair"], () => Inventory.has("mirror") && Dialog.push("bosmer-post-hair"))
 
 scripts.register("dialogStart", DialogId["bosmer-info"], () => Fragment.executeIfUnseen("bosmer-info-intro"))
 

@@ -195,6 +195,21 @@ bosmer: The discourse pleased the Investigator as well.
 %exit
 
 
+@dialog bosmer-post-hair
+
+@prompt
+
+bosmer: The investigator will reconsider looking into the mirror.
+
+@option mirror: (Give mirror)
+
+%pop
+%call bosmer-main.option.mirror-2
+
+@option back: (Back)
+
+%pop
+
 
 @fragment bosmer-info-intro
 

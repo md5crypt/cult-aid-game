@@ -8,4 +8,8 @@ class Dialog {
 	static execute(dialog: keyof typeof DialogId) {
 		return context.speech.executeDialog(dialog)
 	}
+
+	static push(dialog: keyof typeof DialogId) {
+		context.speech.dialog.push(dialog)
+	}
 }
