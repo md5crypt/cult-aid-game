@@ -19,7 +19,8 @@ const storageInitializer = {
 		visited: false
 	},
 	thief: {
-		visited: false
+		visited: false,
+		knockedOut: false
 	},
 	technician: {
 	},
@@ -29,6 +30,9 @@ const storageInitializer = {
 	maid: {
 		needsInscription: false
 	},
+	bosmer: {
+		seenMirror: false
+	},
 	dialog: {
 		hidden: {} as Record<FragmentId, boolean | undefined>,
 		seen: {} as Record<FragmentId, boolean | undefined>
@@ -37,3 +41,6 @@ const storageInitializer = {
 
 type Storage = typeof storageInitializer
 Object.assign(storage, storageInitializer)
+
+// storage.dialog.seen["chef-intro"] = true
+// storage.dialog.seen["chef-post-intro"] = true

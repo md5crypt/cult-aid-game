@@ -30,6 +30,16 @@ export class InventoryUI {
 		this.rightHandAnimator.parameters.replace = value || "item-empty-right"
 	}
 
+	public openLeft(left: string | null) {
+		this.leftHand.image = left || "item-empty-left"
+		this.leftHandAnimator.parameters.opened = true
+	}
+
+	public openRight(right: string | null) {
+		this.rightHand.image = right || "item-empty-right"
+		this.rightHandAnimator.parameters.opened = true
+	}
+
 	public open(left: string | null, right: string | null) {
 		this.leftHand.image = left || "item-empty-left"
 		this.rightHand.image = right || "item-empty-right"

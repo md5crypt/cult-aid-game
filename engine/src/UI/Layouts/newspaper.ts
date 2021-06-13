@@ -1,4 +1,4 @@
-import type { LayoutElementJson, BaseElement } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (): LayoutElementJson => ({
 	name: "newspaper",

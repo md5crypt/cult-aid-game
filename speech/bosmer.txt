@@ -1,0 +1,357 @@
+
+
+@fragment bosmer-intro
+
+bosmer: You! Who are you! Why are you disguising yourself? Trying to fool the Investigator? The Investigator can see right through your lies!
+
+khajiit: Oh, hello. I'm just a completely unimportant Khajiit that'll immediately leave you alone.
+
+bosmer: Fool! Still trying your trickery on the Investigator? I see the wings! I see the horns!
+bosmer: You're not a Khajiit! You're a Daedra!
+
+khajiit: *visible confusion*
+
+bosmer: Surprised? The Investigator sees everything!
+
+khajiit: You've got me there, I was not expecting that.
+
+bosmer: Ha! No Daedra will pass unnoticed by the Investigator’s eyes!
+
+khajiit: Yes, that indeed seems to be the case.
+
+%seen
+
+@dialog bosmer-main
+
+@prompt
+
+bosmer: Speak fiend, what business brings you to the Investigator?
+
+@option hidden mirror: (Give mirror)
+
+khajiit: Could you look at your reflection in this mirror?
+
+%invoke open
+
+bosmer: Why would the Investigator do that?
+
+khajiit: There's um... something in your hair.
+
+bosmer: Such trivial matters do not bother the Investigator.
+
+%invoke close
+
+@option hidden mirror-2: (Give mirror)
+
+khajiit: So...
+
+%invoke open
+
+bosmer: Fine, the Investigator will look at his reflection.
+
+%invoke replace
+
+// [animacja, watcher przechdzi na lustor a bosmer grzebie w wlosach usuilujac fryz poprwaic]
+null: Item updated: Mirror with daedric attachment
+
+bosmer: Does it look better now?
+
+khajiit: Yes... yes it looks better.
+
+%invoke close
+
+khajiit: What the heck did just happen?
+
+%seen
+%hide head-2
+%hide
+
+@option head-1: There's um... something on your head.
+
+khajiit: This is most probably pointless, but I have to ask.
+khajiit: You know there is a tiny Daedra on your head, right?
+
+bosmer: Such phony lies will never fool the Investigator.
+
+khajiit: Sure, sure, but just to prove your point, could you touch the top of your head?
+
+bosmer: Your words have no control over the Investigator.
+
+khajiit: Yeah, I thought so.
+
+%hide
+%seen
+%show head-2
+
+@option hidden head-2: Help! Little Daedra are attaching themselves to people's heads!
+
+khajiit: I have a case for you Sir Investigator!
+
+bosmer: Yes? The Investigator is listening. A case is a case, even coming from a Daedra.
+
+khajiit: I've been sent here in disguise to warn unsuspecting mortals. Little tentacle creatures escaped from oblivion and are attaching themselves to people's heads!
+khajiit: Their victims remain completely unaware that they've been attacked. You could even be one of them right now!
+
+bosmer: Ha! You underestimate the Investigator! Try as much you want, the Investigator knows there's nothing on his head. Your daedric lies will change not a thing.
+
+%seen
+%hide
+
+@option who-are-you: Who are you exactly?
+
+khajiit: So you're an investigator?
+
+bosmer: Yes.
+
+khajiit: What do you... um... investigate?
+
+bosmer: Everything.
+
+khajiit: Ah yes, everything.
+khajiit: Any progress?
+
+bosmer: To understand the Investigators work one must first accept that all is connected, nothing happens by accident and everything follows the Plan.
+bosmer: Each day brings the Investigator closer and closer to understanding the patterns that govern the Plan.
+
+khajiit: And what exactly does the Investigator want to achieve by investigating this plan?
+
+bosmer: The Investigator was hired to protect his client. To protect his client he must understand the Plan.
+
+%seen
+%show patterns
+%show-unseen client-1
+
+@option hidden client-1: Wait, someone was desperate enough to actually hire you?
+
+khajiit: Your client? So you're actually working for someone? May I ask for whom?
+
+bosmer: The client needs protection. Only the Investigator can ensure his safety. Therefore the client's identity must remain hidden.
+
+khajiit: And how long have you been on this... case?
+
+bosmer: For eighty-seven years four months and twenty-two days.
+
+khajiit: Right... and when was the last time you've seen this client?
+
+bosmer: Eighty-seven years three months and six days ago.
+
+khajiit: Yeah, I had a feeling you might say something like that.
+
+%show client-2
+%seen
+%hide
+
+@option hidden client-2: Have you ever tried contacting your client?
+
+khajiit: So through these eight-something years had you at least once tried to contact this client of yours?
+
+bosmer: The Investigator's client demanded privacy. He shall not be contacted unless there is a major breakthrough in the case.
+
+khajiit: Are you sure you shouldn't check if he's, you know... still alive?
+
+bosmer: The client shall not be contacted unless there is a major breakthrough in the case.
+
+%seen
+%hide
+
+@option hidden notes: Those numbers in your notes? What do they mean?
+
+khajiit: I um... analysed The Board of Unraveled Connections and found myself unable to interpret the numbers I found there.
+
+bosmer: The numbers are keys, keys to knowledge! Knowledge The Lady of Darkness will not willingly allow to leave her Forcursed Domain!
+bosmer: The Investigator dares not to anger The Lady. The Lady benevolently grants The Investigator access to her knowledge. The Lady is kind to The Investigator.
+bosmer: Of course even for a moment The Investigator does not forget what a foul beast The Lady is!
+
+khajiit: Of course.
+khajiit: Anyway, could you elaborate in what way the numbers are "keys"?
+
+bosmer: They allow The Investigator to return to knowledge he has previously found.
+bosmer: In the old days The Investigator was allowed to request copies but after The Accident he was forever denied access to the Copy Machine.
+
+khajiit: Thanks, I think I'll choose my sanity over curiosity and ask you to change the subject.
+
+%seen
+
+@option hidden patterns: Any information you could share with me?
+
+%push bosmer-info
+
+@option hidden hair: What if the Librarian sees your messy hair?
+
+khajiit: I don't think the Librarian would approve of such messy hair.
+
+bosmer: The Investigator does not understand what his colleague is suggesting.
+bosmer: But he will reconsider looking into the mirror.
+
+%seen
+%hide
+
+@option exit: (Exit)
+
+khajiit: Thanks for the... fascinating discussion.
+
+bosmer: The discourse pleased the Investigator as well.
+
+%exit
+
+
+
+@fragment bosmer-info-intro
+
+khajiit: Could you share what you have discovered about this place while studying this plan of yours?
+
+bosmer: The Investigator hesitates. Why should he share information with a Daedra?
+
+khajiit: Listen, since you've seen through my disguise I will tell you the truth. I am an undercover agent sent from oblivion to carry out a secret investigation.
+
+bosmer: A fellow investigator?
+
+khajiit: Yes, exactly that. Will you share information with a cross-realm colleague?
+
+bosmer: The Investigator has decided. He will share information he has gathered about the residents of this place.
+bosmer: He will aslo grant fellow investigator access to The Board of Unraveled Connections.
+
+%seen
+
+
+@dialog bosmer-info
+
+@prompt
+
+bosmer: About whom would fellow investigator like to hear about?
+
+@option board: Board of Unraveled Connections?
+
+bosmer: Yes, yes, the Investigator uses it to keep track of information he has gathered. It plays a most crucial role in his search for new pieces of The Plan.
+bosmer: It's content will undoubtedly help fellow investigators in his case.
+
+khajiit: Thanks, I'll be sure to take a look.
+
+%seen
+
+@option chef: The Chef
+
+bosmer: The Investigator must warn his colleague to be careful around the chef, for he is not who he seems to be.
+bosmer: He is a Daedra breeder!
+
+khajiit: Excuse me, he is a what?
+
+bosmer: The chef working in the canteen is only a persona created to hide who he truly is. Deep under his kitchen lay secret chambers in which he practices his foul craft of breeding Daedra.
+bosmer: The Investigator has seen this with his own eyes!
+
+khajiit: Um... look, not that I don't believe you... but you know that's not how Daedra err.. work, right? I mean they... that is we don't even have a gender to begin with.
+
+bosmer: The Investigator must think about what was said. He thanks his daedric friend for providing a fresh perspective on the matter.
+
+%seen
+
+@option mage: The Mage
+
+bosmer: The Investigator shivers at the thought of that wicked abomination! The cannibal necromancer! The madman that resurrects flesh only to consume it!
+bosmer: Hunted by the mage's guild, he has found shelter in this cave. The cult welcomed him, as his mastery of the dark arts knows no other.
+
+khajiit: Cannibal necromancer? That's well... new.
+
+%seen
+
+@option mercenary: The Mercenary
+
+bosmer: The Investigator knows little about the old man, although suspects him of secretly practicing illegal alchemy. Fellow colleague should be careful what he drinks in his presence.
+
+%seen
+
+@option maid: The Maid
+
+bosmer: The Investigator thinks she is a very kind person with absolutely no secrets and will not talk about her aloud. He also advises his colleague to do the same.
+bosmer: That said, the Investigator has made many notes on the subject of the maid's kindness.
+
+khajiit: Oh? And where can I find these notes?
+
+bosmer: The Investigator keeps all information on The Board of Unraveled Connections.
+
+%seen
+
+@option librarian: The Librarian
+
+bosmer: The Investigator's heart beats faster in fear when he hears about her.
+bosmer: The Orsimer vampire. As dangerous as she is beautiful. The Blood Rose of the Night. The Lady of Darkness.
+bosmer: The cold gaze of her blood red eyes induces deep confusion in the Investigator's mind. After visits to the library he can not stop thinking about her for many days.
+
+khajiit: How do you know she is a vampire?
+
+bosmer: The Investigator does not understand how there could be any doubt? Her fangs are for all to see!
+
+khajiit: Have you thought that having fangs is umm... quite normal for Orsimer?
+
+bosmer: The Investigator is shocked by such displays of racial prejudice!
+
+%seen
+
+@option technician: The Technician
+
+bosmer: The Investigator has seen through his corporate lies! The technician intentionally creates faults to fix them in the future!
+
+khajiit: Yeah, I think this one is actually on point.
+
+%seen
+
+@option back: (Go back)
+
+khajiit: Thanks for sharing the um... unquestionably helpful information.
+
+bosmer: The Investigator was glad he could help.
+
+%pop
+
+@fragment bosmer-board-deny
+
+bosmer: Do not touch that! The Plan is not meant for your faul eyes!
+
+@fragment bosmer-board-intro
+
+khajiit: Ah yes, The Board of Unraveled Connections. What eye shattering contents does it hide?
+khajiit: I hope analysing it won't render me blind and or insane!
+
+%seen
+
+@dialog bosmer-board-main
+
+@prompt
+
+khajiit: Let's see what we have here.
+
+@option analyse: (Analyse board)
+
+khajiit: So besides the completely random strings and bits of unrelated newspaper cutouts there are some notes that seem to follow a common pattern.
+
+khajiit: There are four of them in total and they all have a single name followed by a column of numbers.
+
+khajiit: "Daedra breeder", "Vampire", "She-Who-Erases", "Cannibal necromancer"
+
+khajiit: The numbers do not seem to mean anything in particular but they all have the same amount of digits. For example there's "9781794030046" under "Vampire".
+
+%show take
+%seen
+
+@option hidden take: (Take notes)
+
+%invoke test
+
+khajiit: I have absolutely no idea what to do with these notes.
+khajiit: I was also only permitted to LOOK at the board, not to randomly take stuff from it.
+khajiit: But I am a Khajiit, so yeah. Should've seen that coming Mr. Investigator.
+
+%invoke open
+
+null: Item added: The Investigator's notes
+
+%invoke close
+
+khajiit: Oh right, he still thinks I'm Daedra.
+
+%hide
+%hide analyse
+
+@option exit: (Exit)
+
+%exit

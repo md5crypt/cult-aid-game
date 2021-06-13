@@ -1,10 +1,5 @@
 @fragment inventory-inventory-full
 	khajiit: I can't take that, my hands are full at the moment.
 
-
-@fragment test-equip
-	zombie: take this peace of shit!
-	%invoke show
-	null: Peace of shit equipped!
-	%invoke hide
-	khajiit: I don't know what to say.
+@fragment todo
+	khajiit: Placeholder action handler.

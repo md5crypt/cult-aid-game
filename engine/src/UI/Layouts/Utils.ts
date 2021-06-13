@@ -1,5 +1,4 @@
-import type { LayoutElementJson, BaseElement } from "../../Layout/LayoutPIXI"
-import { LayoutElement } from "../../Layout/LayoutBase"
+import type { LayoutElementJson, BaseElement } from "../../Layout"
 
 export function wrap(item: LayoutElementJson): LayoutElementJson {
 	return {
@@ -25,11 +24,11 @@ export function filter(children: ("" | false | null | undefined | LayoutElementJ
 	return children.filter(x => x) as LayoutElementJson[]
 }
 
-export function horizontalCenter<T extends BaseElement>(self: LayoutElement<T>) {
+export function horizontalCenter<T extends BaseElement>(self: T) {
 	return (self.parent.width - self.width) >> 1
 }
 
-export function verticalCenter<T extends BaseElement>(self: LayoutElement<T>) {
+export function verticalCenter<T extends BaseElement>(self: T) {
 	return (self.parent.height - self.height) >> 1
 }
 
@@ -37,7 +36,7 @@ export function transform<T>(condition: boolean, f: (value: T) => T, value: T) {
 	return condition ? f(value) : value
 }
 
-export function background(color?: string | number, alpha?: number): LayoutElementJson {
+export function background(color?: number, alpha?: number): LayoutElementJson {
 	return {
 		type: "sprite",
 		layout: {
@@ -47,7 +46,7 @@ export function background(color?: string | number, alpha?: number): LayoutEleme
 		},
 		config: {
 			scaling: "stretch",
-			tint: color ?? "white",
+			tint: color ?? 0xFFFFFF,
 			alpha: alpha ?? 1
 		}
 	}

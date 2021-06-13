@@ -50,6 +50,17 @@
 			"voice": "en+aunty"
 		}
 	},
+	"thief-hooded": {
+		"name": "Cultist",
+		"color": "#0f4880",
+		"avatars": {
+			"default": "avatar-thief-hooded",
+			"no-hood": "avatar-thief-hungry"
+		},
+		"tts": {
+			"voice": "en+aunty"
+		}
+	},
 	"maid": {
 		"name": "Maid",
 		"color": "#726012",
@@ -139,6 +150,14 @@
 		},
 		"tts": {
 			"voice": "en+Gene"
+		}
+	},
+	"atronach": {
+		"name": "Fire Atronach",
+		"color": "#96281b",
+		"avatars": {
+			"default": "avatar-atronach-sad",
+			"sad": "avatar-atronach-sad"
 		}
 	},
 	"null": {

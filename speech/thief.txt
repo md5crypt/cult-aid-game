@@ -1,0 +1,467 @@
+
+
+
+
+@fragment thief-pre-intro
+
+thief-hooded: *sob* So I've finally been found... *snif* took you long enough...
+thief-hooded: I give up! I don't care what you do with me! I just want this nightmare to end.
+
+khajiit: Err...
+
+thief-hooded: Is... is that... *snif* a daedra costume?
+
+khajiit: Oh silly me, I must've taken the wrong turn! Please don't trouble yourself, I'll immediately see myself out.
+
+thief-hooded: No, wait... why are you wearing a daedra costume?
+
+khajiit: This one took too much skooma and woke up like this, now this one will quickly walk away...
+
+thief-hooded: That's *snif* racist.
+
+khajiit: That's new. From when did anyone consider being racist towards Khajiits as being racist?
+
+//takes of her hood
+%invoke
+
+thief-hooded no-hood: They don't
+
+khajiit: Oh.
+khajiit: That was unexpected. There isn't a hint of accent in your voice.
+
+%seen
+
+@fragment thief-intro
+
+thief-hooded no-hood: Who are you?
+
+khajiit: I... um... I guess there is no point in lying? I work for a conjuration scam company. Things got a bit messy.
+
+thief-hooded no-hood: So not a cultist?
+
+khajiit: Not a cultist.
+
+thief-hooded no-hood: Can... can... I hug you?
+
+khajiit: Wait, what?
+khajiit: OK, time out lady, what's going on here. Who are you, why are you here, and why are you crying? 
+
+thief-hooded no-hood: It was supposed to be an easy job. Go in, take shiny stuff, go out.
+thief-hooded no-hood: And then everything went wrong... look at me now, trapped, alone, without anything to eat, sitting on the ground... waiting for the end.
+
+khajiit: So a thief, I see... Could I ask you a few more questions? Maybe I'll find a way to help both of us.
+
+%seen
+
+@dialog thief-main
+
+@prompt
+
+thief: What do you *snif* want to know?
+
+@option hidden sweetroll: (Give sweetroll)
+
+khajiit: Here, I brought you a sweetroll. Not much but maybe it will do.
+
+%invoke open
+
+null: Item removed: "Traditional" Sweatroll
+
+%invoke close
+
+thief: I... I... don't know what to say.
+
+%invoke eat
+
+thief: What was in it? I Never tasted anything... like... it...
+
+%invoke eat
+
+thief: Wow... your eyes... were always so... scattered? There is one... and there... and...
+
+%invoke fall
+
+khajiit: And it looks like she lost consciousness.
+khajiit: I mean what did I expect? Giving a moonsugar loaded sweetroll to a starving khajiit with no accent? At least now I can go through the stuff she stole.
+
+%exit
+
+@option food: (Give food)
+
+khajiit: I managed to get you some food.
+
+%invoke open
+
+// big cute eyes avatar
+thief: *silent stare*
+
+khajiit: Oh stop looking at me like that and just take the damn thing!
+
+null: Item removed: Packed meal
+
+%invoke close
+
+thief: Why… why are you helping me?
+
+khajiit: What, I'm just to let you starve? To death? What kind of monster would I need to be?
+
+thief: I don't know what to say… thank you.
+
+khajiit: Just to avoid that white sauce while eating.
+
+thief: Why? Is something wrong with it?
+
+khajiit: It's very… um… spicy. Trust me on that one.
+
+%invoke eat
+
+thief: It's surprisingly good. What's in it? I never tasted anything like it.
+
+%invoke eat
+
+khajiit: Well… you see, the cultits have a canteen with a rather old-school Khajiit chef. He has this little fixation on “traditional food”.
+
+thief: Wait, so that weird taste was…
+
+khajiit: Moonsugar.
+
+thief: And that sauce that you told me to avoid?
+
+khajiit: Given that I can smell it from here, probably almost pure moonsugar.
+
+thief: You drugged me! And I trusted you!
+
+khajiit: Look, that was the only thing I could get, besides you're a Khajiit, you'll be fine.
+
+thief: Oh, so being a Khajiit automatically makes me some kind of moonsugar junkie?
+
+khajiit: Sugar tooth, also no. Calm down, It was a small amount added only for the taste.
+
+thief: It's because the likes of you Khajiit are seen as low lifes!
+
+khajiit: Right, says the Khajiit thief.
+
+thief: I… I… *snif* I never wanted to steal. I was out of utter desperation.
+thief: I hated myself for it. To become the very thing everyone was judging me to be?
+thief: But at the same time... it came so easily to me, it was like the only thing in my miserable life I was actually good at.
+thief: I tried to fight it! Stopped stealing, found a proper job, returned to being an upstanding citizen... but for all my efforts it was not working.
+thief: I hated my life, I hated every aspect of it. I hated my job, I hated my coworkers, and most of all, I hated myself.
+thief: All the distrust I had to put up with, the suspicious looks, the comments whispered behind my back? They all were well grounded! I was a dirty little Khajiit thief!
+thief: And then, after several months of torture, it all ended in a single instant. They fired me. Staff reduction. So I gave in. Embraced what I truly was.
+thief: A dirty little Khajiit thief.
+
+khajiit: That was... surprisingly sincere.
+khajiit: You seem to have some severe identity problems. Have you ever considered moving to a place with more Khajiits?
+
+thief: It's a bit too late for that.
+
+khajiit: I would say it's never too late to try.
+
+thief: Says the Khajiit scammer.
+
+khajiit: *sigh* I did what I had to, you're not the only one that can get desperate.
+
+thief: You are right. You were just trying to be nice and I attacked you.
+
+khajiit: It's fine. I mean you were having a moonsugar induced mental breakdown inside a cultist cave after almost starving to death, how can I get mad?
+
+%seen
+    %replace thief-fed
+
+@option hidden shovel: (Give shovel)
+
+khajiit: Look, I found a power shovel! With it you can probably dig through!
+
+thief: Maybe... and maybe not. It's not exactly designed for digging tunnels and I don't have any motivation left to try. The cup was my limit.
+
+khajiit: Fine, then I'll dig through myself.
+
+thief: Do you know how to use a power shovel?
+
+khajiit: It's a shovel, right? You stick it in the ground and like... you know... dig?
+
+thief: Don't even try. You'll collapse the tunnel entirely and die.
+
+khajiit: So you'll just sit here and do nothing?
+
+thief: Look, how miserable that may sound, I doubt I would currently be able to stand up straight.
+
+khajiit: I guess we'll need to solve that problem first.
+
+%seen
+
+@option wrong: What happened?
+
+khajiit: So what exactly "went wrong"?
+
+thief: My tunnel collapsed. I rushed it and did not secure it properly... but the ground seemed so stable.
+thief: Oh, why was I so careless?
+
+khajiit: And you can't just dig through the collapsed section because?
+
+thief: All my tools are on the other side, I can't do much without them...
+thief: I mean I tried... look at my poor hands. I've been trying to dig with a silver cup for the past... who knows how many hours?
+
+khajiit: That sounds rough.
+
+thief: ...and I thought about the cup only after my claws started bleeding.
+
+khajiit: You know what, maybe let's talk about something else. Preferably with as little bleeding claws as possible.
+
+%show place
+%hide
+%seen
+
+@option time: How long have you been here?
+
+khajiit: How long have you been sitting here?
+
+thief: I don't know, I lost track of time... a few hours? A day? Maybe two? Long enough for hunger to suck all the energy I had left.
+
+khajiit: That doesn't sound too good.
+
+%seen
+
+@option loot: Can I see your loot?
+
+khajiit: So what did you manage to steal before you got stuck here?
+
+thief: Nothing worth dying for. Some candle holders, portable shrines, knifes, cups, weird toys... general cultist stuff
+
+khajiit: Can I take a look?
+
+thief: No! Go find your own loot.
+
+%seen
+
+@option hidden place: Weren't there any better places to steal from?
+
+khajiit: From all available places why break into a cultist cave? It really doesn't sound like the best target to choose.
+
+thief: Well... this might sound a bit silly... but you know how all cultists are unquestionably evil?
+
+khajiit: That's a quite bold statement, but go on.
+
+thief: So... stealing from them is like... morally fine?
+
+khajiit: I don't even know how to begin to process that.
+
+thief: Says the Khajiit in a daedra costume.
+
+khajiit: At least I have a semi-sane explanation for wearing it.
+
+%hide
+
+@option accent: You don't sound like a Khajiit.
+
+khajiit: How come you have absolutely no accent? I couldn't tell you're a Khajiit until I saw your face.
+
+thief: You know... not everyone grew up in Khajiit slums.
+
+khajiit: Hey! That's rude!
+khajiit: ...also it's that obvious?
+
+thief: At least you're not a living disgrace to your race.
+
+khajiit: Oh come on, how is my situation better than yours?
+
+thief: You mean besides not sitting on the ground and crying?
+
+khajiit: Right, maybe let's change the subject.
+
+%hide
+
+@option exit: (Exit)
+
+khajiit: I think I'll leave you be for now.
+
+thief: Sure go away, it's not like I wanted to have someone around to talk with while starving to death.
+
+%exit
+
+@dialog thief-fed
+
+@prompt
+
+thief: I can't stress how much I thank you
+
+@option hidden shovel: (Give shovel)
+
+khajiit: Look, I found a power shovel! With it you can probably dig through!
+
+thief: I... I... still can't hug you?
+
+khajiit: I fear our animation budget might be too non-existent for that.
+khajiit: So I understand it'll do the job?
+
+thief: It'll be tricky but I think I'll manage to pull it off.
+
+%replace thief-end
+
+@option hidden shovel-alt: (Give shovel)
+
+khajiit: Got enough energy to give that shovel a go?
+
+thief: Khajiit thinks her motivation might be scraped together successfully.
+
+khajiit: Now that's a joke I did not expect to hear from you.
+
+thief: I blame the moonsugar.
+
+%replace thief-end
+
+@option hidden sweetroll: (Give sweetroll)
+
+khajiit: Do you want a sweetroll? The chef gave me one.
+
+thief: More moonsugar? No thanks.
+
+khajiit: Yeah, I thought so... 
+
+%seen
+
+@option feel: Feeling any better?
+
+khajiit: So how are you holding?
+
+thief: It seems I can cross "starvation" from my "most probable cause of death" list.
+thief: I'll replace it with "crippling moonsugar addiction".
+
+khajiit: That's the spirit.
+
+%hide
+
+@option plan: Got any escape plans?
+
+khajiit: By any chance, did that meal bestow upon you knowledge that would help us get out of this place?
+
+thief: No, but I'm sure I'll figure something out. I always do.
+thief: At least I always did, you know, before I sat down crying, slowly waiting for the end.
+
+%seen
+
+@option loot: So about your loot...
+
+khajiit: Can I go though your loot? Maybe I'll find something useful.
+
+thief: Of course. If we somehow manage to escape this place it's all yours.
+thief: That and everything else I have.
+
+khajiit: Um... I'm sincerely not sure how to feel about that.
+
+%seen
+
+@option exit: (Exit)
+
+khajiit: Stay here until your head fully clears up. I'll go look around, maybe I'll find something useful.
+
+%exit
+
+@fragment thief-end-intro
+
+thief: Will you... um... tag along? I could use some help.
+
+khajiit: Of course, I had enough of this cave just as much as you had.
+
+thief: You really will? // insert puppy eyes
+
+khajiit: Please don't make me question that.
+
+%seen
+
+@dialog thief-end
+
+@prompt
+
+thief: Ready to cut through some rocks?
+
+@option leave: Lead the way.
+
+khajiit: I guess now or never.
+
+thief: Then let's not waste a single moment more!
+
+%invoke 
+
+khajiit: Bit tight in here.
+
+thief: Oh, stop complaining and keep the light still.
+thief: Also I want to say something in case the tunnel collapses on our heads.
+
+khajiit: Wait, that's an option? I feel heavily under-informed.
+
+thief: Thank you. I want to say thank you.
+thief: But that's not all, there's something else I would want to say as well.
+
+khajiit: Look, I don't want to ruin our little moment here, but what was it about the tunnel collapsing on our heads?
+
+thief: Keep the light still and everything will be fine.
+
+%exit
+
+// odglosy mlota pneumatycznego po czym ziemia zasypuje wejscie do tunelu
+// cinematic (wyczolguja sie na powieszchnie, epilog)
+
+@option stay: Give me a moment.
+
+khajiit: I gladly will but can you give me a moment? I got some unfinished business here.
+
+thief: That's fine, I'll wait. Lately I got very good at waiting.
+
+%exit
+
+@fragment thief-knocked-out
+
+khajiit: She's out cold. Just like my dignity.
+
+@fragment thief-loot-pre
+
+khajiit: I think I should at least try talking with that cultist before I start randomly stealing stuff.
+
+@fragment thief-loot-deny
+
+thief: Hey, I might be dying over here but that's MY loot!
+ 
+thief: At least have the decency to wait for me to actually die before going through it.
+
+@fragment thief-loot-ask
+
+khajiit: I think I should first ask her if she's still so defensive about her loot.
+
+@dialog thief-loot
+
+@prompt
+
+khajiit: Khajiits just love loot and from what I can tell I'm no exception.
+
+@option hidden take: (Take fireproof etch-a-netch)
+
+%invoke test
+
+khajiit: This is so mind boggling absurd that I have to take it.
+
+%invoke open
+
+null: Item added: Fireproof drawing toy
+
+%invoke close
+
+khajiit: Who knows, maybe it will actually be useful for something.
+
+%hide
+
+@option examine: (Examine)
+
+khajiit: Let's see... silver plates, jewelry, candle holders, cups, ornament daggers and... a fireproof etch-a-netch?
+
+khajiit: Wait, I've seen this before. It's a toy you can draw on using two knobs. A kid from my neighborhood had one... at least until his dad pawned it for some skooma money. Fun times.
+
+khajiit: But why make a fireproof version? And what is it doing in a cultist cave?
+
+%show take
+
+%seen
+
+@option exit: (Exit)
+
+%exit

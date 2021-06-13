@@ -1,10 +1,16 @@
 class Fragment {
-	static seen(fragment: keyof typeof FragmentId) {
-		return !!storage.dialog.seen[fragment]
+	static seen(...fragments: (keyof typeof FragmentId)[]) {
+		return fragments.every(fragment => storage.dialog.seen[fragment])
 	}
 
-	static unseen(fragment: keyof typeof FragmentId) {
-		return !storage.dialog.seen[fragment]
+	static unseen(...fragments: (keyof typeof FragmentId)[]) {
+		return fragments.every(fragment => !storage.dialog.seen[fragment])
+	}
+
+	static setSeenIf(fragment: keyof typeof FragmentId, condition: boolean) {
+		if (condition) {
+			storage.dialog.seen[fragment] = true
+		}
 	}
 
 	static setVisibility(fragment: keyof typeof FragmentId, value: boolean) {

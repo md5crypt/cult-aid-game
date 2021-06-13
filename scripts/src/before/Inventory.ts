@@ -25,6 +25,20 @@ class Inventory {
 		return true
 	}
 
+	static replace(from: InventoryItemName, to: InventoryItemName, triggerUI = false) {
+		if (storage.hands.right == from) {
+			if (triggerUI) {
+				context.ui.inventory.replaceRight(inventoryItems[to].image)
+			}
+			storage.hands.right = to
+		} else if (storage.hands.left == from) {
+			if (triggerUI) {
+				context.ui.inventory.replaceLeft(inventoryItems[to].image)
+			}
+			storage.hands.left = to
+		}
+	}
+
 	static remove(item: InventoryItemName, triggerUI = false) {
 		if (storage.hands.right == item) {
 			if (triggerUI) {
@@ -45,47 +59,72 @@ class Inventory {
 		return false
 	}
 
-	static open() {
-		context.ui.inventory.open(
-			storage.hands.left && inventoryItems[storage.hands.left].image,
-			storage.hands.right && inventoryItems[storage.hands.right].image
-		)
+	static open(item?: InventoryItemName) {
+		if (item) {
+			if (storage.hands.left == item) {
+				context.ui.inventory.openLeft(inventoryItems[item].image)
+			} else if (storage.hands.right == item) {
+				context.ui.inventory.openRight(inventoryItems[item].image)
+			}
+		} else {
+			context.ui.inventory.open(
+				storage.hands.left && inventoryItems[storage.hands.left].image,
+				storage.hands.right && inventoryItems[storage.hands.right].image
+			)
+		}
 	}
 
 	static close() {
 		context.ui.inventory.close()
 	}
 
-	static equipHandler(item: InventoryItemName) {
+	static equipHandler(item: InventoryItemName, callback?: (value?: string) => void | boolean | Promise<boolean | void>) {
 		return async (value?: string) => {
-			if (value == "test") {
-				if (this.isFull) {
-					this.open()
-					await Fragment.execute("inventory-inventory-full")
-					this.close()
-					return true
-				}
-			} else if (value == "open") {
-				context.ui.dialog.hide()
-				Inventory.add(item, true)
-				await context.timer.wait(2000)
-				context.ui.dialog.show()
-			} else {
-				Inventory.close()
+			switch (value) {
+				case "test":
+					if (this.isFull) {
+						this.open()
+						await Fragment.execute("inventory-inventory-full")
+						this.close()
+						return true
+					}
+					break
+				case "open":
+					context.ui.dialog.hide()
+					Inventory.add(item, true)
+					await context.timer.wait(2000)
+					context.ui.dialog.show()
+					break
+				case "close":
+					Inventory.close()
+					break
+				default:
+					if (callback) {
+						return callback(value)
+					}
+					break
 			}
 			return false
 		}
 	}
 
-	static unEquipHandler(item: InventoryItemName) {
+	static unEquipHandler(item: InventoryItemName, callback?: (value?: string) => void | boolean | Promise<boolean | void>) {
 		return async (value?: string) => {
-			if (value == "open") {
-				context.ui.dialog.hide()
-				Inventory.remove(item, true)
-				await context.timer.wait(2000)
-				context.ui.dialog.show()
-			} else {
-				Inventory.close()
+			switch (value) {
+				case "open":
+					context.ui.dialog.hide()
+					Inventory.remove(item, true)
+					await context.timer.wait(2000)
+					context.ui.dialog.show()
+					break
+				case "close":
+					Inventory.close()
+					break
+				default:
+					if (callback) {
+						return callback(value)
+					}
+					break
 			}
 			return false
 		}

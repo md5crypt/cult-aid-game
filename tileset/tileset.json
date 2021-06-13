@@ -21,7 +21,7 @@
          "name":"room",
          "tile":26
         }],
- "tilecount":28,
+ "tilecount":29,
  "tiledversion":"1.4.3",
  "tileheight":120,
  "tiles":[
@@ -417,6 +417,18 @@
                  "name":"revealed",
                  "type":"bool",
                  "value":true
+                }]
+        }, 
+        {
+         "id":50,
+         "image":"room-tunnel.png",
+         "imageheight":120,
+         "imagewidth":120,
+         "properties":[
+                {
+                 "name":"plugs",
+                 "type":"string",
+                 "value":"maze"
                 }]
         }],
  "tilewidth":120,

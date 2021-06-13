@@ -1,4 +1,4 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (text: string, seen: boolean): LayoutElementJson => ({
 	name: "@option",
@@ -35,7 +35,7 @@ export default (text: string, seen: boolean): LayoutElementJson => ({
 		},
 		{
 			name: "text",
-			type: "text",
+			type: "text-bitmap",
 			layout: {
 				flexGrow: 1
 			},

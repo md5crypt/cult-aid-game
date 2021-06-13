@@ -1,0 +1,63 @@
+@dialog tunnel-test-chest
+
+@prompt
+	null: Debug chest!
+
+@option shovel: (Take shovel)
+	%invoke test
+	%invoke open
+	null: Item equipped: Shovel
+	%invoke close
+
+@option food: (Take food)
+	%invoke test
+	%invoke open
+	null: Item equipped: Food
+	%invoke close
+
+@option sweetroll: (Take Sweetroll)
+	%invoke test
+	%invoke open
+	null: Item equipped: Sweetroll
+	%invoke close
+
+@option exit: (Exit)
+	%exit
+
+// ---------------------------------------
+
+@dialog boiler-test-chest
+
+@prompt
+	null: Debug chest!
+
+@option watcher: (Take watcher)
+	%invoke test
+	%invoke open
+	null: Item equipped: Mirror with watcher
+	%invoke close
+
+@option etchASketch: (Take fireproof drawing toy)
+	%invoke test
+	%invoke open
+	null: Item equipped: Etch-a-netch
+	%invoke close
+
+@option exit: (Exit)
+	%exit
+
+// ---------------------------------------
+
+@dialog office-test-chest
+
+@prompt
+	null: Debug chest!
+
+@option mirror: (Take mirror)
+	%invoke test
+	%invoke open
+	null: Item equipped: Mirror
+	%invoke close
+
+@option exit: (Exit)
+	%exit

@@ -1,8 +1,8 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (text: string): LayoutElementJson => ({
 	name: "speech",
-	type: "text",
+	type: "text-bitmap",
 	layout: {
 		width: "100%",
 		height: "100%",

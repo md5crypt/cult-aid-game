@@ -1,6 +1,3 @@
-@fragment todo
-	khajiit: Placeholder action handler.
-
 @dialog card-game-test
 
 @prompt

@@ -57,6 +57,10 @@ export class Speech {
 		return this._dialog
 	}
 
+	public getDialogOptions(id: string) {
+		return this.data.dialogs[id].options.map(x => id + ".option." + x.id)
+	}
+
 	public async executeDialog(id: string, noClaim?: boolean): Promise<void>
 	public async executeDialog(id: string, intro?: string): Promise<void>
 	public async executeDialog(id: string, arg?: string | boolean): Promise<void> {
@@ -90,6 +94,11 @@ export class Speech {
 						break
 					case "show":
 						gameContext.storage.dialog.hidden[item.argument || id] = false
+						break
+					case "show-unseen":
+						if (!gameContext.storage.dialog.seen[item.argument || id]) {
+							gameContext.storage.dialog.hidden[item.argument || id] = false
+						}
 						break
 					case "exit":
 						this._dialog!.exit()
@@ -185,7 +194,7 @@ export class Dialog {
 			const filteredOptions = options.filter(option => !option.hidden)
 			const selectedId = filteredOptions[await gameContext.ui.dialog.renderOptions({
 				options: filteredOptions,
-				prompt: `[color=${character.color}]${character.name}:[/color] ${prompt.text}`,
+				prompt: character.name ? `[color=${character.color}]${character.name}:[/color] ${prompt.text}` : prompt.text,
 				avatar: character.avatars[prompt.avatar || "default"],
 				activeOption
 			})].id

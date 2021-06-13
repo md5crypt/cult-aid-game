@@ -1,4 +1,4 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (): LayoutElementJson => ({
 	name: "inventory",

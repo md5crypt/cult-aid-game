@@ -1,0 +1,287 @@
+
+
+@fragment atronach-intro
+
+khajiit: Weird, I have a feeling this fire atronach is trying to tell me something...
+
+// atronach shows fu
+atronach: *silently gesticulates*
+
+khajiit: Oh... maybe not...
+
+%seen
+
+@dialog atronach-initial
+
+@prompt
+
+atronach: *stares intensely*
+
+@option hidden etch-a-sketch: (Give drawing toy)
+
+khajiit: Maybe you could use this to communicate? I don't really know why I would want that though...
+
+%invoke open
+
+null: Item removed: Fireproof drawing toy
+
+%invoke close
+
+khajiit: You can rotate the two knobs to...
+
+atronach: WHAT IS THIS TRICKERY
+
+khajiit: ...draw. That was... fast... how did you...
+
+atronach: WHAT IS THIS TRICKERY
+
+khajiit: I don't understand, what trickery?
+
+atronach: THE DISGUISE
+atronach: WHO ARE YOU TRYING TO FOOL?
+
+khajiit: Oh, right, I forgot I have this thing on me. No, I'm not trying to fool anyone.
+
+atronach: THEN WHY THE DISGUISE?
+
+khajiit: So I assume you never heard about conjuration scams?
+
+atronach: WHY DID HE SEND YOU?
+
+khajiit: Send me? Who are you referring to?
+
+atronach: THE KHAJIIT THAT TRAPPED ME HERE.
+
+khajiit: A Khajiit? You mean the chef? Scar over right eye? Severe moonsugar obsession?
+
+atronach: YES
+
+khajiit: Then I have nothing to do with him. I kind of broke into here on my own.
+
+atronach: I DO NOT BELIEVE YOU.
+
+%seen
+%replace atronach-main
+
+@option smalltalk: (Attempt smalltalk)
+
+khajiit: So... you want to spend some quality time together or...
+
+// atronach shows double fu
+atronach: *silently gesticulates*
+
+khajiit: Yeah, that's about what I expected.
+
+%seen
+
+@option ext: (Exit)
+
+khajiit: I probably should leave it alone.
+
+%exit
+
+@dialog atronach-main
+
+@prompt
+
+atronach: WHAT DO YOU WANT
+
+@option place: What is this place?
+
+khajiit: What is this place? So kind of boiler room?
+
+atronach: I DO NOT KNOW.
+
+khajiit: You don't know? Then what are you doing here?
+
+atronach: I AM TO PROVIDE HEAT OR BE BANISHED
+
+khajiit: Harsh.
+
+%show time
+%seen
+
+@option relate: How did you end up here?
+
+khajiit: So what's your story? How did you end up in this place?
+
+atronach: AFTER AN ETERNITY OF TRYING I SLIPPED INTO NIRN. A MORTAL MAGE FOUND ME. DEFEATED ME. BOUND ME. ORDERED TO LISTEN TO A KHAJIIT.
+
+khajiit: Let me rephrase that to see if I understood correctly.
+khajiit: You've spent a lifetime striving for a better tomorrow only to find yourself in an even worse position than before? For reasons you can't be really blamed for?
+
+atronach: INACCURATE. BUT ACCEPTABLE.
+
+khajiit: Believe me, I can relate to that.
+
+%show prison
+%seen
+
+@option hidden time: How long have you been here?
+
+khajiit: How long have you been um... providing heat here?
+
+atronach: I DO NOT KNOW.
+
+khajiit: There must be something to at least approximate the value... the Khajiit... did his appearance somehow change during your imprisonment here?
+
+atronach: YES. HE WORE DIFFERENT CLOTHES.
+
+khajiit: That was... extremely unhelpful.
+
+%show eloquent
+%hide
+
+@option hidden prison: What's holding you here?
+
+khajiit: What's exactly holding you here? Why can't you like... walk away?
+
+atronach: WITH THE BINDING CIRCLE
+
+khajiit: And where would that binding circle be?
+
+atronach: ON THE GROUND. AROUND ME.
+
+khajiit: Where exactly does it start?
+
+atronach: I DO NOT KNOW. DAEDRA CAN NOT SEE IT.
+
+khajiit: Well then apparently I can't see it as well because there is nothing here.
+
+%show circle
+%hide
+
+@option hidden circle: About that binding circle...
+
+khajiit: What exactly happens when you try to leave that circle?
+
+atronach: IT WILL BANISH ME
+
+khajiit: ...and that is worse then your current situation?
+
+atronach: I MAY NEVER LEAVE OBLIVION AGAIN
+
+khajiit: So you prefer to be used by mortals to heat some pipes for the rest of eternity?
+
+atronach: THE SPELL IS BOUND TO THE KHAJIIT. WHEN HE DIES I WILL BE FREE.
+
+khajiit: I guess that does make some sense... it's not like you have to be bothered with the concept of time slowly sapping your life away.
+khajiit: No, wait, it doesn't. How exactly will you know that the Khajiit died?
+
+atronach: THE CIRCLE WILL DISAPPEAR
+
+khajiit: Ah yes, right, the same one that daedra can't see. I’m starting to see a pattern here.
+
+%show scam
+%hide
+
+@option hidden eloquent: Are all atronachs this... eloquent?
+
+khajiit: I never talked with an atronach before, is your kind always this... eloquent?
+
+atronach: HOW ABOUT YOU TRY WRITING ON THIS SHITTY TOY?
+atronach: WE'LL SEE HOW DAZZLING YOUR SPEECH WILL BE WHEN YOU'LL HAVE TO DRAW EACH FUCKING LETTER WITH TWO FUCKING KNOBS.
+
+khajiit: Point taken.
+
+%hide
+
+@option hidden scam: I think you have been scammed
+
+khajiit: What is the source of your knowledge about this... spell?
+
+atronach: THE MAGE
+
+khajiit: The same one that imprisoned you here?
+
+atronach: CORRECT
+
+khajiit: You know that all of this sounds like complete bullshit?
+
+atronach: PLEASE ELABORATE
+
+khajiit: So you are trapped in an imprisonment that you can not see and you have no way to verify if the imprisonment itself even exists?
+
+atronach: CORRECT
+
+khajiit: Then how can you be so sure that this "binding circle" even existed in the first place? What if the only thing holding you here is your own fear of being banished?
+khajiit: The way things are you won't even know when this "spell" expires. You can end up being trapped here forever.
+
+atronach: *stares silently*
+
+khajiit: ...and I think I broke her. She stopped responding.
+
+%seen
+%replace atronach-final
+
+@option exit: (Exit)
+
+khajiit: I'll just leave you for now. Have a blast heating those pipes.
+
+%exit
+
+@dialog atronach-final
+
+@prompt
+
+atronach: *silence*
+
+@option hidden mirror: (Use mirror with daedric attachment)
+
+%invoke open
+
+khajiit: See this little daedra?
+
+atronach: *silent nod*
+
+%invoke walk-in
+
+khajiit: Can we agree I'm inside your "binding circle"? Now let's do a little experiment.
+
+%invoke walk-out
+
+khajiit: And look! The daedra is still here, unbanished.
+
+%invoke close
+
+atronach: THE CIRCLE CAN BE BOUND ONLY TO ME
+
+khajiit: And maybe you can make up even more bullshit for every argument I make? There will always be some kind of uncertainty but at some point you have to take your chances.
+
+atronach: WHY ARE YOU DOING THIS?
+
+khajiit: I do not know. Maybe it’s because your situation is too similar to my own or maybe I'm genuinely trying to help. Just because I'm doing something doesn't mean I know why.
+
+atronach: FINE. YOU WIN. LET IT BE KNOWN THAT A MORTAL MANAGED TO BANISH A DAEDRA ONLY BY SPEAKING TO IT.
+
+%invoke walk-out-2
+
+khajiit: Now that I think about it freeing an enslaved daedra might not have been the brightest thing to...
+
+atronach: STAY CLOSE BEHIND ME
+
+khajiit: Um... may I ask why?
+
+atronach: NO
+
+%exit
+
+@option talk: Hello?
+
+khajiit: Are you still there? Maybe a nod for a yes?
+
+atronach: *silence*
+
+khajiit: A nod for no?
+
+atronach: *silence*
+
+khajiit: Yeah... I guess I would need something to convince her further.
+
+%seen
+
+@option exit: (Exit)
+
+khajiit: No point in talking to an unresponsive fire atronach.
+
+%exit

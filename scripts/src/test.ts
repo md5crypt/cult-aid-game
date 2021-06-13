@@ -1,14 +1,3 @@
-scripts.register("fragmentInvoke", FragmentId["test-equip"], async value => {
-	if (value == "show") {
-		context.ui.dialog.hide()
-		Inventory.add("book", true)
-		await context.timer.wait(2000)
-		context.ui.dialog.show()
-	} else {
-		Inventory.close()
-	}
-})
-
 scripts.register("dialogSelect", DialogId["test-give-item"], id => {
 	if (id == "book" || id == "sweetroll") {
 		Inventory.add(id)

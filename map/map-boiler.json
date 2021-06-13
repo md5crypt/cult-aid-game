@@ -1,4 +1,11 @@
 { "compressionlevel":-1,
+ "editorsettings":
+    {
+     "export":
+        {
+         "target":"."
+        }
+    },
  "height":9,
  "infinite":false,
  "layers":[
@@ -50,8 +57,31 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":919,
-                 "y":625
+                 "x":925,
+                 "y":622
+                }, 
+                {
+                 "gid":76,
+                 "height":20.5,
+                 "id":4,
+                 "name":"item-boiler-test-chest",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":34,
+                 "x":625,
+                 "y":618
+                }, 
+                {
+                 "height":20,
+                 "id":5,
+                 "name":"zone-boiler-test-chest",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":41,
+                 "x":622,
+                 "y":607
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -60,7 +90,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":4,
+ "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.4.3",
@@ -69,6 +99,10 @@
         {
          "firstgid":1,
          "source":"..\/tileset\/tileset-boiler.json"
+        }, 
+        {
+         "firstgid":12,
+         "source":"..\/tileset\/tileset-objects.json"
         }],
  "tilewidth":120,
  "type":"map",

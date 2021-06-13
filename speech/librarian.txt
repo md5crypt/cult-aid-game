@@ -71,7 +71,15 @@ khajiit: Let's take a look.
 
 @option hidden take-map: (Take map)
 
+%invoke test
+
 khajiit: Sorry ma'am, but I will be taking that map.
+
+%invoke open
+
+null: Item added: Legitimately acquired map
+
+%invoke close
 
 %hide
 
@@ -113,6 +121,13 @@ khajiit: It turns out that drugging someone and then going through their stuff i
     librarian: I'll taste it right away!
 
 @option do-nothing: (Do nothing)
+
+%invoke open
+
+null: Item removed: "Traditional" Sweatroll
+
+%invoke close
+
 librarian: He did a stellar job! It never tasted... so... good...
 librarian: Is... is... it just me... or did everything... turn... red?
 librarian: Blood red.
@@ -120,7 +135,7 @@ librarian: Blood red.
 khajiit: I have a feeling I might have just made a huge mistake.
 
 // librarian falls unconscious
-%invoke
+%invoke fall
 
 khajiit: Or not.
 khajiit: But it hurts to trick her like that.
@@ -297,6 +312,12 @@ librarian: Oh how nice of both of you! He always makes me a moonsugar free batch
 
 khajiit: Do these scribbles mean anything to you?
 
+%invoke open
+
+null: Item removed: "The" investigator's notes
+
+%invoke close
+
 librarian: Sure, they are standard newspaper catalog numbers.
 
 khajiit: You have a newspaper archive here alongside all these books?
@@ -312,6 +333,8 @@ librarian: Sure! Would be glad to!
 %push librarian-fetch
 
 @option hidden copy: (Take newspaper copy)
+
+%invoke test
     
 khajiit: Can you make me that copy? I only need one page.
 
@@ -321,6 +344,12 @@ librarian: Sure, just show me which one.
 %invoke
 
 librarian: Here you go.
+
+%invoke open
+
+null: Item added: Old newspaper article
+
+%invoke close
 
 khajiit: Thanks.
 
@@ -458,13 +487,22 @@ khajiit: But I am grateful for the proposition.
 
 @option hidden take-inscription: (Take Dwemer inscription)
 
+%invoke test
+
 khajiit: So about that inscription...
 khajiit: Let's go with "Khajiit was given shines to paint a fake dwemer mural"
 
 // writing sfx + optional animation
-%invoke
+%invoke write
 
 librarian: Here, make him suffer.
+
+%invoke open
+
+null: Item added: Completely authentic dwemer inscription
+
+%invoke close
+
 librarian: ...but maybe not too much.
 %hide
 
@@ -491,9 +529,17 @@ khajiit: Give me a moment, I need to think about it.
 
 @option hidden key: (Take key)
 
+%invoke test
+
     khajiit: Can you borrow me that key you mentioned?
 
     librarian: Sure, here you go.
+
+%invoke open
+
+null: Item added: Rusty key
+
+%invoke close
 
     %hide
     %show key-info 

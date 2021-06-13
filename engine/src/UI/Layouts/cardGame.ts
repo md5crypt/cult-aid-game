@@ -1,5 +1,4 @@
-import type { LayoutElementJson, BaseElement } from "../../Layout/LayoutPIXI"
-import type { LayoutConfig } from "../../Layout/LayoutBase"
+import type { LayoutElementJson, BaseElement, LayoutConfig } from "../../Layout"
 import * as Utils from "./Utils"
 
 function button(name: string, text: string): LayoutElementJson {
@@ -25,7 +24,7 @@ function button(name: string, text: string): LayoutElementJson {
 				}
 			},
 			{
-				type: "text",
+				type: "text-bitmap",
 				config: { text }
 			}
 		]
@@ -89,7 +88,7 @@ function cardStack(type: string, size: number, marginRight: number, mirrored: bo
 			},
 			{
 				name: "count",
-				type: "text",
+				type: "text-bitmap",
 				layout: {
 					margin: mirrored ? { bottom: 2 } : { top: 4 }
 				},
@@ -128,10 +127,9 @@ function table(name: string, mirrored: boolean): LayoutElementJson {
 
 function line(type: "left" | "middle" | "right", layout?: LayoutConfig<BaseElement>): LayoutElementJson {
 	return {
-		type: "sprite",
+		type: "sprite-sliced",
 		layout: layout ?? { flexGrow: 1 },
 		config: {
-			scaling: "9slice",
 			slices: [1, 0, 1, 0],
 			image: type == "middle" ? "card-game-line-double" : "card-game-line",
 			flipped: type == "right" ? "horizontal" : undefined
@@ -142,7 +140,7 @@ function line(type: "left" | "middle" | "right", layout?: LayoutConfig<BaseEleme
 function gold(side: "top" | "bottom"): LayoutElementJson {
 	return {
 		name: "gold-" + side,
-		type: "text",
+		type: "text-bitmap",
 		layout: {
 			width: 50,
 			top: self => (self.parent.height >> 1) + (side == "top" ? -18 : 6),
@@ -159,7 +157,7 @@ function gold(side: "top" | "bottom"): LayoutElementJson {
 function meat(side: "top" | "bottom"): LayoutElementJson {
 	return {
 		name: "meat-" + side,
-		type: "text",
+		type: "text-bitmap",
 		layout: {
 			top: self => (self.parent.height >> 1) + (side == "top" ? -18 : 6),
 			left: self => self.parent.outerWidth + 6
@@ -173,7 +171,7 @@ function meat(side: "top" | "bottom"): LayoutElementJson {
 
 export default (): LayoutElementJson => ({
 	name: "card-game",
-	type: "sprite",
+	type: "container",
 	layout: {
 		enabled: false,
 		left: Utils.horizontalCenter,
@@ -184,15 +182,21 @@ export default (): LayoutElementJson => ({
 		flexHorizontalAlign: "center",
 		flexVerticalAlign: "middle"
 	},
-	config: {
-		container: true,
-		image: "card-game-bg-pattern",
-		scaling: "repeat"
-	},
 	children: [
 		{
+			type: "sprite-tiled",
+			layout: {
+				ignoreLayout: true,
+				width: self => self.parent.outerWidth,
+				height: self => self.parent.outerHeight
+			},
+			config: {
+				image: "card-game-bg-pattern"
+			}
+		},
+		{
 			name: "buttons",
-			type: "sprite",
+			type: "container",
 			layout: {
 				width: 90,
 				flexMode: "vertical",
@@ -201,13 +205,19 @@ export default (): LayoutElementJson => ({
 					vertical: 6
 				}
 			},
-			config: {
-				container: true,
-				image: "card-game-button-container",
-				scaling: "9slice",
-				slices: [16, 16, 16, 16]
-			},
 			children: [
+				{
+					type: "sprite-sliced",
+					layout: {
+						ignoreLayout: true,
+						width: self => self.parent.width,
+						height: self => self.parent.height
+					},
+					config: {
+						image: "card-game-button-container",
+						slices: [16, 16, 16, 16]
+					}
+				},
 				button("rules", "Game Rules"),
 				button("surrender", "Surrender"),
 				button("undo", "Undo Move"),
@@ -237,12 +247,18 @@ export default (): LayoutElementJson => ({
 					children: [
 						line("left", { width: 54 }),
 						{
-							type: "sprite",
-							config: {
-								container: true,
-								image: "card-game-icon-gold"
+							type: "container",
+							layout: {
+								width: self => self.children[0].contentWidth,
+								height: self => self.children[0].contentHeight
 							},
 							children: [
+								{
+									type: "sprite",
+									config: {
+										image: "card-game-icon-gold"
+									}
+								},
 								gold("top"),
 								gold("bottom")
 							]
@@ -250,7 +266,7 @@ export default (): LayoutElementJson => ({
 						line("middle"),
 						{
 							name: "status",
-							type: "text",
+							type: "text-bitmap",
 							layout: {
 								margin: {
 									horizontal: 8
@@ -265,13 +281,19 @@ export default (): LayoutElementJson => ({
 						},
 						line("middle"),
 						{
-							type: "sprite",
-							layout: { margin: { horizontal: 4 } },
-							config: {
-								container: true,
-								image: "card-game-icon-meat"
+							type: "container",
+							layout: {
+								width: self => self.children[0].contentWidth,
+								height: self => self.children[0].contentHeight,
+								margin: { horizontal: 4 }
 							},
 							children: [
+								{
+									type: "sprite",
+									config: {
+										image: "card-game-icon-meat"
+									}
+								},
 								meat("top"),
 								meat("bottom")
 							]

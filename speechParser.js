@@ -109,6 +109,7 @@ const functionTypes = {
 	"seen": ["undefined", "fragment"],
 	"call": ["fragment"],
 	"show": ["undefined", "fragment"],
+	"show-unseen": ["fragment"],
 	"hide": ["undefined", "fragment"],
 	"invoke": ["undefined", "string"]
 }

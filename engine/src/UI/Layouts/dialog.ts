@@ -1,4 +1,4 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (): LayoutElementJson => ({
 	name: "scroll",
@@ -14,6 +14,7 @@ export default (): LayoutElementJson => ({
 			name: "body",
 			type: "container",
 			layout: {
+				volatile: true,
 				left: element => (element.parent.width - element.width) / 2,
 				height: "100%"
 			},
@@ -36,7 +37,8 @@ export default (): LayoutElementJson => ({
 							type: "container",
 							layout: {
 								width: element => element.parent.parent.parent.width,
-								height: 172
+								height: 172,
+								volatile: true
 							},
 							children: [
 								{
@@ -65,24 +67,31 @@ export default (): LayoutElementJson => ({
 									}
 								},
 								{
-									type: "sprite",
+									type: "container",
 									layout: {
 										width: "100%",
 										flexMode: "horizontal",
 										padding: {top: 12, bottom: 15, horizontal: 23},
-										height: element => element.contentHeight,
-										top: element => (element.parent.height - element.contentHeight) / 2
-									},
-									config: {
-										container: true,
-										image: "scroll-bg",
-										scaling: "repeat"
+										height: element => element.children[0].contentHeight,
+										top: element => (element.parent.height - element.children[0].contentHeight) / 2
 									},
 									children: [
+										{
+											type: "sprite-tiled",
+											layout: {
+												width: self => self.parent.outerWidth,
+												height: self => self.parent.outerHeight,
+												ignoreLayout: true
+											},
+											config: {
+												image: "scroll-bg"
+											}
+										},
 										{
 											name: "mask",
 											type: "container",
 											layout: {
+												volatile: true,
 												flexGrow: 1,
 												height: "100%"
 											},

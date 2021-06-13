@@ -3,7 +3,7 @@ const inventoryItems = {
 		image: "item-lusty-argonian-maid"
 	},
 	sweetroll: {
-		image: ""
+		image: "item-sweetroll"
 	},
 	scribbles: {
 		image: ""
@@ -12,13 +12,13 @@ const inventoryItems = {
 		image: ""
 	},
 	key: {
-		image: ""
+		image: "item-key"
 	},
 	inscription: {
 		image: "item-dwemer-inscription"
 	},
 	map: {
-		image: ""
+		image: "item-map"
 	},
 	food: {
 		image: ""
@@ -31,5 +31,14 @@ const inventoryItems = {
 	},
 	etchASketch: {
 		image: "item-etch-a-sketch"
+	},
+	mirror: {
+		image: "item-mirror"
+	},
+	watcher: {
+		image: "item-watcher"
+	},
+	necrocomm: {
+		image: "item-necrocomm"
 	}
 }

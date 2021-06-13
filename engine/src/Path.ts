@@ -4,7 +4,7 @@ import { Listener } from "./Listener"
 export type Direction = "up" | "down" | "left" | "right"
 
 export namespace Path {
-	export function updateArray(delta: number, paths: Path[], callback: (x: number, y: number, direction: Direction | "idle") => void) {
+	export function updateArray(delta: number, paths: Path[], callback: (x: number, y: number, direction: Direction | null) => void) {
 		let diff = delta
 		let path = paths[0]
 		while (true) {
@@ -16,7 +16,7 @@ export namespace Path {
 					path = paths[0]
 					continue
 				}
-				callback(path.x, path.y, "idle")
+				callback(path.x, path.y, null)
 				path.onEnd.invoke(path)
 				break
 			}

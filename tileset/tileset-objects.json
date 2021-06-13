@@ -16,7 +16,7 @@
  "margin":0,
  "name":"objects",
  "spacing":0,
- "tilecount":42,
+ "tilecount":50,
  "tiledversion":"1.4.3",
  "tileheight":240,
  "tiles":[
@@ -335,6 +335,72 @@
                  "type":"float",
                  "value":0.5
                 }]
+        }, 
+        {
+         "id":64,
+         "image":"object-chest.png",
+         "imageheight":41,
+         "imagewidth":68,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":65,
+         "image":"object-chest-open.png",
+         "imageheight":60,
+         "imagewidth":68,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":66,
+         "image":"object-thief.png",
+         "imageheight":38,
+         "imagewidth":24
+        }, 
+        {
+         "id":67,
+         "image":"object-tunnel-loot.png",
+         "imageheight":24,
+         "imagewidth":24
+        }, 
+        {
+         "id":68,
+         "image":"object-bosmer.png",
+         "imageheight":117,
+         "imagewidth":54,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
+        }, 
+        {
+         "id":69,
+         "image":"object-office-desk.png",
+         "imageheight":99,
+         "imagewidth":91
+        }, 
+        {
+         "id":70,
+         "image":"object-office-chair.png",
+         "imageheight":50,
+         "imagewidth":41
+        }, 
+        {
+         "id":71,
+         "image":"object-office-board.png",
+         "imageheight":87,
+         "imagewidth":106
         }],
  "tilewidth":240,
  "type":"tileset",

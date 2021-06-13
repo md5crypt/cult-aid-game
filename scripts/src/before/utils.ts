@@ -23,10 +23,6 @@ class Utils {
 		context.ui.enabled = true
 	}
 
-	static executeDialog(dialog: keyof typeof DialogId) {
-		return context.speech.executeDialog(dialog)
-	}
-
 	static getPoint(point: PointId) {
 		return context.map.getObject<"point">(point).position
 	}
@@ -36,14 +32,33 @@ class Utils {
 		return context.map.resolvePosition(position[0], position[1])
 	}
 
-	static pathPoint(path: Types.GameData.PathData, index: number) {
+	static pathPoint(path: Types.GameData.PathData | PathId, index: number) {
+		const data = typeof path == "string" ? context.map.getObject<"path">(path) : path
 		return [
-			path.points[index][0] + path.position[0],
-			path.points[index][1] + path.position[1]
-		]
+			data.points[index][0] + data.position[0],
+			data.points[index][1] + data.position[1]
+		] as const
 	}
 
 	static twoPointPath(from: readonly number[], to: readonly number[]) {
 		return [[0, 0], [to[0] - from[0], to[1] - from[1]]] as const
+	}
+
+	static walkToPositions(position: readonly [number, number]) {
+		return context.player.pushPath(Utils.twoPointPath(
+			context.player.getAbsoluteLocation(),
+			position
+		)).onEnd.promise()
+	}
+
+	static walkToPoint(point: PointId) {
+		context.player.lockInput()
+		return this.walkToPositions(this.getPoint(point)).then(() => context.player.unlockInput())
+	}
+
+	static executePath(path: Types.GameData.PathData | PathId) {
+		const data = typeof path == "string" ? context.map.getObject<"path">(path) : path
+		context.player.lockInput()
+		return context.player.pushPath(data.points).onEnd.promise().then(() => context.player.unlockInput())
 	}
 }

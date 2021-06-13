@@ -2,20 +2,20 @@ scripts.register("mapLoad", MapId["forbidden-section"], async () => {
 	context.map.cells.forEach(cell => cell.visible = true)
 	const path = context.map.getObject<"path">(PathId["forbidden-section-enter"])
 	context.player.setMapPosition(...path.position)
-	await context.player.pushPath(path.points).onEnd.promise()
+	await Utils.executePath(path)
 })
 
 scripts.register("zoneEnter", ZoneId["forbidden-section-exit"], async () => {
 	context.player.lockInput()
-	await context.player.pushPath(context.map.getObject<"path">(PathId["forbidden-section-exit"]).points).onEnd.promise()
+	await Utils.executePath(PathId["forbidden-section-exit"])
 	await context.map.loadMap(MapId["main"])
 	const path = context.map.getObject<"path">(PathId["library-darkness-exit"])
 	context.player.setMapPosition(...path.position)
-	await context.player.pushPath(path.points).onEnd.promise()
+	await Utils.executePath(path)
 	context.player.unlockInput()
 })
 
-scripts.register("zoneUse", ZoneId["forbidden-section-bookshelf"], () => Utils.executeDialog("forbidden-section-bookshelf"))
+scripts.register("zoneUse", ZoneId["forbidden-section-bookshelf"], () => Dialog.execute("forbidden-section-bookshelf"))
 
 scripts.register("dialogStart", DialogId["forbidden-section-bookshelf"], async () => {
 	storage.dialog.hidden["forbidden-section-bookshelf.option.exit-normal"] = storage.librarian.vampPaperSeen

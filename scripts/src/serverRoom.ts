@@ -7,7 +7,7 @@ scripts.register("dialogStart", DialogId["technician-main"], () => {
 scripts.register("fragmentInvoke", FragmentId["technician-main.option.book"], Inventory.unEquipHandler("book"))
 
 scripts.register("zoneUse", ZoneId["server-technician"], () => {
-	void Utils.executeDialog("technician-main")
+	void Dialog.execute("technician-main")
 })
 
 scripts.register("zoneUse", ZoneId["server-power-supply"], () => {

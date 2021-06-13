@@ -10,6 +10,7 @@ import { Listener } from "./Listener"
 import { ScriptTimer } from "./ScriptTimer"
 import { FRAME, TextureFrame } from "./Resources"
 import { MovementSmoother } from "./MovementSmoother"
+import { PathFinder } from "./PathFinder"
 
 export namespace Sprite {
 	export class Background implements Sprite {
@@ -340,6 +341,7 @@ export namespace Sprite {
 		protected moving: boolean
 		protected path: Path[]
 		protected movementSmoother: MovementSmoother
+		protected vector: [number, number]
 
 		public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 			super(walkSequence.idle)
@@ -348,9 +350,31 @@ export namespace Sprite {
 			this.moving = false
 			this.movementSmoother = new MovementSmoother()
 			this.path = []
+			this.vector = [0, 0]
+		}
+
+		public setVector(x: number, y: number) {
+			this.vector[0] = x
+			this.vector[1] = y
 		}
 
 		protected onCellChange() {
+		}
+
+		private updateWalkSequence(dX: number, dY: number) {
+			let sprite
+			if (dY < 0) {
+				sprite = this.walkSequence.up
+			} else if (dY > 0) {
+				sprite = this.walkSequence.down
+			} else if (dX < 0) {
+				sprite = this.walkSequence.left
+			} else if (dX > 0) {
+				sprite = this.walkSequence.right
+			} else {
+				sprite = this.walkSequence.idle
+			}
+			this.setTexture(sprite)
 		}
 
 		public get pathActive() {
@@ -392,17 +416,60 @@ export namespace Sprite {
 		public update(delta: number) {
 			super.update(delta)
 			if (this.pathActive) {
+				this.moving = true
 				Path.updateArray(delta, this.path, (x, y, direction) => {
-					this.moveTo(x, y, false)
-					this.setTexture(this.walkSequence[direction])
+					this.moveTo(x, y)
+					if (direction) {
+						this.setTexture(this.walkSequence[direction])
+					}
 				})
+			} else if (this.vector[0] != 0 || this.vector[1] != 0) {
+				const offsetX = modulo(this.movementSmoother.tX, CONST.GRID_BASE)
+				const offsetY = modulo(this.movementSmoother.tY, CONST.GRID_BASE)
+				const cell = gameContext.map.getClampedCell(
+					Math.floor(this.movementSmoother.tX / CONST.GRID_BASE),
+					Math.floor(this.movementSmoother.tY / CONST.GRID_BASE)
+				)
+				this.moving = true
+				const scalar = delta * (this.speed / CONST.WALK_SPEED_SCALE)
+				for (let queryDelta = Math.ceil(scalar); queryDelta > 0; queryDelta -= 1) {
+					const queryResponse = PathFinder.query(
+						cell,
+						Math.floor(offsetX),
+						Math.floor(offsetY),
+						this.vector[0] * queryDelta,
+						this.vector[1] * queryDelta
+					)
+					if (queryResponse) {
+						const norm = Math.sqrt(queryResponse[0] * queryResponse[0] + queryResponse[1] * queryResponse[1])
+						if (norm > scalar + 0.001) {
+							const scaledX = queryResponse[0] * scalar / norm
+							const scaledY = queryResponse[1] * scalar / norm
+							if (cell.isPointTraversable(Math.floor(offsetX + scaledX), Math.floor(offsetY + scaledY))) {
+								this.moveBy(scaledX, scaledY)
+								break
+							}
+						} else {
+							this.moveBy(queryResponse[0], queryResponse[1])
+							break
+						}
+					}
+				}
+				this.updateWalkSequence(this.vector[0], this.vector[1])
+			} else if (this.moving) {
+				if (this.movementSmoother.isMoving) {
+					// just keep last state
+				} else {
+					this.setTexture(this.walkSequence.idle)
+					this.moving = false
+				}
 			}
 			this.movementSmoother.update(this.moving ? 0.4 : 0.65)
 			this.setMapPosition(this.movementSmoother.x, this.movementSmoother.y, false)
 		}
 
 		public pushPath(path: readonly (readonly [number, number])[], speed?: number) {
-			const object = new SimplePath(path.map(point => [point[0] + this.movementSmoother.tX, point[1] + this.movementSmoother.tY]), speed || this.speed)
+			const object = new SimplePath(path.map(point => [point[0] + this.movementSmoother.x, point[1] + this.movementSmoother.y]), speed || this.speed)
 			this.path.push(object)
 			return object
 		}

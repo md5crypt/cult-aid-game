@@ -1,4 +1,4 @@
-import type { LayoutElementJson } from "../../Layout/LayoutPIXI"
+import type { LayoutElementJson } from "../../Layout"
 
 export default (text?: string): LayoutElementJson => ({
 	name: "body",
@@ -11,7 +11,7 @@ export default (text?: string): LayoutElementJson => ({
 	children: [
 		{
 			name: "prompt",
-			type: "text",
+			type: "text-bitmap",
 			layout: {
 				enabled: text !== undefined,
 				width: "100%",

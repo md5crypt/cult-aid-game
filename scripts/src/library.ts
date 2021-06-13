@@ -1,19 +1,17 @@
 scripts.register("fragmentInvoke", FragmentId["librarian-enter-library"], async () => {
 	context.ui.dialog.hide()
-	await context.player.pushPath(context.map.getObject<"path">(PathId["library-retreat"]).points).onEnd.promise()
+	await Utils.executePath(PathId["library-retreat"])
 	context.ui.dialog.show()
 })
 
 scripts.register("dialogStart", DialogId["librarian-body"], () => Fragment.executeIfUnseen("librarian-body-intro"))
 
-scripts.register("fragmentAfter", FragmentId["librarian-body.option.take-map"], () => {
-	Inventory.add("map")
-})
+scripts.register("fragmentInvoke", FragmentId["librarian-body.option.take-map"], Inventory.equipHandler("map"))
 
-scripts.register("fragmentInvoke", FragmentId["librarian-sweetroll.option.do-nothing"], () => {
-	Inventory.remove("sweetroll")
+scripts.register("fragmentInvoke", FragmentId["librarian-sweetroll.option.do-nothing"], Inventory.unEquipHandler("sweetroll", value => {
+	// todo: animation
 	storage.librarian.knockedOut = true
-})
+}))
 
 scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.chef"], async (state) => {
 	if (state == "wait") {
@@ -62,10 +60,7 @@ scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.maid"], as
 })
 
 scripts.register("fragmentAfter", FragmentId["librarian-newspaper-read-end"], async () => {
-	context.player.lockInput()
-	const path = context.map.getObject<"path">(PathId["library-newspapers"])
-	await context.player.pushPath(path.points).onEnd.promise()
-	context.player.unlockInput()
+	await Utils.executePath(PathId["library-newspapers"])
 	storage.library.newspapers = true
 	context.map.getObject<"item">(ItemId["library-newspapers"]).enabled = true
 })
@@ -88,48 +83,32 @@ scripts.register("dialogSelect", DialogId["librarian-newspaper-select"], async o
 scripts.register("dialogStart", DialogId["librarian-main"], async () => {
 	Fragment.setVisibilityIfUnseen("librarian-main.option.sweetroll", Inventory.has("sweetroll"))
 	Fragment.setVisibility("librarian-main.option.scribbles", Inventory.has("scribbles"))
-	Fragment.showIf("librarian-main.option.vampire", Fragment.seen("librarian-main.option.cultists") && Fragment.seen("librarian-main.option.live-here"))
+	Fragment.showIf("librarian-main.option.vampire", Fragment.seen("librarian-main.option.cultists", "librarian-main.option.live-here"))
 	Fragment.showUnseenIf("librarian-main.option.archaeologist", storage.archeologist.visited)
 	Fragment.showUnseenIf("librarian-main.option.inscription", Fragment.seen("librarian-main.option.dwemer") && storage.maid.needsInscription)
-	Fragment.setVisibility("librarian-main.option.newspapers", Fragment.seen("librarian-main.option.scribbles") && (
-		Fragment.unseen("librarian-fetch.option.chef") ||
-		Fragment.unseen("librarian-fetch.option.librarian") ||
-		Fragment.unseen("librarian-fetch.option.mage") ||
-		Fragment.unseen("librarian-fetch.option.maid")
-	))
+	Fragment.setVisibility("librarian-main.option.newspapers", Fragment.seen("librarian-main.option.scribbles"))
+	Fragment.setSeenIf("librarian-main.option.newspapers", Dialog.seen("librarian-fetch", ["librarian-fetch.option.back"]))
 	await Fragment.executeIfUnseen("librarian-intro")
 })
 
-scripts.register("fragmentAfter", FragmentId["librarian-main.option.scribbles"], () => {
-	Inventory.remove("scribbles")
-})
+scripts.register("fragmentInvoke", FragmentId["librarian-main.option.scribbles"], Inventory.unEquipHandler("scribbles"))
 
-scripts.register("fragmentAfter", FragmentId["librarian-main.option.copy"], () => {
-	Inventory.add("newspaper")
-})
+scripts.register("fragmentInvoke", FragmentId["librarian-main.option.copy"], Inventory.equipHandler("newspaper"))
 
 scripts.register("fragmentInvoke", FragmentId["librarian-main.option.copy"], async () => {
 	await Utils.blackScreen(500) // todo
 })
 
-scripts.register("fragmentAfter", FragmentId["librarian-main.option.key"], () => {
-	Inventory.add("key")
-})
+scripts.register("fragmentInvoke", FragmentId["librarian-main.option.key"], Inventory.equipHandler("key"))
 
-scripts.register("fragmentAfter", FragmentId["librarian-main.option.take-inscription"], () => {
-	Inventory.add("inscription")
-})
-
-scripts.register("fragmentInvoke", FragmentId["librarian-main.option.take-inscription"], () => {
-	// todo
-})
+scripts.register("fragmentInvoke", FragmentId["librarian-main.option.take-inscription"], Inventory.equipHandler("inscription"))
 
 
 scripts.register("fragmentInvoke", FragmentId["forbidden-section-enter-attempt"], async token => {
 	switch (token) {
 		case "walk-in":
 			context.ui.dialog.hide()
-			await context.player.pushPath(context.map.getObject<"path">(PathId["library-darkness-entry"]).points).onEnd.promise()
+			await Utils.executePath(PathId["library-darkness-entry"])
 			await context.timer.wait(1000)
 			context.ui.dialog.show()
 			break
@@ -140,7 +119,7 @@ scripts.register("fragmentInvoke", FragmentId["forbidden-section-enter-attempt"]
 			break
 		case "walk-out":
 			context.ui.dialog.hide()
-			await context.player.pushPath(context.map.getObject<"path">(PathId["library-darkness-retreat"]).points).onEnd.promise()
+			await Utils.executePath(PathId["library-darkness-retreat"])
 			context.ui.dialog.show()
 			break
 	}
@@ -148,7 +127,7 @@ scripts.register("fragmentInvoke", FragmentId["forbidden-section-enter-attempt"]
 
 scripts.register("fragmentInvoke", FragmentId["forbidden-section-enter"], async () => {
 	context.ui.dialog.hide()
-	await context.player.pushPath(context.map.getObject<"path">(PathId["library-darkness-entry"]).points).onEnd.promise()
+	await Utils.executePath(PathId["library-darkness-entry"])
 	await context.map.loadMap(MapId["forbidden-section"])
 	context.ui.dialog.show()
 })
@@ -159,7 +138,7 @@ scripts.register("zoneEnter", ZoneId["library-darkness"], async () => {
 			await Fragment.execute("forbidden-section-enter")
 		} else {
 			context.player.lockInput()
-			await context.player.pushPath(context.map.getObject<"path">(PathId["library-darkness-entry"]).points).onEnd.promise()
+			await Utils.executePath(PathId["library-darkness-entry"])
 			await context.map.loadMap("map-forbidden-section")
 			context.player.unlockInput()
 		}
@@ -174,29 +153,26 @@ scripts.register("zoneEnter", ZoneId["library-darkness"], async () => {
 
 scripts.register("zoneUse", ZoneId["library-librarian"], async () => {
 	context.player.lockInput()
-	const path = context.map.getObject<"path">(PathId["library-newspapers"])
-	await context.player.pushPath(Utils.twoPointPath(context.player.getAbsoluteLocation(), Utils.pathPoint(path, 0))).onEnd.promise()
+	await Utils.walkToPositions(Utils.pathPoint(PathId["library-newspapers"], 0))
 	context.player.unlockInput()
 	if (storage.librarian.knockedOut) {
-		await Utils.executeDialog("librarian-body")
+		await Dialog.execute("librarian-body")
 	} else {
-		await Utils.executeDialog("librarian-main")
+		await Dialog.execute("librarian-main")
 	}
 })
 
 scripts.register("zoneEnter", ZoneId["library-entrance"], async () => {
-	if (!storage.dialog.seen["librarian-enter-library"]) {
+	if (Fragment.unseen("librarian-enter-library")) {
 		context.player.cell.group.forEach(x => x.visible = true)
-		context.player.lockInput()
-		await context.player.pushPath(context.map.getObject<"path">(PathId["library-enter"]).points).onEnd.promise()
+		await Utils.executePath(PathId["library-enter"])
 		await Fragment.execute("librarian-enter-library")
-		context.player.unlockInput()
 	}
 })
 
 scripts.register("zoneUse", ZoneId["library-newspapers"], async () => {
 	if (storage.library.newspapers) {
-		await Utils.executeDialog("librarian-newspaper-select")
+		await Dialog.execute("librarian-newspaper-select")
 	}
 })
 
