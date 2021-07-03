@@ -1,0 +1,635 @@
+
+
+
+
+
+@dialog hobo-common
+
+@option about: What is this whole cult about?
+
+khajiit: What even is this cult? Do you even worship something?
+
+hobo: Oh, I don't really know. They mostly do what they want.
+
+khajiit: But you're the leader, you run this place! How can you not know?
+
+hobo: A good leader lets his people run his empire for him.
+hobo: And by people I mean a certain Argonian you really ought not to anger.
+
+khajiit: Then what's the point of all of... this?
+
+hobo: Tell me, what does everyone you've met here have in common?
+
+khajiit: I... I don't know. They all seem... broken, dysfunctional, sometimes crazy.
+
+hobo: Yes, it might seem this way, but the truth is they are lost, each in their own unique way.
+
+hobo: You, my friend, are lost as well, a single glance will tell that even to a complete fool. In fact you are so lost that you do yet understand what you are looking for.
+
+hobo: But one is sure, you have not entered this place by accident, as no one ever does, and you will not leave it without an answer.
+
+khajiit: Oh, I'm lost all right, but I'm quite sure I know what I'm looking for. A way out of this place until it kills me and or drives me completely insane.
+
+khajiit: And from what I can tell, you are not helping. Especially on the "not drive completely insane" part.
+
+hobo: Then answer me a simple question.
+hobo: Who are you?
+
+khajiit: Isn't it obvious? A Khajiit in a daedra costume! Someone who fell so low that he had to work for a barely legal company that treats its employees like disposable trash!
+
+hobo: And you really believe that's who you are?
+
+khajiit: No, of course not! It's temporary!
+
+hobo: Then what will be once you stop being a Khajiit in a daedra costume?
+
+khajiit: I'll... find a better job! As an... as an um...
+khajiit: Oh, who am I kidding? I don't know what I'll do.
+khajiit: I don't know what I am.
+khajiit: Apparently, I am nothing.
+
+hobo: That is incorrect. You simply do not understand who you are. You are lost, like all who enter this place.
+
+khajiit: I... I need to think about what you said. And it seems about my life in general as well.
+
+%show-unseen let-go
+%show-unseen organization
+
+%seen
+
+@option hidden organization: I still don't get what the cult actually does...
+
+khajiit: Let's say I partially got that "being lost" thing. But that still does not answer my original question at all.
+
+khajiit: What is this cult? Like what does it do as an organization?
+
+hobo: Do we have to do something specific? Isn't just keeping this place running enough?
+
+khajiit: I see. Or rather I kind of see.
+khajiit: At least I see it more than I did before.
+
+%seen
+%hide
+
+@option hidden let-go: Can you just let me out?
+
+khajiit: So by any chance can you take me to the exit and let me leave?
+
+hobo: No.
+
+khajiit: I have to find my own way out as a part of the whole "looking for my thing" thing, don't I?
+
+hobo: Yes.
+hobo: But remember that not all ways have to lead you away from this place.
+
+khajiit: Right, it was still worth asking though.
+
+%seen
+
+@option hidden why-hobo: Why pretend to be a hobo?
+
+khajiit: So why were you pretending to be some kind of a hobo?
+
+hobo: Who said I was pretending?
+
+hobo: Also, did you just call the Great Leader "a hobo"?
+
+khajiit: I... well...
+
+khajiit: That's unfair and you know it.
+
+%seen
+%hide
+
+@option hidden chef: There's a moonsugar plantation under the kitchen.
+
+khajiit: You know the chef is some kind of drug lord and has a moonsugar plantation under the kitchen?
+
+hobo: I prefer the term "spice lord". That plantation covers a large amount of our budget.
+
+khajiit: But... that's like... evil?
+
+hobo: Well sure it's evil, we're a cult after all!
+
+%seen
+%hide
+
+@option hidden librarian: Is the librarian a vampire?
+
+khajiit: I need to know, it's driving me nuts. Is the librarian a vampire?
+
+hobo: Why ask me? Ask her. I frankly don't care.
+
+khajiit: You know, don't you, you're just not telling me.
+
+%seen
+%hide
+
+@fragment hobo-kitchen-intro
+
+hobo: Hey kid, wanna learn some magic?
+
+khajiit: Um... no?
+
+hobo: You sure? You know, It's a one time offer.
+
+khajiit: Yes, I'm afraid I'm quite sure. In fact, I think I was never more sure of anything in my life.
+
+hobo: But everyone wants to be a magic man! Think of the possibilities!
+hobo: You could um... open any lock and... work faster on plantations?
+
+khajiit: Right. Now if you will excuse me.
+
+hobo: No, no, don't go away! Surely you have some questions to ask!
+
+khajiit: Why do I even... okay, fine.
+
+%seen
+
+@dialog hobo-kitchen
+
+@prompt
+
+hobo: Common then, hit me with anything!
+
+@option hidden booze: (Give mead)
+
+khajiit: I don't know what I am hoping for but I brought you your booze.
+
+%invoke open
+
+hobo: Wait, you actually managed to get it?
+hobo: Did anyone follow you? Any specious looking argonian-shaped shadows on the walls?
+
+khajiit: You want it or not?
+
+%invoke look-around
+
+hobo: Seems clear. Give it to me.
+
+khajiit: Not so fast. What about my reward?
+
+hobo: Reward, right, um...
+
+%invoke search
+
+hobo: Here, take this book.
+
+%invoke replace
+
+null: Item removed: mead. Item added: Necrocomm.
+
+%invoke close
+
+hobo: Now if you excuse me I need to skedaddle until a certain someone sees me with this bottle.
+
+%invoke leave
+
+khajiit: Arcane knowledge my ass.
+
+%exit
+
+@option cut-chase: What do you want?
+
+khajiit: Let's cut to the chase, what do you want from me?
+
+hobo: What do I want? Nothing but to share my knowledge of the arcane arts!
+
+khajiit: I would like to express how much I believed you, but I'm afraid my limited linguistic skills are not sophisticated enough to do so.
+
+hobo: It's fine, nobody chooses to be born a Khajiit.
+
+hobo: Anyway, now that we are on the same page I must mention that there is this small issue of my dry throat.
+
+khajiit: Oh no! What could possibly help you!
+
+hobo: Don't worry, a few mouthfuls of a good beverage will do miracles.
+
+hobo: And by beverage I mean alcohol.
+
+khajiit: I never suspected alcohol to have such outstanding throat healing properties!
+
+hobo: See, we haven't yet started and already you are learning the basis of alchemy.
+
+%seen
+%show teach
+
+@option cultist: Are you even a cultist?
+
+khajiit: You're not even a cultist, are you?
+
+hobo: How can you have any doubts? I mean, I have the robe!
+
+hobo: Do I question you being a Daedra?
+
+khajiit: You know what? I won't argue with that.
+
+%show get-inside
+%hide
+
+@option hidden get-inside: How did you get inside?
+
+khajiit: Can you tell me how you managed to find your way into this cave?
+
+hobo: Oh, what a hurtful thing you are implying!
+
+hobo: Haven't we already established that I am a genuine cultist? Why would I need to "find my way" into a cultist cave?
+
+khajiit: Look, I'm only asking because I want to get out. I presume that if you know how to sneak in you will also know how to sneak out?
+
+hobo: Do I look like someone who would want to leave? Away from the free food and logging?
+
+khajiit: Right, forget I asked.
+
+%seen
+%hide
+
+@option hidden teach: What "magic" will you "teach" me?
+
+khajiit: I can't believe I'm desperate enough to actually consider this, but tell me, what "magic" will you "teach" me after I bring you your booze?
+
+hobo: I'll show you an ancient text that will put you on the arcane path, forever changing your life!
+
+khajiit: And where exactly does your dry throat come into play?
+
+hobo: Such an attitude will be problematic. To begin your journey you must first open your mind to the unknown and accept the unacceptable.
+
+khajiit: And bring you booze.
+
+hobo: Yes, that too.
+
+%seen
+
+@option hidden unmask: A certain Argonian technician said some interesting things about you.
+
+khajiit: You're actually the leader of this "cult", aren't you?
+
+hobo: Well that was fun while it lasted. Which of my beloved children gave me away?
+
+khajiit: Neither. The security system technician told me.
+
+hobo: A bit anticlimactic I must say.
+hobo: But I wonder what caused that sudden failure he is cleaning up after.
+
+khajiit: Ha, ha! I guess we will never know!
+
+%seen
+
+%replace hobo-kitchen-unmasked
+
+@option exit: (Exit)
+
+khajiit: I'll leave you to your um... loitering.
+
+hobo: You know where to find me.
+
+%exit
+
+
+
+@dialog hobo-kitchen-unmasked
+
+@prompt
+
+hobo: So what does my over-observant Khajiit want from the Great Leader?
+
+@import hobo-kitchen booze
+
+@import hobo-common
+
+@import hobo-kitchen exit
+
+
+
+@dialog hobo-study
+
+@prompt
+
+hobo: What does Khajiit want from me?
+
+@option hidden booze: (Give mead)
+
+khajiit: So... I know stuff happened, but you still want that booze?
+
+hobo: You actually managed to find something?
+
+%invoke open-mead
+
+hobo: And I don't even have to worry about the Maid catching me as she's out buying art stuff!
+
+%invoke close
+
+null: Item removed: Mead
+
+khajiit: So what do I get in return for it?
+
+hobo: Oh, right, um...
+
+%invoke search
+
+hobo: Here, take this book.
+
+%invoke open-book
+
+null: Item added: Necrocomm.
+
+khajiit: Yeah, that's about exactly what I expected.
+
+%invoke close
+
+%seen
+%hide
+
+@option hidden medallion: (Take medallion)
+
+%invoke test
+
+khajiit: So where's that enchantment?
+
+hobo: Here, take it.
+
+%invoke open
+
+null: Item added: Medallion
+
+khajiit: A medallion?
+
+hobo: Yes, stick it near the mural into a crack in the wall or something.
+
+%invoke close
+
+khajiit: And it will just magically work?
+
+hobo: No, first it has to be magically activated. When it's already in place, stand clear and say a fixed phrase. I've specifically chosen something you won't say by accident.
+
+hobo: It's three words: "I" followed by "hate" and "moonsugar".
+
+khajiit: I'm truly flattered by your consideration.
+
+%seen
+%hide
+%show how-medallion
+
+@option hidden mural: About that mural...
+
+khajiit: So you wanted me for something?
+
+hobo: Yes, tell me, what exactly did you do to my maid?
+
+khajiit: Well, she expressed um... aversion towards a certain archaeologist and I might've suggested how to get rid of him?
+
+hobo: I see, I think I can figure out the rest.
+hobo: Quite ironic, I must say.
+
+khajiit: Ironic?
+
+hobo: I've been trying to help her since the day I brought her in here.
+
+hobo: Somewhere behind thick layers of fear, shame and regret I've always seen a repressed dream. The tiniest spark of something I couldn't reach, no matter how hard I tried.
+
+hobo: And was it that finally pushed her to put aside all that fear, shame and regret?
+
+hobo: Was it love? Was it hate? Passion? Maybe hope?
+
+hobo: No, it's a completely random urge to show a slightly annoying Altmer his place.
+
+khajiit: That does sound a bit depressing when you put it that way, but it's not like that single event was the only factor here.
+
+hobo: I deeply hope that is the case Khajiit, I really do.
+
+hobo: Unfortunately the longer I live the weaker that hope seems to get.
+
+hobo: But let's put that aside for now. I finished the enchantment she wanted, take it when you will be ready.
+
+%seen
+%hide
+%show medallion
+
+@option hidden how-medallion: How does the medallion work?
+
+khajiit: So how does it work? I mean that "make it older" medallion.
+
+hobo: You really want to know?
+
+khajiit: I guess?
+
+hobo: Well, it has two illusion enchantments and one generic trigger. The first one is a basic invisibility spell to hide the medallion. The second one is a bit more complex as you can't just bend light to make something look older.
+
+hobo: I mean you theoretically could but it's highly impractical. So instead it affects the minds of those in its vicinity, enforcing an invalid age evaluation.
+
+khajiit: And that's simpler? Messing with people's minds is simpler than just changing how something looks?
+
+hobo: Well, yes. To make something look older I would need to know exactly how the end result should look. 
+
+hobo: I'm no art expert, I have no idea how paint degrades over time. It's much easier to just convince everyone that what they are looking at is older than it actually is.
+
+hobo: And what's great about this approach is that the more the affected person knows on the subject the stronger the effect will be, as it's his mind creating the false image, not mine.
+
+khajiit: What about photos? It won't work on photos, right?
+
+hobo: Naturally there are some obvious limitations. What's even worse, more magica sensitive people will probably notice that something is affecting their perception.
+
+hobo: But it's not like we need perfection here.
+
+khajiit: And that  "trigger" is for that "I hate moon...
+
+hobo: DON'T SAY IT!
+
+khajiit: Right, sorry.
+
+%seen
+
+@option hidden apprenticeship: I had some time to think about the apprenticeship...
+
+%push hobo-apprentice
+%seen
+
+@import hobo-common
+
+@option exit: (Exit)
+
+khajiit: Right, I guess I'll stop bothering you for now.
+
+%exit
+
+@fragment hobo-study-intro
+
+khajiit: Um... hello?
+
+hobo: Well this is awkward, isn't it.
+
+khajiit: So it seems you're not a um... random hobo?
+
+hobo: No, I'm afraid that might not be the case.
+
+khajiit: May I then ask who you actually are?
+
+hobo: Let's see, last time I checked I was referred to as the cult's Great Leader. 
+
+khajiit: I should've seen that coming, shouldn't I?
+
+%seen
+
+@fragment hobo-study-intro-unmasked
+
+khajiit: So I presume this is your study?
+
+hobo: Oh, it's you again.
+hobo: Yes, this is my evil lair where I mostly practice the forbidden dark art of bureaucracy.
+
+khajiit: Ah. Then I think I see why you prefer hanging out in the canteen.
+
+hobo: Unfortunately if I do that for too long my maid will drag me into here with brute force. Then she stands behind my back giving me an evil eye until I finish filling up the paperwork.
+
+%seen
+
+@fragment hobo-study-post-maid-intro
+
+hobo: I do not believe we were introduced.
+
+khajiit: No I don't think we were. Who are you exactly?
+
+hobo: The official title is "Great Leader".
+
+khajiit: Oh. Hello then, I am a Khajjit in a Daedra costume. The official title is "Great Failure".
+
+hobo: I must say, it does have a nice ring to it.
+
+%seen
+
+@fragment hobo-study-pizza-part-1
+
+spirit: You bastard! You murdered me!
+
+hobo: I did what? Who are you?
+
+spirit: You made the order that killed me!
+
+hobo: I did? Could you refresh my memory? I kind of permanently switched professions a century or two ago.
+
+spirit: You ordered a pizza and led me straight into your death maze!
+
+hobo: Oh. I need to say I do vaguely remember filing a complaint about not getting my pizza a few years ago.
+
+spirit: Silence! I will have my revenge! You will suffer, you will writhe, you will scream in agonizing convulsions!
+
+hobo: Sure, sure, but before we get to those agonizing convulsions, how exactly did you manage to show up here after all those years?
+
+spirit: He summoned me!
+
+%invoke turn-around
+
+hobo: The khajiit?
+
+khajiit: Well you gave me that book and I was hoping he'll somehow help me get out of this place.
+
+hobo: Wait a second, you actually managed to summon something using that joke of a book I gave you?
+
+khajiit: Um... yes? I mean the instructions were quite straightforward.
+
+spirit: Stop ignoring me! Look at me, look into my eyes! Look into the darkness that I will bring upon you!
+
+hobo: Oh shut up.
+
+%invoke banish
+
+hobo: And you... come over here, I need to talk with you.
+
+%seen
+
+@fragment hobo-study-pizza-part-2
+
+hobo: You had some previous experience with necromancy, right?
+
+khajiit: No, I'm afraid not.
+
+hobo: Then at least some different kind of the arcane arts?
+
+khajiit: Do party tricks count?
+
+hobo: This may seem a little bit sudden but would you consider becoming my apprentice?
+
+khajiit: I would consider becoming your what what?
+
+hobo: I won't lie, with this kind of raw talent you could probably easily get into the mages guild, they would even overlook the whole being a Khajiit thing.
+
+hobo: But they are a bunch of close-minded racist snobs and I offer you something you will not find anywhere else.
+
+khajiit: So... you basically want me to join the cult?
+
+hobo: No, I want to actually train you in the arcane arts, no matter how many years it will take.
+
+khajiit: Okay, why?
+
+hobo: Because I'm old with not much time left in this world while you are young, ridiculously talented and without any purpose in life?
+
+hobo: This is probably the last chance I get to pass on my knowledge onto someone.
+
+khajiit: Aren't you overreacting a bit? I mean all I did was followed some instructions in a dumb book.
+
+hobo: Imagine you give someone a toy hammer, a piece of scrap metal and a blurry picture of a sword.
+
+hobo: And then after a few hours that someone comes back with a perfectly functional weapon and tells you he never held a hammer in his life.
+
+khajiit: I... I need to think about it.
+
+%seen
+
+@dialog hobo-apprentice
+
+@prompt
+
+hobo: Have you made up your mind?
+
+@option accept: (Accept apprenticeship)
+
+khajiit: I guess you shouldn't turn you back to fate the first time it actually smiles at you.
+
+hobo: Is that a yes?
+
+khajiit: I mean it's that or going back to being a fake Daedra. But if I were you I would manage my expectations when it comes to this supposed "raw talent" of mine.
+
+hobo: Humble I see. That's an excellent attitude to have, especially when learning the arcane. Don't forget that in the following years.
+
+// end game
+
+%exit
+
+@option reject: (Reject apprenticeship)
+
+khajiit: No, sorry, I will not join your cult. There is not a single reason why I should trust you, or whoever I met here.
+
+khajiit: I will leave this place and somehow make my life work with my own hands.
+
+hobo: A stance that has my utmost respect.
+hobo: But know that if you ever change your mind I will be waiting for you.
+
+%seen
+%pop
+
+@option what-if-agree: What will happen if I agree?
+
+hobo: You will stay here for the next few decades as I teach you everything I know.
+
+khajiit: What if I change my mind midway?
+
+hobo: I will not hold you against your will, you will be free to leave whenever you like.
+
+%seen
+
+@option what-if-disagree: What will happen if I disagree?
+
+hobo: It will be unfortunate but I will wish you luck in finding a different path for your life. I will also be here if you ever change your mind.
+
+%seen
+
+@option think: I need more time to think.
+
+khajiit: Agreeing seems completely irrational, insane even, but at the same time disagreeing seems like wasting a once in a lifetime chance. 
+
+khajiit: What I'm saying is that I need more time to think about it.
+
+hobo: I can respect that. Come to me when you make up your mind.
+
+%pop
+%seen

@@ -23,6 +23,9 @@ const inventoryItems = {
 	food: {
 		image: ""
 	},
+	medallion: {
+		image: ""
+	},
 	shovel: {
 		image: "item-shovel"
 	},

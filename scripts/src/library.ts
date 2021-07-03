@@ -10,7 +10,6 @@ scripts.register("fragmentInvoke", FragmentId["librarian-body.option.take-map"],
 
 scripts.register("fragmentInvoke", FragmentId["librarian-sweetroll.option.do-nothing"], Inventory.unEquipHandler("sweetroll", value => {
 	// todo: animation
-	storage.librarian.knockedOut = true
 }))
 
 scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.chef"], async (state) => {
@@ -24,7 +23,6 @@ scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.chef"], as
 })
 
 scripts.register("fragmentInvoke", FragmentId["librarian-fetch.option.librarian"], async (state) => {
-	storage.librarian.vampPaperSeen = true
 	if (state == "wait") {
 		await Utils.blackScreen(500) // todo
 	} else {
@@ -155,7 +153,7 @@ scripts.register("zoneUse", ZoneId["library-librarian"], async () => {
 	context.player.lockInput()
 	await Utils.walkToPositions(Utils.pathPoint(PathId["library-newspapers"], 0))
 	context.player.unlockInput()
-	if (storage.librarian.knockedOut) {
+	if (Fragment.seen("librarian-sweetroll.option.do-nothing")) {
 		await Dialog.execute("librarian-body")
 	} else {
 		await Dialog.execute("librarian-main")

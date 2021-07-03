@@ -41,6 +41,8 @@ bosmer: Such trivial matters do not bother the Investigator.
 
 %invoke close
 
+%seen
+
 @option hidden mirror-2: (Give mirror)
 
 khajiit: So...

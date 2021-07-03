@@ -6,18 +6,13 @@ scripts.register("zoneUse", ZoneId["kitchen-chef"], async () => {
 })
 
 scripts.register("dialogStart", DialogId["chef-main"], async () => {
-	if (!Fragment.seen("chef-intro")) {
+	if (Fragment.unseen("chef-intro")) {
 		await Fragment.execute("chef-intro")
-	} else if (!Fragment.seen("chef-post-intro")) {
+	} else if (Fragment.unseen("chef-post-intro")) {
 		await Fragment.execute("chef-post-intro")
 	}
-	Fragment.setVisibility("chef-main.option.make-food",
-		Fragment.unseen("chef-main.option.make-food") &&
-		storage.thief.visited &&
-		!storage.thief.knockedOut
-	)
-	Fragment.showUnseenIf("chef-main.option.make-food", storage.thief.visited && !storage.thief.knockedOut)
-	Fragment.showIf("chef-main.option.breeder", storage.chef.isBreeder)
+	Fragment.showUnseenIf("chef-main.option.make-food", Fragment.seen("thief-intro") && Fragment.unseen("thief-main.option.sweetroll"))
+	Fragment.showUnseenIf("chef-main.option.breeder", Fragment.seen("bosmer-info.option.chef"))
 	Fragment.setVisibility("chef-main.option.door", storage.plantation.seenDoor && !storage.plantation.visited)
 	Fragment.showIf("chef-main.option.plantation", storage.plantation.visited)
 })
@@ -41,5 +36,6 @@ scripts.register("fragmentInvoke", FragmentId["chef-main.option.plantation"], as
 })
 
 scripts.register("zoneUse", ZoneId["kitchen-hobo"], () => {
-	return Fragment.execute("test-character.option.hobo")
+	return Dialog.execute(Fragment.seen("hobo-kitchen.option.unmask") ? "hobo-kitchen-unmasked" : "hobo-kitchen")
 })
+

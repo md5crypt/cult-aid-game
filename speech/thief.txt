@@ -84,6 +84,8 @@ thief: Wow... your eyes... were always so... scattered? There is one... and ther
 khajiit: And it looks like she lost consciousness.
 khajiit: I mean what did I expect? Giving a moonsugar loaded sweetroll to a starving khajiit with no accent? At least now I can go through the stuff she stole.
 
+%seen
+
 %exit
 
 @option food: (Give food)
@@ -448,6 +450,7 @@ null: Item added: Fireproof drawing toy
 
 khajiit: Who knows, maybe it will actually be useful for something.
 
+%seen
 %hide
 
 @option examine: (Examine)
@@ -458,7 +461,7 @@ khajiit: Wait, I've seen this before. It's a toy you can draw on using two knobs
 
 khajiit: But why make a fireproof version? And what is it doing in a cultist cave?
 
-%show take
+%show-unseen take
 
 %seen
 

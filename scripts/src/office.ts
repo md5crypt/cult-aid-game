@@ -19,7 +19,7 @@ scripts.register("zoneUse", ZoneId["office-board"], () => {
 scripts.register("dialogStart", DialogId["bosmer-main"], () => {
 	Fragment.setVisibility("bosmer-main.option.mirror", Inventory.has("mirror") && Fragment.seen("bosmer-main.option.head-1") && Fragment.unseen("bosmer-main.option.hair"))
 	Fragment.setVisibility("bosmer-main.option.mirror-2", Inventory.has("mirror") && Fragment.seen("bosmer-main.option.head-1", "bosmer-main.option.hair"))
-	Fragment.showUnseenIf("bosmer-main.option.hair", storage.bosmer.seenMirror && Fragment.seen("bosmer-main.option.head-1", "bosmer-info.option.librarian"))
+	Fragment.showUnseenIf("bosmer-main.option.hair", Fragment.seen("bosmer-main.option.mirror") && Fragment.seen("bosmer-main.option.head-1", "bosmer-info.option.librarian"))
 	Fragment.showUnseenIf("bosmer-main.option.notes", Fragment.seen("bosmer-board-main.option.analyse"))
 	Fragment.setSeenIf("bosmer-main.option.patterns", Dialog.seen("bosmer-info", ["bosmer-info.option.back"]))
 	return Utils.walkToPoint(PointId["office-bosmer"])
@@ -30,7 +30,6 @@ scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror"], valu
 		Inventory.open("mirror")
 	} else {
 		Inventory.close()
-		storage.bosmer.seenMirror = true
 	}
 })
 

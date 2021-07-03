@@ -18,8 +18,8 @@ scripts.register("zoneEnter", ZoneId["forbidden-section-exit"], async () => {
 scripts.register("zoneUse", ZoneId["forbidden-section-bookshelf"], () => Dialog.execute("forbidden-section-bookshelf"))
 
 scripts.register("dialogStart", DialogId["forbidden-section-bookshelf"], async () => {
-	storage.dialog.hidden["forbidden-section-bookshelf.option.exit-normal"] = storage.librarian.vampPaperSeen
-	storage.dialog.hidden["forbidden-section-bookshelf.option.exit-newspaper"] = !storage.librarian.vampPaperSeen || storage.dialog.seen["forbidden-section-bookshelf.option.exit-newspaper"]
+	Fragment.showIf("forbidden-section-bookshelf.option.exit-normal", Fragment.unseen("librarian-fetch.option.librarian"))
+	Fragment.showUnseenIf("forbidden-section-bookshelf.option.exit-newspaper", Fragment.seen("librarian-fetch.option.librarian"))
 	await Fragment.executeIfUnseen("forbidden-section-bookshelf-intro")
 })
 

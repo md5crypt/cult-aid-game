@@ -7,6 +7,10 @@ class Fragment {
 		return fragments.every(fragment => !storage.dialog.seen[fragment])
 	}
 
+	static setSeen(fragment: keyof typeof FragmentId) {
+		storage.dialog.seen[fragment] = true
+	}
+
 	static setSeenIf(fragment: keyof typeof FragmentId, condition: boolean) {
 		if (condition) {
 			storage.dialog.seen[fragment] = true

@@ -1,4 +1,13 @@
-const regex = /^(?:\/\/(?<comment>.+)|%(?<funcName>[^\s]+)(?:[ \t]+(?<funcArg>.+))?|@dialog[ \t]+(?<dialogId>[^\s]+)|@fragment[ \t]+(?<fragmentId>[^\s]+)|(?<promptMarker>@prompt)(?:[ \t]+(?<promptId>[^\s]+))?|@option(?:[ \t]+(?<optionModifier>hidden))?[ \t]+(?<optionId>[^\s]+)[\t ]*:[\t ]+(?<optionValue>.+)|(?<speechCharacter>[^@%\s][^\s:]*)([ \t]+(?<speechAvatar>[^\s]+))?[\t ]*:[\t ]+(?<speechValue>.+))$/
+const regex = new RegExp([
+	/\/\/(?<comment>.+)/,
+	/%(?<funcName>[^\s]+)(?:[ \t]+(?<funcArg>.+))?/,
+	/@dialog[ \t]+(?<dialogId>[^\s]+)/,
+	/@fragment[ \t]+(?<fragmentId>[^\s]+)/,
+	/(?<promptMarker>@prompt)(?:[ \t]+(?<promptId>[^\s]+))?/,
+	/@import(?:[ \t]+(?<importId>[^\s]+))(?:[ \t]+(?<importPattern>[^\s]+))?/,
+	/@option(?:[ \t]+(?<optionModifier>hidden))?[ \t]+(?<optionId>[^\s]+)[\t ]*:[\t ]+(?<optionValue>.+)/,
+	/(?<speechCharacter>[^@%\s][^\s:]*)([ \t]+(?<speechAvatar>[^\s]+))?[\t ]*:[\t ]+(?<speechValue>.+)/
+].map(x => x.source).join("|"))
 
 function parse(input, fname, data) {
 	if (!data.fragments) {
@@ -54,6 +63,11 @@ function parse(input, fname, data) {
 			currentFragment = []
 			currentDialog.prompts.push(id)
 			data.fragments[fragmentId] = currentFragment
+		} else if (groups.importId) {
+			if (currentDialog == null) {
+				throw new Error(`error parsing ${fname} on line ${lineNumber}: import outside of dialog`)
+			}
+			currentDialog.options.push({import: groups.importId, pattern: groups.importPattern || "*"})
 		} else if (groups.optionId) {
 			if (currentDialog == null) {
 				throw new Error(`error parsing ${fname} on line ${lineNumber}: option outside of dialog`)
@@ -143,7 +157,10 @@ function processFunction(element, data, fragment, dialog) {
 function finalize(data) {
 	const visited = new Set()
 	for (const dialogId in data.dialogs) {
-		for (const prompt of data.dialogs[dialogId].prompts) {
+		const dialog = data.dialogs[dialogId]
+		const imports = new Set()
+		const options = []
+		for (const prompt of dialog.prompts) {
 			const fragmentId = `${dialogId}.prompt.${prompt}`
 			const fragment = data.fragments[fragmentId]
 			if (fragment.length != 1 || !fragment[0].character) {
@@ -151,14 +168,33 @@ function finalize(data) {
 			}
 			visited.add(fragmentId)
 		}
-		for (const option of data.dialogs[dialogId].options) {
-			const fragmentId = `${dialogId}.option.${option.id}`
-			for (const element of data.fragments[fragmentId]) {
-				if (element.function) {
-					processFunction(element, data, fragmentId, dialogId)
+		for (const option of dialog.options) {
+			if (option.import) {
+				const target = data.dialogs[option.import]
+				if (!target) {
+					throw new Error(`can not resolve import "${option.import}" in dialog "${dialogId}"`)
 				}
+				const pattern = new RegExp(option.pattern.replace(/([.?+(){}<>\\^$|\[\]])/g, "\\$1").replace(/\*/g, ".*?"))
+				const importedOptions = target.options.filter(x => x.id.match(pattern))
+				if (importedOptions.length == 0) {
+					throw new Error(`import pattern "${option.import}:${option.pattern}" returned empty result in dialog "${dialogId}"`)
+				}
+				importedOptions.forEach(x => options.push({...x, import: option.import}))
+				imports.add(option.import)
+			} else {
+				const fragmentId = `${dialogId}.option.${option.id}`
+				for (const element of data.fragments[fragmentId]) {
+					if (element.function) {
+						processFunction(element, data, fragmentId, dialogId)
+					}
+				}
+				options.push(option)
+				visited.add(fragmentId)
 			}
-			visited.add(fragmentId)
+		}
+		dialog.options = options
+		if (imports.size > 0) {
+			dialog.imports = Array.from(imports)
 		}
 	}
 	for (const fragmentId in data.fragments) {

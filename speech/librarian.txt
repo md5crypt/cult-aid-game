@@ -140,6 +140,8 @@ khajiit: I have a feeling I might have just made a huge mistake.
 khajiit: Or not.
 khajiit: But it hurts to trick her like that.
 
+%seen
+
 %exit
 
 @option stop-her: (Stop her)
@@ -308,13 +310,13 @@ librarian: Oh how nice of both of you! He always makes me a moonsugar free batch
 %hide
 %push librarian-sweetroll
 
-@option scribbles: (Give Investigator's scribbles)
+@option scribbles: (Give Investigator's notes)
 
 khajiit: Do these scribbles mean anything to you?
 
 %invoke open
 
-null: Item removed: "The" investigator's notes
+null: Item removed: The Investigator's notes
 
 %invoke close
 

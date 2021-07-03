@@ -8,19 +8,14 @@ const storageInitializer = {
 		newspapers: false
 	},
 	librarian: {
-		vampPaperSeen: false,
-		knockedOut: false
 	},
 	chef: {
-		isBreeder: false
 	},
 	plantation: {
 		seenDoor: false,
 		visited: false
 	},
 	thief: {
-		visited: false,
-		knockedOut: false
 	},
 	technician: {
 	},
@@ -28,10 +23,12 @@ const storageInitializer = {
 		visited: false
 	},
 	maid: {
-		needsInscription: false
+		needsInscription: false,
+		needsMedallion: false
 	},
 	bosmer: {
-		seenMirror: false
+	},
+	hobo: {
 	},
 	dialog: {
 		hidden: {} as Record<FragmentId, boolean | undefined>,

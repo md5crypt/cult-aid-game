@@ -22,12 +22,14 @@ type SpeechFragment = (SpeechFragmentElement | SpeechFragmentFunction)[]
 interface SpeechDialogOption {
 	id: string
 	text: string
+	import?: string
 	hidden?: boolean
 }
 
 interface SpeechDialog {
 	options: SpeechDialogOption[]
 	prompts: Record<string, string>
+	imports?: string[]
 }
 
 interface SpeechData {
@@ -58,7 +60,7 @@ export class Speech {
 	}
 
 	public getDialogOptions(id: string) {
-		return this.data.dialogs[id].options.map(x => id + ".option." + x.id)
+		return this.data.dialogs[id].options.map(x => (x.import || id) + ".option." + x.id)
 	}
 
 	public async executeDialog(id: string, noClaim?: boolean): Promise<void>
@@ -164,20 +166,28 @@ export class Dialog {
 
 		while (this.stack.length > 0) {
 			const element = this.stack[this.stack.length - 1]
+			const data = gameContext.speech.data
+			const dialog = data.dialogs[element.dialog]
+
+			if (dialog.imports) {
+				for (const importId of dialog.imports) {
+					await gameContext.scripts.resolve("dialogStart", importId)?.(importId)
+				}
+			}
 			await gameContext.scripts.resolve("dialogStart", element.dialog)?.(element.dialog)
 			if (this.stack.length == 0) {
 				// dialogStart script could have ended the dialog
 				break
 			}
-			const data = gameContext.speech.data
-			const dialog = data.dialogs[element.dialog]
+
 			const prompt = data.fragments[`${element.dialog}.prompt.default`][0] as SpeechFragmentElement
 			const character = data.characters[prompt.character]
 			const options = dialog.options.map(option => ({
+				dialog: option.import || element.dialog,
 				id: option.id,
 				text: option.text,
-				seen: storage.seen[`${element.dialog}.option.${option.id}`],
-				hidden: storage.hidden[`${element.dialog}.option.${option.id}`] ?? option.hidden
+				seen: storage.seen[`${option.import || element.dialog}.option.${option.id}`],
+				hidden: storage.hidden[`${option.import || element.dialog}.option.${option.id}`] ?? option.hidden
 			}))
 
 			let activeOption = 0
@@ -192,16 +202,16 @@ export class Dialog {
 			}
 
 			const filteredOptions = options.filter(option => !option.hidden)
-			const selectedId = filteredOptions[await gameContext.ui.dialog.renderOptions({
+			const selected = filteredOptions[await gameContext.ui.dialog.renderOptions({
 				options: filteredOptions,
 				prompt: character.name ? `[color=${character.color}]${character.name}:[/color] ${prompt.text}` : prompt.text,
 				avatar: character.avatars[prompt.avatar || "default"],
 				activeOption
-			})].id
+			})]
 
-			element.lastSelection = selectedId
-			if (!(await gameContext.scripts.resolve("dialogSelect", element.dialog)?.(selectedId, element.dialog))) {
-				await gameContext.speech.executeFragment(`${element.dialog}.option.${selectedId}`)
+			element.lastSelection = selected.id
+			if (!(await gameContext.scripts.resolve("dialogSelect", element.dialog)?.(selected.id, selected.dialog))) {
+				await gameContext.speech.executeFragment(`${selected.dialog}.option.${selected.id}`)
 			}
 		}
 		await gameContext.ui.dialog.release()

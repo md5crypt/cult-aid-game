@@ -10,7 +10,7 @@ scripts.register("fragmentInvoke", FragmentId["thief-pre-intro"], () => {
 })
 
 scripts.register("zoneUse", ZoneId["tunnel-loot"], () => {
-	if (storage.thief.knockedOut) {
+	if (Fragment.seen("thief-main.option.sweetroll")) {
 		return Dialog.execute("thief-loot")
 	} else if (Fragment.unseen("thief-intro")) {
 		return Fragment.execute("thief-loot-pre")
@@ -24,7 +24,7 @@ scripts.register("zoneUse", ZoneId["tunnel-loot"], () => {
 })
 
 scripts.register("zoneUse", ZoneId["tunnel-thief"], () => {
-	if (storage.thief.knockedOut) {
+	if (Fragment.seen("thief-main.option.sweetroll")) {
 		return Fragment.execute("thief-knocked-out")
 	} else if (Fragment.unseen("thief-main.option.food")) {
 		return Dialog.execute("thief-main")
@@ -37,7 +37,6 @@ scripts.register("zoneUse", ZoneId["tunnel-thief"], () => {
 
 scripts.register("dialogStart", DialogId["thief-main"], async () => {
 	await Utils.walkToPoint(PointId["tunnel-thief"])
-	storage.thief.visited = true
 	Fragment.setVisibility("thief-main.option.sweetroll", Inventory.has("sweetroll"))
 	Fragment.setVisibility("thief-main.option.food", Inventory.has("food"))
 	Fragment.setVisibility("thief-main.option.shovel", Inventory.has("shovel") && Fragment.seen("thief-main.option.wrong"))
@@ -57,7 +56,6 @@ scripts.register("fragmentInvoke", FragmentId["thief-main.option.sweetroll"], In
 			// todo
 			break
 		case "fall":
-			storage.thief.knockedOut = true
 			// todo
 	}
 }))
