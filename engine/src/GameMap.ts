@@ -153,7 +153,7 @@ export class GameMap {
 					throw new Error("invalid map object")
 			}
 		}
-		await gameContext.scripts.resolve("mapLoad", name)?.(this)
+		await gameContext.scripts.resolve("mapLoad", name)?.(name)
 		this.restoreState()
 	}
 

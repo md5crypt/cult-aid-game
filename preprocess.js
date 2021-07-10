@@ -18,8 +18,22 @@ function parseSpeech(speechPath) {
 		.forEach(file => speechParser.parse(fs.readFileSync(file, "utf8"), file, data))
 	speechParser.finalize(data)
 	fs.mkdirSync("scripts/src/types", {recursive: true})
-	fs.writeFileSync(path.resolve("scripts/src/types", "fragments.d.ts"), "declare const enum FragmentId { " + Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
-	fs.writeFileSync(path.resolve("scripts/src/types", "dialogs.d.ts"), "declare const enum DialogId { " + Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}")
+	fs.writeFileSync(path.resolve("scripts/src/types", "fragments.d.ts"), (
+		"declare const enum FragmentId { " +
+		Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " +
+		JSON.stringify(x)).join(", ") + "}"
+	))
+	fs.writeFileSync(path.resolve("scripts/src/types", "dialogs.d.ts"), (
+		"declare const enum DialogId { " +
+		Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " +
+		JSON.stringify(x)).join(", ") + "}\n" +
+		"declare type DialogPromptName = " + JSON.stringify(Object.fromEntries(
+			Object.entries(data.dialogs)
+				.filter(x => x[1]["prompts"].length > 1)
+				.map(x => [x[0], x[1]["prompts"]])
+		))
+	))
+	Object.entries(data.dialogs).forEach(x => delete x[1]["prompts"])
 	return data
 }
 
@@ -30,6 +44,9 @@ function buildObjectEnums(maps) {
 	typeSets.set("map", new Set())
 	typeSets.set("class", new Set())
 	for (const map of maps) {
+		if (!map.name.startsWith("map-")) {
+			throw new Error(`map '${map.name}' must start with 'map-'`)
+		}
 		typeSets.get("map").add(map.name)
 		for (const object of map.objects) {
 			if (object.class) {
@@ -40,6 +57,9 @@ function buildObjectEnums(maps) {
 			}
 			if (idSet.has(object.name)) {
 				throw new Error(`non-unique object name: ${object.name}`)
+			}
+			if (!object.name.startsWith(object.type + "-")) {
+				throw new Error(`${object.type} '${object.name}' must start with '${object.type}-'`)
 			}
 			idSet.add(object.name)
 			let set = typeSets.get(object.type)
@@ -54,10 +74,9 @@ function buildObjectEnums(maps) {
 		if (!set.size) {
 			continue
 		}
-		const re = new RegExp(`^${type}-`)
 		fs.writeFileSync(
 			path.resolve("scripts/src/types", type + ".d.ts"),
-			`declare const enum ${type[0].toUpperCase() + type.slice(1)}Id { ` + Array.from(set.values()).map(x => JSON.stringify(x.replace(re, "")) + " = " + JSON.stringify(x)).join(", ") + "}"
+			`declare const enum ${type[0].toUpperCase() + type.slice(1)}Id { ` + Array.from(set.values()).map(x => JSON.stringify(x.replace(/^[^-]+-/, "")) + " = " + JSON.stringify(x)).join(", ") + "}"
 		)
 	}
 }
@@ -71,6 +90,10 @@ async function run() {
 	const tilesets = tileParser.buildTilesets(glob.sync("tileset/tileset*.json"), atlas.tiles)
 	const maps = tileParser.buildMaps(glob.sync("map/map*.json"), tilesets)
 	buildObjectEnums(maps)
+	fs.writeFileSync(
+		path.resolve("scripts/src/types", "resources.d.ts"),
+		`declare const enum ResourceId {${tilesets.list.map(x => JSON.stringify(x.resource) + " = " + JSON.stringify(x.resource))}}`
+	)
 	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data: {sprites: tilesets.list, maps}}))
 	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
 	fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))

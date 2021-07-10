@@ -12,4 +12,27 @@ class Dialog {
 	static push(dialog: keyof typeof DialogId) {
 		context.speech.dialog.push(dialog)
 	}
+
+	static setPrompt<T extends keyof DialogPromptName, K extends DialogPromptName[T][number]>(dialog: T, prompt: K | "default") {
+		storage.dialog.prompts[dialog as DialogId] = prompt == "default" ? undefined : prompt
+	}
+
+	static onStart(dialog: keyof typeof DialogId, callback: Types.ScriptStorageMapping["dialogStart"]) {
+		scripts.register("dialogStart", dialog, callback)
+	}
+
+	static onSelect(dialog: keyof typeof DialogId, callback: Types.ScriptStorageMapping["dialogSelect"]) {
+		scripts.register("dialogSelect", dialog, callback)
+	}
+
+	static get hidden() {
+		return context.ui.dialog.hidden
+	}
+
+	static set hidden(value: boolean) {
+		context.ui.dialog.hidden = value
+	}
 }
+
+type Test = typeof scripts["register"]
+type Dupa = Test

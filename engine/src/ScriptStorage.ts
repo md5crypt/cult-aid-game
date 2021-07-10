@@ -4,7 +4,7 @@ import { Sprite } from "./Sprite"
 import { gameContext } from "./GameContext"
 import { Listener } from "./Listener"
 
-interface Mapping {
+export interface Mapping {
 	"mapLoad": ScriptStorage.mapCallback
 	"zoneEnter": ScriptStorage.zoneCallback
 	"zoneExit": ScriptStorage.zoneCallback
@@ -62,7 +62,7 @@ export class ScriptStorage {
 }
 
 export namespace ScriptStorage {
-	export type mapCallback = (map: GameMap) => void | Promise<void>
+	export type mapCallback = (mapId: string) => void | Promise<void>
 	export type zoneCallback = (zone: GameMap.Zone) => void | Promise<void>
 	export type cellDynamicCallback = (cell: GameMap.Cell, direction: Direction) => void | Promise<void>
 	export type cellStaticCallback = (cell: GameMap.Cell) => void | Promise<void>

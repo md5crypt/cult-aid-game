@@ -3,6 +3,11 @@ window.scriptContext = {
 	Fragment,
 	Dialog,
 	Inventory,
-	RegionLoader,
-	Utils
+	Utils,
+	Region,
+	Player,
+	Point,
+	Path,
+	Zone,
+	Resource
 }

@@ -1,16 +1,16 @@
-scripts.register("dialogStart", DialogId["hobo-common"], () => {
+Dialog.onStart("hobo-common", () => {
 	Fragment.showUnseenIf("hobo-common.option.why-hobo", Fragment.seen("hobo-kitchen-intro"))
 	Fragment.showUnseenIf("hobo-common.option.chef", storage.plantation.visited)
 	Fragment.showUnseenIf("hobo-common.option.librarian", Fragment.seen("librarian-intro"))
 })
 
-scripts.register("dialogStart", DialogId["hobo-kitchen"], () => {
+Dialog.onStart("hobo-kitchen", () => {
 	Fragment.showIf("hobo-kitchen.option.booze", Inventory.has("mead") && Fragment.seen("hobo-kitchen.option.cut-chase"))
 	Fragment.showIf("hobo-kitchen.option.unmask", Fragment.seen("technician-info.option.hobo"))
 	return Fragment.executeIfUnseen("hobo-kitchen-intro")
 })
 
-scripts.register("dialogStart", DialogId["hobo-study"], async () => {
+Dialog.onStart("hobo-study", async () => {
 	Fragment.showIf("hobo-study.option.booze", Inventory.has("mead") && Fragment.seen("hobo-kitchen.option.cut-chase"))
 	Fragment.showUnseenIf("hobo-study.option.mural", storage.maid.needsInscription)
 	Fragment.showUnseenIf("hobo-study.option.apprenticeship", Fragment.seen("hobo-study-pizza-part-2"))
@@ -33,7 +33,7 @@ scripts.register("dialogStart", DialogId["hobo-study"], async () => {
 	return Fragment.executeIfUnseen(Fragment.seen("hobo-kitchen.option.unmask") ? "hobo-study-intro-unmasked" : "hobo-study-intro")
 })
 
-scripts.register("fragmentInvoke", FragmentId["hobo-kitchen.option.booze"], async value => {
+Fragment.onInvoke("hobo-kitchen.option.booze", async value => {
 	switch (value) {
 		case "open":
 			Inventory.open("mead")
@@ -53,12 +53,12 @@ scripts.register("fragmentInvoke", FragmentId["hobo-kitchen.option.booze"], asyn
 		case "leave":
 			// to-do
 			await Utils.blackScreen(250)
-			context.map.getObject<"item">(ItemId["kitchen-hobo"]).enabled = false
+			Item.hide("kitchen-hobo")
 			break
 	}
 })
 
-scripts.register("fragmentInvoke", FragmentId["hobo-study.option.booze"], async value => {
+Fragment.onInvoke("hobo-study.option.booze", async value => {
 	switch (value) {
 		case "open-mead":
 			Inventory.open("mead")
@@ -75,4 +75,4 @@ scripts.register("fragmentInvoke", FragmentId["hobo-study.option.booze"], async 
 	}
 })
 
-scripts.register("fragmentInvoke", FragmentId["hobo-study.option.medallion"], Inventory.equipHandler("medallion"))
+Fragment.onInvoke("hobo-study.option.medallion", Inventory.equipHandler("medallion"))

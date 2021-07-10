@@ -1,14 +1,14 @@
-scripts.register("mapLoad", MapId["boiler"], () => {
-	context.map.cells.forEach(cell => cell.visible = true)
-	context.player.setMapPosition(...Utils.getPoint(PointId["boiler-spawn"]))
+Region.onLoad("boiler", () => {
+	Region.show()
+	Player.moveToPoint("boiler-spawn")
 })
 
-scripts.register("zoneUse", ZoneId["boiler-exit"], async () => {
-	await context.map.loadMap(MapId["main"])
-	context.player.setMapPosition(...Utils.getPoint(PointId["plantation-hatch"]))
+Zone.onUse("boiler-exit", async () => {
+	await Region.load("main")
+	Player.moveToPoint("plantation-hatch")
 })
 
-scripts.register("zoneUse", ZoneId["boiler-atronach"], () => {
+Zone.onUse("boiler-atronach", () => {
 	if (Fragment.unseen("atronach-initial.option.etch-a-sketch")) {
 		return Dialog.execute("atronach-initial")
 	} else if (Fragment.unseen("atronach-main.option.scam")) {
@@ -18,18 +18,18 @@ scripts.register("zoneUse", ZoneId["boiler-atronach"], () => {
 	}
 })
 
-scripts.register("dialogStart", DialogId["atronach-initial"], () => {
+Dialog.onStart("atronach-initial", () => {
 	Fragment.setVisibility("atronach-initial.option.etch-a-sketch", Inventory.has("etchASketch"))
 	return Fragment.executeIfUnseen("atronach-intro")
 })
 
-scripts.register("fragmentInvoke", FragmentId["atronach-initial.option.etch-a-sketch"], Inventory.unEquipHandler("etchASketch"))
+Fragment.onInvoke("atronach-initial.option.etch-a-sketch", Inventory.unEquipHandler("etchASketch"))
 
-scripts.register("dialogStart", DialogId["atronach-final"], () => {
+Dialog.onStart("atronach-final", () => {
 	Fragment.setVisibility("atronach-final.option.mirror", Inventory.has("watcher"))
 })
 
-scripts.register("fragmentInvoke", FragmentId["atronach-final.option.mirror"], async value => {
+Fragment.onInvoke("atronach-final.option.mirror", async value => {
 	switch (value) {
 		case "open":
 			Inventory.open("watcher")

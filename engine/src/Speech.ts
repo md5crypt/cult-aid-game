@@ -28,7 +28,6 @@ interface SpeechDialogOption {
 
 interface SpeechDialog {
 	options: SpeechDialogOption[]
-	prompts: Record<string, string>
 	imports?: string[]
 }
 
@@ -36,6 +35,12 @@ interface SpeechData {
 	characters: Record<string, SpeechCharacter>
 	fragments: Record<string, SpeechFragment>
 	dialogs: Record<string, SpeechDialog>
+}
+
+interface SpeechStorage {
+	hidden: Record<string, boolean>
+	seen: Record<string, boolean>
+	prompts: Record<string, string>
 }
 
 export class Speech {
@@ -162,7 +167,7 @@ export class Dialog {
 		if (!noClaim) {
 			gameContext.ui.dialog.claim()
 		}
-		const storage = gameContext.storage.dialog as {hidden: Record<string,boolean>, seen: Record<string,boolean>}
+		const storage = gameContext.storage.dialog as SpeechStorage
 
 		while (this.stack.length > 0) {
 			const element = this.stack[this.stack.length - 1]
@@ -180,7 +185,7 @@ export class Dialog {
 				break
 			}
 
-			const prompt = data.fragments[`${element.dialog}.prompt.default`][0] as SpeechFragmentElement
+			const prompt = data.fragments[`${element.dialog}.prompt.${storage.prompts[element.dialog] ?? "default"}`][0] as SpeechFragmentElement
 			const character = data.characters[prompt.character]
 			const options = dialog.options.map(option => ({
 				dialog: option.import || element.dialog,

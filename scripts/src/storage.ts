@@ -32,7 +32,8 @@ const storageInitializer = {
 	},
 	dialog: {
 		hidden: {} as Record<FragmentId, boolean | undefined>,
-		seen: {} as Record<FragmentId, boolean | undefined>
+		seen: {} as Record<FragmentId, boolean | undefined>,
+		prompts: {} as Record<DialogId, string | undefined>
 	}
 }
 

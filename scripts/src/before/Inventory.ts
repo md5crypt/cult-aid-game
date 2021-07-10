@@ -90,10 +90,10 @@ class Inventory {
 					}
 					break
 				case "open":
-					context.ui.dialog.hide()
+					Dialog.hidden = true
 					Inventory.add(item, true)
 					await context.timer.wait(2000)
-					context.ui.dialog.show()
+					Dialog.hidden = false
 					break
 				case "close":
 					Inventory.close()
@@ -112,10 +112,10 @@ class Inventory {
 		return async (value?: string) => {
 			switch (value) {
 				case "open":
-					context.ui.dialog.hide()
+					Dialog.hidden = true
 					Inventory.remove(item, true)
 					await context.timer.wait(2000)
-					context.ui.dialog.show()
+					Dialog.hidden = false
 					break
 				case "close":
 					Inventory.close()

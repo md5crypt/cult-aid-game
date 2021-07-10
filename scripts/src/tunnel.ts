@@ -1,15 +1,15 @@
-scripts.register("zoneEnter", ZoneId["tunnel"], async () => {
+Zone.onEnter("tunnel", async () => {
 	if (Fragment.unseen("thief-pre-intro")) {
-		await Utils.executePath(PathId["tunnel-entrance"])
+		await Player.executePath("tunnel-entrance")
 		await Fragment.execute("thief-pre-intro")
 	}
 })
 
-scripts.register("fragmentInvoke", FragmentId["thief-pre-intro"], () => {
+Fragment.onInvoke("thief-pre-intro", () => {
 	// todo
 })
 
-scripts.register("zoneUse", ZoneId["tunnel-loot"], () => {
+Zone.onUse("tunnel-loot", () => {
 	if (Fragment.seen("thief-main.option.sweetroll")) {
 		return Dialog.execute("thief-loot")
 	} else if (Fragment.unseen("thief-intro")) {
@@ -23,7 +23,7 @@ scripts.register("zoneUse", ZoneId["tunnel-loot"], () => {
 	}
 })
 
-scripts.register("zoneUse", ZoneId["tunnel-thief"], () => {
+Zone.onUse("tunnel-thief", () => {
 	if (Fragment.seen("thief-main.option.sweetroll")) {
 		return Fragment.execute("thief-knocked-out")
 	} else if (Fragment.unseen("thief-main.option.food")) {
@@ -35,22 +35,22 @@ scripts.register("zoneUse", ZoneId["tunnel-thief"], () => {
 	}
 })
 
-scripts.register("dialogStart", DialogId["thief-main"], async () => {
-	await Utils.walkToPoint(PointId["tunnel-thief"])
+Dialog.onStart("thief-main", async () => {
+	await Player.walkToPoint("tunnel-thief")
 	Fragment.setVisibility("thief-main.option.sweetroll", Inventory.has("sweetroll"))
 	Fragment.setVisibility("thief-main.option.food", Inventory.has("food"))
 	Fragment.setVisibility("thief-main.option.shovel", Inventory.has("shovel") && Fragment.seen("thief-main.option.wrong"))
 	return Fragment.executeIfUnseen("thief-intro")
 })
 
-scripts.register("dialogStart", DialogId["thief-fed"], () => {
+Dialog.onStart("thief-fed", () => {
 	Fragment.setVisibility("thief-fed.option.shovel", Inventory.has("shovel") && Fragment.unseen("thief-main.option.shovel"))
 	Fragment.setVisibility("thief-fed.option.shovel-alt", Inventory.has("shovel") && Fragment.seen("thief-main.option.shovel"))
 })
 
-scripts.register("dialogStart", DialogId["thief-end"], () => Fragment.executeIfUnseen("thief-end-intro"))
+Dialog.onStart("thief-end", () => Fragment.executeIfUnseen("thief-end-intro"))
 
-scripts.register("fragmentInvoke", FragmentId["thief-main.option.sweetroll"], Inventory.unEquipHandler("sweetroll", value => {
+Fragment.onInvoke("thief-main.option.sweetroll", Inventory.unEquipHandler("sweetroll", value => {
 	switch (value) {
 		case "eat":
 			// todo
@@ -60,14 +60,14 @@ scripts.register("fragmentInvoke", FragmentId["thief-main.option.sweetroll"], In
 	}
 }))
 
-scripts.register("fragmentInvoke", FragmentId["thief-main.option.food"], Inventory.unEquipHandler("food", () => {
+Fragment.onInvoke("thief-main.option.food", Inventory.unEquipHandler("food", () => {
 	// todo
 }))
 
-scripts.register("fragmentInvoke", FragmentId["thief-end.option.leave"], () => {
+Fragment.onInvoke("thief-end.option.leave", () => {
 	// todo
 })
 
-scripts.register("fragmentInvoke", FragmentId["thief-loot.option.take"], Inventory.equipHandler("etchASketch"))
+Fragment.onInvoke("thief-loot.option.take", Inventory.equipHandler("etchASketch"))
 
 Debug.registerTestChest("tunnel", ["shovel", "food", "sweetroll"])

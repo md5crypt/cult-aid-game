@@ -63,4 +63,16 @@ class Fragment {
 		}
 		return Promise.resolve()
 	}
+
+	static onBefore(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentBefore"]) {
+		scripts.register("fragmentBefore", fragment, callback)
+	}
+
+	static onAfter(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentAfter"]) {
+		scripts.register("fragmentAfter", fragment, callback)
+	}
+
+	static onInvoke(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentInvoke"]) {
+		scripts.register("fragmentInvoke", fragment, callback)
+	}
 }

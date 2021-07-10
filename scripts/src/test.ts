@@ -1,10 +1,10 @@
-scripts.register("dialogSelect", DialogId["test-give-item"], id => {
+Dialog.onSelect("test-give-item", id => {
 	if (id == "book" || id == "sweetroll") {
 		Inventory.add(id)
 	}
 })
 
-scripts.register("dialogSelect", DialogId["card-game-test"], id => {
+Dialog.onSelect("card-game-test", id => {
 	if (id != "exit") {
 		context.camera.enabled = false
 		context.ui.cardGame.enabled = true
@@ -21,20 +21,19 @@ scripts.register("dialogSelect", DialogId["card-game-test"], id => {
 	}
 })
 
-scripts.register("zoneUse", ZoneId["debug"], () => {
-	void context.speech.executeDialog(DialogId["test-main"])
+Zone.onUse("debug", () => {
+	void Dialog.execute("test-main")
 })
 
-scripts.register("mapLoad", MapId["main"], () => {
-	const point = Utils.getPoint(PointId["init-room"])
-	Utils.resolvePosition(point).cell.group.forEach(x => x.visible = true)
-	context.player.setMapPosition(point[0], point[1])
+Region.onLoad("main", () => {
+	const point = Point.get("init-room").position
+	Region.showCellGroup(Point.resolve(point).cell)
+	Player.moveToPoint(point)
 	context.camera.lockOn(context.player)
-	void RegionLoader.execute(MapId["main"])
 })
 
 scripts.register("zoneEnter", ClassId["auto-reveal"], () => {
-	context.player.cell.group.forEach(x => x.visible = true)
+	Region.showCellGroup()
 })
 
 /*
@@ -112,7 +111,7 @@ scripts.register("cellEnter", "roomEnter", (cell, direction) => {
 		const group = cell.getGroup()
 		const bounds = cell.getGroupBounds(group)
 		group.forEach(x => x.setVisible())
-		context.player.lockInput()
+		Player.lockInput()
 		void Promise.all([
 			context.camera.moveTo(
 				(bounds[0] + (bounds[2] / 2)) * CONST.GRID_BASE,
@@ -123,7 +122,7 @@ scripts.register("cellEnter", "roomEnter", (cell, direction) => {
 				context.camera.zoomCell / Math.max(bounds[2], bounds[3]),
 				500
 			)
-		]).then(() => context.player.unlockInput())
+		]).then(() => Player.unlockInput())
 	}
 })
 
@@ -132,7 +131,7 @@ scripts.register("cellExit", "roomExit", (cell, direction) => {
 		const next = cell.getNeighbor(direction)
 		const path = next.getEnterPath(direction)!
 		const center = path[path.length - 1]
-		context.player.lockInput()
+		Player.lockInput()
 		void Promise.all([
 			context.camera.zoomTo(context.camera.zoomDefault, 500),
 			context.camera.moveTo(
@@ -142,7 +141,7 @@ scripts.register("cellExit", "roomExit", (cell, direction) => {
 			)
 		]).then(() => {
 			context.camera.lockOn(context.player)
-			context.player.unlockInput()
+			Player.unlockInput()
 		})
 	}
 })

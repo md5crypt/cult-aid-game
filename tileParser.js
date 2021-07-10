@@ -80,7 +80,6 @@ class TilesetStorage {
 			assert(sprite, `resource not found: ${name}`)
 			assert(!this.touched.has(name), `resource redefined: ${name}`)
 			this.touched.add(name)
-			this.list.push(sprite)
 			entries.push({id: tile.id, sprite})
 			if (tile.objectgroup && tile.objectgroup.objects) {
 				let data = tile.objectgroup.objects

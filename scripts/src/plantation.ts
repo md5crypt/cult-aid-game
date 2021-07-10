@@ -1,1 +1,1 @@
-scripts.register("zoneUse", ZoneId["plantation-hatch"], () => context.map.loadMap(MapId["boiler"]))
+Zone.onUse("plantation-hatch", () => Region.load("boiler"))

@@ -1,14 +1,14 @@
-scripts.register("zoneEnter", ZoneId["office-entrance"], async () => {
-	context.player.cell.group.forEach(x => x.visible = true)
+Zone.onEnter("office-entrance", async () => {
+	Region.showCellGroup()
 	if (Fragment.unseen("bosmer-intro")) {
-		await Utils.executePath(PathId["office-entrance"])
+		await Player.executePath("office-entrance")
 		await Fragment.execute("bosmer-intro")
 	}
 })
 
-scripts.register("zoneUse", ZoneId["office-bosmer"], () => Dialog.execute("bosmer-main"))
+Zone.onUse("office-bosmer", () => Dialog.execute("bosmer-main"))
 
-scripts.register("zoneUse", ZoneId["office-board"], () => {
+Zone.onUse("office-board", () => {
 	if (Fragment.seen("bosmer-info-intro")) {
 		return Dialog.execute("bosmer-board-main")
 	} else {
@@ -16,16 +16,16 @@ scripts.register("zoneUse", ZoneId["office-board"], () => {
 	}
 })
 
-scripts.register("dialogStart", DialogId["bosmer-main"], () => {
+Dialog.onStart("bosmer-main", () => {
 	Fragment.setVisibility("bosmer-main.option.mirror", Inventory.has("mirror") && Fragment.seen("bosmer-main.option.head-1") && Fragment.unseen("bosmer-main.option.hair"))
 	Fragment.setVisibility("bosmer-main.option.mirror-2", Inventory.has("mirror") && Fragment.seen("bosmer-main.option.head-1", "bosmer-main.option.hair"))
 	Fragment.showUnseenIf("bosmer-main.option.hair", Fragment.seen("bosmer-main.option.mirror") && Fragment.seen("bosmer-main.option.head-1", "bosmer-info.option.librarian"))
 	Fragment.showUnseenIf("bosmer-main.option.notes", Fragment.seen("bosmer-board-main.option.analyse"))
 	Fragment.setSeenIf("bosmer-main.option.patterns", Dialog.seen("bosmer-info", ["bosmer-info.option.back"]))
-	return Utils.walkToPoint(PointId["office-bosmer"])
+	return Player.walkToPoint("office-bosmer")
 })
 
-scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror"], value => {
+Fragment.onInvoke("bosmer-main.option.mirror", value => {
 	if (value == "open") {
 		Inventory.open("mirror")
 	} else {
@@ -33,7 +33,7 @@ scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror"], valu
 	}
 })
 
-scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror-2"], value => {
+Fragment.onInvoke("bosmer-main.option.mirror-2", value => {
 	if (value == "open") {
 		Inventory.open("mirror")
 	} else if (value == "close") {
@@ -43,12 +43,12 @@ scripts.register("fragmentInvoke", FragmentId["bosmer-main.option.mirror-2"], va
 	}
 })
 
-scripts.register("fragmentAfter", FragmentId["bosmer-main.option.hair"], () => Inventory.has("mirror") && Dialog.push("bosmer-post-hair"))
+Fragment.onAfter("bosmer-main.option.hair", () => Inventory.has("mirror") && Dialog.push("bosmer-post-hair"))
 
-scripts.register("dialogStart", DialogId["bosmer-info"], () => Fragment.executeIfUnseen("bosmer-info-intro"))
+Dialog.onStart("bosmer-info", () => Fragment.executeIfUnseen("bosmer-info-intro"))
 
-scripts.register("dialogStart", DialogId["bosmer-board-main"], () => Fragment.executeIfUnseen("bosmer-board-intro"))
+Dialog.onStart("bosmer-board-main", () => Fragment.executeIfUnseen("bosmer-board-intro"))
 
-scripts.register("fragmentInvoke", FragmentId["bosmer-board-main.option.take"], Inventory.equipHandler("scribbles"))
+Fragment.onInvoke("bosmer-board-main.option.take", Inventory.equipHandler("scribbles"))
 
 Debug.registerTestChest("office", ["mirror"])

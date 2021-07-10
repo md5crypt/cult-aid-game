@@ -162,12 +162,12 @@ export class DialogUI {
 		return new Promise<void>(resolve => this.releaseQueue.push(resolve))
 	}
 
-	public hide() {
-		this.animators.scroll.parameters.hidden = true
+	public get hidden() {
+		return this.animators.scroll.parameters.hidden
 	}
 
-	public show() {
-		this.animators.scroll.parameters.hidden = false
+	public set hidden(value: boolean) {
+		this.animators.scroll.parameters.hidden = value
 	}
 
 	public claim() {
