@@ -21,12 +21,6 @@ class Fragment {
 		storage.dialog.hidden[fragment] = !value
 	}
 
-	static setVisibilityIfUnseen(fragment: keyof typeof FragmentId, value: boolean) {
-		if (!storage.dialog.seen[fragment]) {
-			storage.dialog.hidden[fragment] = !value
-		}
-	}
-
 	static hide(fragment: keyof typeof FragmentId) {
 		storage.dialog.hidden[fragment] = true
 	}

@@ -81,7 +81,7 @@ Dialog.onSelect("librarian-newspaper-select", async option => {
 })
 
 Dialog.onStart("librarian-main", () => {
-	Fragment.setVisibilityIfUnseen("librarian-main.option.sweetroll", Inventory.has("sweetroll"))
+	Fragment.setVisibility("librarian-main.option.sweetroll", Fragment.unseen("librarian-main.option.sweetroll") && Inventory.has("sweetroll"))
 	Fragment.setVisibility("librarian-main.option.scribbles", Inventory.has("scribbles"))
 	Fragment.showIf("librarian-main.option.vampire", Fragment.seen("librarian-main.option.cultists", "librarian-main.option.live-here"))
 	Fragment.showUnseenIf("librarian-main.option.archaeologist", storage.archeologist.visited)
