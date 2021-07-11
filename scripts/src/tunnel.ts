@@ -70,4 +70,10 @@ Fragment.onInvoke("thief-end.option.leave", () => {
 
 Fragment.onInvoke("thief-loot.option.take", Inventory.equipHandler("etchASketch"))
 
+Fragment.onInvoke(["thief-fed.option.shovel", "thief-fed.option.shovel-alt"], Inventory.unEquipHandler("shovel"))
+
+Fragment.onInvoke("thief-main.option.shovel", Inventory.presentHandler("shovel"))
+
+Fragment.onInvoke("thief-fed.option.sweetroll", Inventory.presentHandler("sweetroll"))
+
 Debug.registerTestChest("tunnel", ["shovel", "food", "sweetroll"])

@@ -9,7 +9,7 @@ const inventoryItems = {
 		image: ""
 	},
 	newspaper: {
-		image: ""
+		image: "item-lusty-argonian-maid"
 	},
 	key: {
 		image: "item-key"

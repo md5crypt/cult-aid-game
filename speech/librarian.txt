@@ -124,6 +124,8 @@ khajiit: It turns out that drugging someone and then going through their stuff i
 
 %invoke open
 
+%invoke remove
+
 null: Item removed: "Traditional" Sweatroll
 
 %invoke close
@@ -302,6 +304,8 @@ librarian: Anything you would want to ask?
 
 @option hidden sweetroll: (Give sweetroll)
 
+%invoke open
+
 khajiit: I've been in the canteen and the chef told me to give you this sweetroll.
 
 librarian: Oh how nice of both of you! He always makes me a moonsugar free batch. I'm a bit over-sensitive to it.
@@ -312,9 +316,11 @@ librarian: Oh how nice of both of you! He always makes me a moonsugar free batch
 
 @option scribbles: (Give Investigator's notes)
 
+%invoke open
+
 khajiit: Do these scribbles mean anything to you?
 
-%invoke open
+%invoke remove
 
 null: Item removed: The Investigator's notes
 

@@ -61,9 +61,11 @@ thief: What do you *snif* want to know?
 
 @option hidden sweetroll: (Give sweetroll)
 
+%invoke open
+
 khajiit: Here, I brought you a sweetroll. Not much but maybe it will do.
 
-%invoke open
+%invoke remove
 
 null: Item removed: "Traditional" Sweatroll
 
@@ -90,14 +92,16 @@ khajiit: I mean what did I expect? Giving a moonsugar loaded sweetroll to a star
 
 @option food: (Give food)
 
-khajiit: I managed to get you some food.
-
 %invoke open
+
+khajiit: I managed to get you some food.
 
 // big cute eyes avatar
 thief: *silent stare*
 
 khajiit: Oh stop looking at me like that and just take the damn thing!
+
+%invoke remove
 
 null: Item removed: Packed meal
 
@@ -172,9 +176,13 @@ khajiit: It's fine. I mean you were having a moonsugar induced mental breakdown 
 
 @option hidden shovel: (Give shovel)
 
+%invoke open
+
 khajiit: Look, I found a power shovel! With it you can probably dig through!
 
 thief: Maybe... and maybe not. It's not exactly designed for digging tunnels and I don't have any motivation left to try. The cup was my limit.
+
+%invoke close
 
 khajiit: Fine, then I'll dig through myself.
 
@@ -289,6 +297,8 @@ thief: I can't stress how much I thank you
 
 @option hidden shovel: (Give shovel)
 
+%invoke open
+
 khajiit: Look, I found a power shovel! With it you can probably dig through!
 
 thief: I... I... still can't hug you?
@@ -296,13 +306,27 @@ thief: I... I... still can't hug you?
 khajiit: I fear our animation budget might be too non-existent for that.
 khajiit: So I understand it'll do the job?
 
+%invoke remove
+
+null: Item removed: "Power" shovel
+
+%invoke close
+
 thief: It'll be tricky but I think I'll manage to pull it off.
 
 %replace thief-end
 
 @option hidden shovel-alt: (Give shovel)
 
+%invoke open
+
 khajiit: Got enough energy to give that shovel a go?
+
+%invoke remove
+
+null: Item removed: "Power" shovel
+
+%invoke close
 
 thief: Khajiit thinks her motivation might be scraped together successfully.
 
@@ -314,9 +338,13 @@ thief: I blame the moonsugar.
 
 @option hidden sweetroll: (Give sweetroll)
 
+%invoke open
+
 khajiit: Do you want a sweetroll? The chef gave me one.
 
 thief: More moonsugar? No thanks.
+
+%invoke close
 
 khajiit: Yeah, I thought so... 
 

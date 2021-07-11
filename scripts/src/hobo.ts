@@ -12,7 +12,7 @@ Dialog.onStart("hobo-kitchen", () => {
 
 Dialog.onStart("hobo-study", () => {
 	Fragment.showIf("hobo-study.option.booze", Inventory.has("mead") && Fragment.seen("hobo-kitchen.option.cut-chase"))
-	Fragment.showUnseenIf("hobo-study.option.mural", storage.maid.needsInscription)
+	Fragment.showUnseenIf("hobo-study.option.mural", Fragment.seen("maid-final"))
 	Fragment.showUnseenIf("hobo-study.option.apprenticeship", Fragment.seen("hobo-study-pizza-part-2"))
 	if (Fragment.unseen("hobo-kitchen-intro")) {
 		// if we never talked to him in the kitchen before this is the only possible intro

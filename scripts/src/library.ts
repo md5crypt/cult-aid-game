@@ -8,6 +8,8 @@ Dialog.onStart("librarian-body", () => Fragment.pushIfUnseen("librarian-body-int
 
 Fragment.onInvoke("librarian-body.option.take-map", Inventory.equipHandler("map"))
 
+Fragment.onInvoke("librarian-main.option.sweetroll", () => Inventory.open())
+
 Fragment.onInvoke("librarian-sweetroll.option.do-nothing", Inventory.unEquipHandler("sweetroll", value => {
 	// todo: animation
 }))
@@ -83,7 +85,7 @@ Dialog.onStart("librarian-main", () => {
 	Fragment.setVisibility("librarian-main.option.scribbles", Inventory.has("scribbles"))
 	Fragment.showIf("librarian-main.option.vampire", Fragment.seen("librarian-main.option.cultists", "librarian-main.option.live-here"))
 	Fragment.showUnseenIf("librarian-main.option.archaeologist", storage.archeologist.visited)
-	Fragment.showUnseenIf("librarian-main.option.inscription", Fragment.seen("librarian-main.option.dwemer") && storage.maid.needsInscription)
+	Fragment.showUnseenIf("librarian-main.option.inscription", Fragment.seen("librarian-main.option.dwemer", "maid-main.option.idea"))
 	Fragment.setVisibility("librarian-main.option.newspapers", Fragment.seen("librarian-main.option.scribbles"))
 	Fragment.setSeenIf("librarian-main.option.newspapers", Dialog.seen("librarian-fetch", ["librarian-fetch.option.back"]))
 	Fragment.pushIfUnseen("librarian-intro")

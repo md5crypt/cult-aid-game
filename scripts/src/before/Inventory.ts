@@ -25,15 +25,15 @@ class Inventory {
 		return true
 	}
 
-	static replace(from: InventoryItemName, to: InventoryItemName, triggerUI = false) {
+	static replace(from: InventoryItemName, to: InventoryItemName | null, triggerUI = false) {
 		if (storage.hands.right == from) {
 			if (triggerUI) {
-				context.ui.inventory.replaceRight(inventoryItems[to].image)
+				context.ui.inventory.replaceRight(to ? inventoryItems[to].image : null)
 			}
 			storage.hands.right = to
 		} else if (storage.hands.left == from) {
 			if (triggerUI) {
-				context.ui.inventory.replaceLeft(inventoryItems[to].image)
+				context.ui.inventory.replaceLeft(to ? inventoryItems[to].image : null)
 			}
 			storage.hands.left = to
 		}
@@ -104,12 +104,33 @@ class Inventory {
 		}
 	}
 
-	static unEquipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: Exclude<T, "open" | "close">) => void | Promise<void>) {
+	static presentHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: Exclude<T, "open" | "close">) => void | Promise<void>) {
 		return async (value: Exclude<"open" | "close", T> extends never ? T : "required invoke calls missing in fragment") => {
 			switch (value) {
 				case "open":
+					Inventory.open(item)
+					break
+				case "close":
+					Inventory.close()
+					break
+				default:
+					if (callback) {
+						return callback(value as any)
+					}
+					break
+			}
+		}
+	}
+
+	static unEquipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: Exclude<T, "open" | "close" | "remove">) => void | Promise<void>) {
+		return async (value: Exclude<"open" | "close" | "remove", T> extends never ? T : "required invoke calls missing in fragment") => {
+			switch (value) {
+				case "open":
+					Inventory.open(item)
+					break
+				case "remove":
 					Dialog.hidden = true
-					Inventory.remove(item, true)
+					Inventory.replace(item, null, true)
 					await context.timer.wait(2000)
 					Dialog.hidden = false
 					break

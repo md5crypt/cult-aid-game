@@ -1,0 +1,433 @@
+
+// Od zawsze marzyła o karierze malarza, lecz wszystkie jej próby utrzymania się z malarstwa legły w gruzach, gdyż nikt nie chciał kupować jej obrazów. Zajęła się więc renowacją z myślą, że malować będzie w wolnym czasie.
+// Początki były ciężkie i tłumaczyła sobie, że zacznie malować, gdy już się ustabilizuje w nowym zawodzie. Po paru latach zyskała uznanie jako światowej klasy fachowiec, lecz malować ciągle nie zaczęła. Po całym dniu pracy nad czyimiś obrazami na swoje nie miała ani siły, ani chęci. Cały czas jednak nie dawało to jej spokoju i z dnia na dzień rosło w niej bliżej nieokreślone poczucie winy.
+// Nie potrafiąc sobie poradzić z tym coraz bardziej przytłaczającym ją uczuciem, sięgała po alkohol. Szybko doprowadziła się do stanu, w którym bez niego nie potrafiła egzystować. W pracy wszyscy widzieli jej rosnący problem, ale nikt nic nie mówił, bo ciągle byłą najlepsza i jej potrzebowali. W końcu doszło do sytuacji, w której rozpoczęła prace tak pijana, że po chwili zrzygała się na obraz, nad którym od paru dni pracowała. Pech chciał, że był to bardzo znany, bardzo stary i bardzo ważny obraz.
+// Znaleźli ją nieprzytomną obok sztalugi. Historia obiegła świat, stała się słynna jako renowatorka alkoholiczka, co zniszczyła obraz starego mistrza. Natychmiast ją zwolnili i została sama z palącym problem, bez pracy i bez żadnych perspektyw na przyszłość. Przepiła zgromadzone oszczędności, przepiła sprzęt malarski, jaki jej został i w końcu przepiła dom. Trafiła na ulice, żyjąc z dna na dzień, żebrząc, pijać i spiąć gdzie popadnie.
+// Po pewnym dniu żebrania i pica na cmentarzu obaliła się przed wejściem do jednego z grobowców. Zbudził ją w nocy nekromanta, potykając się o jej ciało. Przykucnął, obejrzał ją dokładnie i powiedział: "You seem to be argonian, and I read that argonians make marvelous maids. Do you want to work for me?". Po chwili ciszy odpowiedzialna "yes" i zza nekromanty wyszło dwóch kultystów. Zaciągnęli ją do jaskini i zamknęli na klucz w celi gdzie przeszła przymusowy detoks. Gdy po razy pierwszy raz od dawna zbudziła się całkowicie trzeźwa, przyszedł do niej nekromanta. Pokazał jej miejsce pracy, zakres obowiązków oraz drzwi, którymi w każdej chwili mogła wyjść i nigdy nie wrócić.
+// Bez słowa rozpoczęła nowa prace, nigdy już od tego momentu nie sięgając po alkohol. Z czasem zyskiwał coraz więcej obowiązków, a jej pozycja rosła. Szybko stała się drugą co do ważności osobą w jaskini, zaraz po nekromancie. Czując do niego niemalejąca wdzięczność za danie jej drugiego życia, z własnej woli do dziś pozostaje przy jego boku jako jego najbardziej wierny i oddany sługa.
+
+@fragment maid-main-intro
+
+maid: Well this is new. This one started identifying as a Daedra or did he simply have too much of his morning skooma?
+
+khajiit: Sorry, but I might be a bit too preoccupied to feel offended.
+
+maid: And here I thought I'd have some fun during my break.
+
+maid: But let me guess, those new totally-not-a-scam summoning rituals got them a Khajiit in a Daedra costume.
+
+khajiit: I won't say yes, but there might be a non-zero probability that this is exactly what happened.
+
+maid: *laughs maniacally*
+maid: Oh boy, sometimes life just keeps on giving.
+
+khajiit: I'd like to be amused by this as much as you are.
+
+maid: Oh, come on, it could be worse. You're not tied-up to an altar or something.
+maid: At least not yet.
+
+khajiit: I think I'll go now.
+
+maid: So fast? That's so rude, we were just starting to get to know each other.
+
+%seen
+
+@dialog maid-main
+
+@prompt
+
+maid: So what do you want to know?
+
+@option hidden article: (Give article)
+
+%invoke open
+
+khajiit: I found this rather interesting article, mind taking a look?
+
+maid: *sigh*
+
+maid: Fine, I'll humor little Khajiit.
+
+%invoke remove
+
+null: Item removed: News article
+
+%invoke close
+
+khajiit: It's about you, isn't it? I mean you're much younger in that photo but it's clearly you.
+
+maid: ...
+
+maid: Yes.
+
+khajiit: Oh. To be honest I expected a bit more... denial?
+
+maid: A certain someone once told me that not denying one's past is a good way to avoid repeating it.
+
+khajiit: So by any chance, would you mind telling me about it?
+
+maid: At this point, why not.
+
+maid: Believe it or not, I used to be a fine art restorer. Not just any art restorer, THE art restorer, the best money could buy you.
+
+maid: But I had this... growing problem. Everyone pretended to not see it as long as I did my job.
+
+maid: And then that "situation" happened.
+
+maid: From that point It was mostly a downward spiral. Lost my job, house and dignity. Ended up on the street.
+
+khajiit: But you ended up working here as a maid? How did that happen?
+
+maid: You're pushing it Khajiit. I said way more than enough.
+
+%seen
+%hide
+
+@option inscription: (Give inscription)
+
+%invoke open
+
+khajiit: I think I solved the "partially convincing" problem, take a look.
+
+maid: A Dewmer inscription? What does it say?
+
+khajiit: "Khajiit was given shines to paint a fake dwemer mural" in some very obscure little-known dialect.
+
+maid: I like it.
+
+%invoke remove
+
+null: Item removed: "Dewmer" inscription
+
+%invoke close
+
+maid: Where did Kahjiit manage to get that?
+
+maid: Wait, that's the librarian's handwriting. How did you convince her to take part in this?
+
+khajiit: Seems you're not the only one fed up with that Altmer. Also she's convinced it's nothing but a harmless prank.
+
+maid: And then you wonder why there's so much hate towards Khajiits. You're just too good at what you do.
+
+khajiit: I'll try to take that as a complement.
+
+%seen
+%hide
+%show leave
+%push maid-ready-check
+
+@option hidden leave: About that mural...
+
+%push maid-ready-check
+
+@option not-cultist: You don't look like a cultits.
+
+khajiit: So you're not a cultist, aren't you?
+
+maid: Me? No, I just work as a maid here.
+
+khajiit: Oh, oh! I think I once read a book about that!
+
+maid: Careful there you little fleabag. Me making fun of you does not imply you are allowed to make fun of me.
+
+khajiit: I don't think I am in a position to argue with that.
+
+maid: Smart Khajiit.
+
+%hide
+%show argo-maid
+%show work
+
+@option hidden work: Maid? In a cultist dungeon?
+
+khajiit: How exactly does one become a maid in a cultist dungeon?
+
+maid: One responds to a "local cultist organization looking for a maid to take care of a medium sized cave" advertisement on the town notice board.
+
+khajiit: I genuinely can't tell if you're joking or not.
+
+khajiit: Also, aren't there any better jobs for a maid out there? Why would anyone willingly take a job in a cultist infested cave?
+
+maid: And for what exact reason is Khajiit asking these questions?
+
+khajiit: Um... small talk?
+
+maid: I'm not too good at this, you'll need to help me out.
+
+maid: Is asking, if Khajiit would like to be punched in his dumb fury face, still technically small talk?
+
+%hide
+
+@option hidden argo-maid: This line of work must be... challenging for Argonians.
+
+khajiit: Isn't it hard for an Argonian to work as an... well... Argonian maid.
+
+khajiit: You know, with all those... stories floating around.
+
+maid: Mind if I ask you something about Khajiits?
+
+khajiit: Sure, go ahead.
+
+maid: I always was under the impression that Khajiits had this excellent survival instinct.
+
+maid: But you seem to have these weird tendencies to wander towards self destruction.
+
+khajiit: Is it too late to quickly change the subject?
+
+maid: Ah, I see you are not so hopeless after all.
+
+%seen
+%hide
+
+@option help-me: Can you help me escape this place?
+
+khajiit: Could you somehow help get me out of this place?
+
+maid: Of course, with very little effort.
+
+khajiit: And would you be willing to do so?
+
+maid: No, I don't really think I would.
+
+khajiit: Is there anything I could do to change that?
+
+maid: Not really.
+
+khajiit: May I ask why?
+
+maid: Oh, it's quite simple.
+
+maid: Watching little Khajiit struggle for his life gives me this wonderful feeling of catharsis.
+
+%seen
+%show-unseen info
+
+@option hidden info: Help me out with some information?
+
+khajiit: At least tell me something about this place so I don't wander around blindly.
+
+maid: Let's see... overtime is paid double, all holidays have paid time off and employees can eat for free in our canteen.
+
+khajiit: I meant something that would actually be useful for me.
+
+maid: Oh, I know what you meant.
+
+khajiit: *sigh*
+
+%hide
+
+@option hidden archaeologist: I met this archaeologist that had some strong opinions about you.
+
+khajiit: So I managed to stumble across this rather annoying archaeologist. You two seem to like each other very much.
+
+maid: Ah yes, the Altmer. I would gladly punch his superior face so hard that it comes out his superior butt.
+
+maid: May I know why is he a concern to little Khajiit? Trying to steal his stuff?
+
+khajiit: Of course not! I mean I may have considered the possibility, but that's completely irrelevant!
+
+maid: You know what? Go steal the shit out of him, you have my permission. Maybe that will make him leave.
+
+khajiit: I don't understand, why does the cult tolerate his presence here? Can't you just get rid of him?
+
+maid: Oh we would love to, believe me, but he's got a dumb rite of passage from the university.
+
+khajiit: How exactly does this piece of paper stop a whole cult?
+
+maid: If you must know we're registered as a cultural preservation site. If we don't honor that stupid paper we can say goodbye to state funding.
+
+khajiit: Wait, what?
+
+maid: It's a fun little stunt we managed to pull, covers a quite substantial part of our operations costs.
+maid: Don't tell me Kahjiit thought playing dirty was reserved only for his kind?
+
+khajiit: Well, of course not, but extorting government money is not the exact kind of evil I was expecting from a cult.
+
+%seen
+%hide
+
+@option hidden idea: I may have an idea how to get rid of that altmer.
+
+khajiit: I don't know if you will like it, but I think I know how to make the Altmer leave.
+
+maid: Oh? I'm listening.
+
+khajiit: Lets say he would find a perfectly legitimate ancient dwemer mural.
+
+maid: Just in case Khajiit is completely blind or retarded, let me remind him that this place has absolutely nothing to do with the Dwemer.
+
+maid: Or did Khajiit take the liberty to assume that I would be able to magically conceive such a mural?
+
+khajiit: Would you?
+
+maid: Why I told a Khajiit literally anything about my life is beyond me.
+
+maid: That said, Dwemer loved their intricate patterns and I haven't held a paintbrush in years.
+
+maid: But that's irrelevant as the whole plan is flawed. More dirt pushers swarm into here as soon as that Altmer publishes his "findings".
+
+khajiit: I guess you're right, didn't think about that.
+
+maid: Shush Khajiit, I'm thinking.
+
+maid: What if he finds a mural convincing enough to fool his postgraduate ass but not enough to fool those snobs running the university?
+
+maid: Oh how delightful that would be.
+
+khajiit: He really got under your skin, didn't he?
+
+maid: I'm willing to give it a go.
+
+maid: One problem. I can get some references and attempt to paint a convincing mural but unless khajiit is some kind of dwemer expert I have no idea how to make it "partially convincing".
+
+khajiit: I'll see if I can do something about that.
+
+%seen
+
+
+@option exit: (Exit)
+
+khajiit: I think I had enough.
+
+maid: Do come back. Mocking clueless Khajiits is my favorite past-time.
+
+%exit
+
+
+@dialog maid-ready-check
+
+@prompt
+
+maid: Khajiit ready to start?
+
+@option yes: I guess.
+
+maid: Then let's go grab some paint and find a nice place for a Dwemer mural.
+
+%call maid-final
+%exit
+
+@option back: Give me a moment.
+
+khajiit: In a moment, I have to do something first.
+
+maid: Well, don't keep me waiting for too long. I've got an Altmer to screw over.
+
+%seen
+%pop
+
+@fragment maid-final
+
+// farba na ziemi maid przy scianie, khajiit robi za stojak na refy i farbe
+%invoke intro
+
+maid: Tilt the album a bit up.
+
+khajiit: Are you sure we can't get a stand or something? Do I really have to hold it?
+
+maid: Oh, we could, but that would be far less satisfying.
+
+// maid zanurza pedzel w farbie i nic sie nie dzieje przez chwile
+%invoke hesitate
+
+khajiit: What's wrong? Second thoughts?
+
+maid: Surprisingly, yes.
+
+khajiit: I mean we can just drop the whole idea if it turns out bad.
+
+maid: It's not that simple.
+
+khajiit: Um... it isn't?
+
+maid: I haven't touched anything even remotely related to paint or painting ever since I started living here.
+
+maid: Khajiit knows why?
+
+khajiit: Bad memories? Burned out? Couldn't find a Khajiit that you could force into being an easel?
+
+maid: It was out of fear. Fear that history will repeat itself.
+
+%invoke paint-stroke
+
+maid: But that ends today.
+
+%invoke paint-start
+
+khajiit: Am I expected to comment on that somehow?
+
+maid: Khajiit is expected to shut up and let me work.
+
+khajiit: Good to know.
+
+// na scianie skonczony mural, maid przyglada mu sie z odleglosci, kahjiit spi siedzac oparty o sciane. Wchodzi nekro.
+%invoke transition
+
+hobo: I've been looking for you everywhere. I need your help with some paperwork that just came in.
+
+hobo: Also, is that a Dwemer mural? Since when do we have Dwemer murals on our walls?
+
+maid: You know Dwemer, right? Can you read what it says?
+
+hobo: Err... something about someone being given... sunshine?
+hobo: The wording is very strange, I can't make much out of it.
+
+maid: Perfect.
+
+hobo: Wait, you painted that?
+
+maid: There is a slight possibility.
+
+hobo: But... you... why? How?
+
+maid: Could you make the paint look appropriately old? Like you know...
+maid: With magic.
+
+hobo: I... I probably could, but why?
+
+maid: I'll explain later, for now just do the thing.
+
+hobo: Right now? Without an enchanting rig? What am I, some kind of magician?
+
+// maid kopie khajiita
+%invoke khajiit-wake-up
+
+khajiit: No! Don't throw me out! I'll pay the rent, I promise!
+khajiit: Oh...
+
+maid: Khajiit here will help you out.
+
+khajiit: I will?
+
+maid: Meanwhile I'm going out to buy some art supplies.
+
+hobo: Look, the last thing I want is to discourage you, but you thought this through?
+
+maid: Yes, I'm not the same person I was all those years ago. Besides this time I won't attempt to sell my work.
+
+// maid robi pare krokow
+%invoke maid-exit-begin
+
+maid: Or expect someone to buy it.
+
+// maid wychodzi
+%invoke maid-exit
+
+khajiit: Can I go with her?
+
+hobo: No.
+
+khajiit: Was worth a shot.
+
+hobo: Meet me in my study. You'll have some explaining to do.
+
+%invoke directions
+
+%invoke hobo-exit
+
+
+@fragment maid-final-directions
+
+khajiit: And where exactly is that?
+
+hobo: Take the strider to <nazwa stacji>.

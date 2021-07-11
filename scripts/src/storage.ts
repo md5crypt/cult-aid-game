@@ -23,8 +23,6 @@ const storageInitializer = {
 		visited: false
 	},
 	maid: {
-		needsInscription: false,
-		needsMedallion: false
 	},
 	bosmer: {
 	},

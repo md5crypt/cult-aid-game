@@ -40,9 +40,11 @@ khajiit: Fair enough.
 
 @option hidden book: (Give book)
 
+%invoke open
+
 khajiit: Here, I brought you a book from the library. Should be a better read then that server manual.
 
-%invoke open
+%invoke remove
 
 null: Item removed: Lusty Argonian Maid
 
