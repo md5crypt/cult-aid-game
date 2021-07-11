@@ -21,16 +21,29 @@ function parseSpeech(speechPath) {
 	fs.writeFileSync(path.resolve("scripts/src/types", "fragments.d.ts"), (
 		"declare const enum FragmentId { " +
 		Object.keys(data.fragments).map(x => JSON.stringify(x) + " = " +
-		JSON.stringify(x)).join(", ") + "}"
+		JSON.stringify(x)).join(", ") + "}\n" +
+		"declare type FragmentInvokeKeys = " + JSON.stringify(Object.fromEntries(
+			Object.entries(data.fragments)
+				.map(x => [x[0], Array.from(new Set(x[1]
+					.filter(x => x.function == "invoke")
+					.map(x => x.argument)
+				))])
+				.filter(x => x[1].length)
+		), (_, x) => x === undefined ? "__undefined" : x).replace(/"__undefined"/g, "undefined")
 	))
 	fs.writeFileSync(path.resolve("scripts/src/types", "dialogs.d.ts"), (
 		"declare const enum DialogId { " +
 		Object.keys(data.dialogs).map(x => JSON.stringify(x) + " = " +
 		JSON.stringify(x)).join(", ") + "}\n" +
-		"declare type DialogPromptName = " + JSON.stringify(Object.fromEntries(
+		"declare type DialogPromptNames = " + JSON.stringify(Object.fromEntries(
 			Object.entries(data.dialogs)
 				.filter(x => x[1]["prompts"].length > 1)
 				.map(x => [x[0], x[1]["prompts"]])
+		)) + "\n" +
+		"declare type DialogOptionNames = " + JSON.stringify(Object.fromEntries(
+			Object.entries(data.dialogs)
+				.filter(x => x[1]["options"].length > 1)
+				.map(x => [x[0], x[1]["options"].map(x => x.id)])
 		))
 	))
 	Object.entries(data.dialogs).forEach(x => delete x[1]["prompts"])

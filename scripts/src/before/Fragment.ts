@@ -81,15 +81,15 @@ class Fragment {
 		return context.speech.currentFragment as FragmentId | null
 	}
 
-	static onBefore(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentBefore"]) {
-		scripts.register("fragmentBefore", fragment, callback)
+	static onBefore<T extends keyof typeof FragmentId>(fragment: T | T[], callback: (fragment: T) => void | Promise<void>) {
+		scripts.register("fragmentBefore", fragment, callback as Types.ScriptStorageMapping["fragmentBefore"])
 	}
 
-	static onAfter(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentAfter"]) {
-		scripts.register("fragmentAfter", fragment, callback)
+	static onAfter<T extends keyof typeof FragmentId>(fragment: T | T[], callback: (fragment: T) => void | Promise<void>) {
+		scripts.register("fragmentAfter", fragment, callback as Types.ScriptStorageMapping["fragmentAfter"])
 	}
 
-	static onInvoke(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentInvoke"]) {
-		scripts.register("fragmentInvoke", fragment, callback)
+	static onInvoke<T extends keyof FragmentInvokeKeys>(fragment: T | T[], callback: (value: FragmentInvokeKeys[T][number], fragment: T) => void | Promise<void>) {
+		scripts.register("fragmentInvoke", fragment, callback as Types.ScriptStorageMapping["fragmentInvoke"])
 	}
 }

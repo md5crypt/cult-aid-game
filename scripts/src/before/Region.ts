@@ -1,7 +1,7 @@
 class Region {
 	private static loadCallbacks: Map<keyof typeof MapId, Types.ScriptStorageMapping["mapLoad"][]> = new Map()
 
-	public static onLoad(map: keyof typeof MapId, callback: Types.ScriptStorageMapping["mapLoad"]) {
+	public static onLoad<T extends keyof typeof MapId>(map: T, callback: (map: T) => void | Promise<void>) {
 		let array = this.loadCallbacks.get(map)
 		if (!array) {
 			array = []
@@ -15,7 +15,7 @@ class Region {
 				}
 			})
 		}
-		array.push(callback)
+		array.push(callback as Types.ScriptStorageMapping["mapLoad"])
 	}
 
 	public static load(map: keyof typeof MapId) {

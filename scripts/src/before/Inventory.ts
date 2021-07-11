@@ -78,8 +78,8 @@ class Inventory {
 		context.ui.inventory.close()
 	}
 
-	static equipHandler(item: InventoryItemName, callback?: (value?: string) => void | Promise<void>) {
-		return async (value?: string) => {
+	static equipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: T) => void | Promise<void>) {
+		return async (value: T) => {
 			switch (value) {
 				case "test":
 					if (this.isFull) {
@@ -104,8 +104,8 @@ class Inventory {
 		}
 	}
 
-	static unEquipHandler(item: InventoryItemName, callback?: (value?: string) => void | Promise<void>) {
-		return async (value?: string) => {
+	static unEquipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: T) => void | Promise<void>) {
+		return async (value: T) => {
 			switch (value) {
 				case "open":
 					Dialog.hidden = true

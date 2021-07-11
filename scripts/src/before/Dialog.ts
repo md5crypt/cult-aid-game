@@ -30,16 +30,16 @@ class Dialog {
 		context.speech.restartDialog(dialog)
 	}
 
-	static setPrompt<T extends keyof DialogPromptName, K extends DialogPromptName[T][number]>(dialog: T, prompt: K | "default") {
+	static setPrompt<T extends keyof DialogPromptNames, K extends DialogPromptNames[T][number]>(dialog: T, prompt: K | "default") {
 		storage.dialog.prompts[dialog as DialogId] = prompt == "default" ? undefined : prompt
 	}
 
-	static onStart(dialog: EventKeyArray<typeof DialogId>, callback: Types.ScriptStorageMapping["dialogStart"]) {
-		scripts.register("dialogStart", dialog, callback)
+	static onStart<T extends keyof typeof DialogId>(dialog: T | T[], callback: (dialog: T) => void | Promise<void>) {
+		scripts.register("dialogStart", dialog, callback as Types.ScriptStorageMapping["dialogStart"])
 	}
 
-	static onSelect(dialog: EventKeyArray<typeof DialogId>, callback: Types.ScriptStorageMapping["dialogSelect"]) {
-		scripts.register("dialogSelect", dialog, callback)
+	static onSelect<T extends keyof DialogOptionNames>(dialog: T | T[], callback: (value: DialogOptionNames[T][number], dialog: T) => void | Promise<void> | Promise<boolean> | boolean) {
+		scripts.register("dialogSelect", dialog, callback as Types.ScriptStorageMapping["dialogSelect"])
 	}
 
 	static get current() {
