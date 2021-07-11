@@ -1,3 +1,5 @@
+type EventKeyArray<T> = keyof T | (keyof T)[]
+
 class Utils {
 	static async reset() {
 		const {camera, map} = context

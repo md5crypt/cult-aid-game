@@ -22,8 +22,14 @@ export interface Mapping {
 export class ScriptStorage {
 	private map: Map<string, Function> = new Map()
 
-	public register<T extends keyof Mapping>(event: T, name: string, callback: Mapping[T]) {
-		this.map.set(name + "." + event, callback)
+	public register<T extends keyof Mapping>(event: T, name: string | string[], callback: Mapping[T]) {
+		if (typeof name == "string") {
+			this.map.set(name + "." + event, callback)
+		} else {
+			for (let i = 0; i < name.length; i += 1) {
+				this.map.set(name[i] + "." + event, callback)
+			}
+		}
 	}
 
 	public resolveAll<T extends keyof Mapping>(event: T, listener: Listener<any>, name?: string, classList?: string[]) {
@@ -69,6 +75,6 @@ export namespace ScriptStorage {
 	export type itemCallback = (item: Sprite.Item) => void | Promise<void>
 	export type dialogStartCallback = (dialogId: string) => void | Promise<void>
 	export type dialogSelectCallback = (optionId: string, dialogId: string) => void | Promise<void> | Promise<boolean> | boolean
-	export type fragmentCallback = (fragmentId: string) => void | boolean | Promise<void | boolean>
-	export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | boolean | Promise<void | boolean>
+	export type fragmentCallback = (fragmentId: string) => void | Promise<void>
+	export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | Promise<void>
 }

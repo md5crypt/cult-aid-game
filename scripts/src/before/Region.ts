@@ -6,7 +6,7 @@ class Region {
 		if (!array) {
 			array = []
 			this.loadCallbacks.set(map, array)
-			scripts.register("mapLoad", "map-" + map, (...arg) => {
+			scripts.register("mapLoad", map, (...arg) => {
 				const promises = array!.map(x => x(...arg)).filter(x => x)
 				if (promises.length > 0) {
 					return Promise.all(promises) as Promise<any>
@@ -19,7 +19,7 @@ class Region {
 	}
 
 	public static load(map: keyof typeof MapId) {
-		return context.map.loadMap("map-" + map)
+		return context.map.loadMap(map)
 	}
 
 	public static show() {

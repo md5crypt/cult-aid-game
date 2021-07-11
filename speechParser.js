@@ -125,7 +125,8 @@ const functionTypes = {
 	"show": ["undefined", "fragment"],
 	"show-unseen": ["fragment"],
 	"hide": ["undefined", "fragment"],
-	"invoke": ["undefined", "string"]
+	"invoke": ["undefined", "string"],
+	"prompt": ["prompt"]
 }
 
 const argParsers = {
@@ -133,7 +134,8 @@ const argParsers = {
 	"undefined": x => x === undefined ? undefined : null,
 	"number": x => /^\d+$/.test(x) ? parseInt(x, 10) : null,
 	"dialog": (x, data) => x in data.dialogs ? x : null,
-	"fragment": (x, data, dialog) => (dialog && `${dialog}.option.${x}` in data.fragments) ? `${dialog}.option.${x}` : (x in data.fragments ? x : null)
+	"fragment": (x, data, dialog) => (dialog && `${dialog}.option.${x}` in data.fragments) ? `${dialog}.option.${x}` : (x in data.fragments ? x : null),
+	"prompt": (x, data, dialog) => (dialog && `${dialog}.prompt.${x}` in data.fragments) ? `${dialog}.prompt.${x}` : (x in data.fragments ? x : null)
 }
 
 function processFunction(element, data, fragment, dialog) {

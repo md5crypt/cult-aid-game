@@ -1,6 +1,6 @@
 class Point {
 	static get(point: keyof typeof PointId) {
-		return context.map.getObject<"point">("point-" + point)
+		return context.map.getObject("point", point)
 	}
 
 	static resolve(point: keyof typeof PointId | readonly [number, number]) {

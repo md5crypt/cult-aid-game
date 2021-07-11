@@ -13,10 +13,10 @@ Zone.onEnter("forbidden-section-exit", async () => {
 
 Zone.onUse("forbidden-section-bookshelf", () => Dialog.execute("forbidden-section-bookshelf"))
 
-Dialog.onStart("forbidden-section-bookshelf", async () => {
+Dialog.onStart("forbidden-section-bookshelf", () => {
 	Fragment.showIf("forbidden-section-bookshelf.option.exit-normal", Fragment.unseen("librarian-fetch.option.librarian"))
 	Fragment.showUnseenIf("forbidden-section-bookshelf.option.exit-newspaper", Fragment.seen("librarian-fetch.option.librarian"))
-	await Fragment.executeIfUnseen("forbidden-section-bookshelf-intro")
+	Fragment.pushIfUnseen("forbidden-section-bookshelf-intro")
 })
 
 Fragment.onAfter("forbidden-section-bookshelf.option.view-newspaper", async () => {

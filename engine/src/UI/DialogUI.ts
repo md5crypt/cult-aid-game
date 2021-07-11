@@ -278,7 +278,7 @@ export class DialogUI {
 		this.resolveDialog = undefined
 	}
 
-	public renderOptions(config: {options: {text: string, seen: boolean}[], prompt?: string, avatar?: string, activeOption: number}) {
+	public renderOptions(config: {options: {text: string, seen?: boolean}[], prompt?: string, avatar?: string, activeOption: number}) {
 		return new Promise<number>(resolve => {
 			this.claim()
 			this.resolveDialog = resolve

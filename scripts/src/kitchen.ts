@@ -3,11 +3,11 @@ Zone.onUse("kitchen-chef", async () => {
 	return Dialog.execute("chef-main")
 })
 
-Dialog.onStart("chef-main", async () => {
+Dialog.onStart("chef-main", () => {
 	if (Fragment.unseen("chef-intro")) {
-		await Fragment.execute("chef-intro")
+		Fragment.pushIfUnseen("chef-intro")
 	} else if (Fragment.unseen("chef-post-intro")) {
-		await Fragment.execute("chef-post-intro")
+		Fragment.pushIfUnseen("chef-post-intro")
 	}
 	Fragment.showUnseenIf("chef-main.option.make-food", Fragment.seen("thief-intro") && Fragment.unseen("thief-main.option.sweetroll"))
 	Fragment.showUnseenIf("chef-main.option.breeder", Fragment.seen("bosmer-info.option.chef"))

@@ -7,30 +7,32 @@ Dialog.onStart("hobo-common", () => {
 Dialog.onStart("hobo-kitchen", () => {
 	Fragment.showIf("hobo-kitchen.option.booze", Inventory.has("mead") && Fragment.seen("hobo-kitchen.option.cut-chase"))
 	Fragment.showIf("hobo-kitchen.option.unmask", Fragment.seen("technician-info.option.hobo"))
-	return Fragment.executeIfUnseen("hobo-kitchen-intro")
+	Fragment.pushIfUnseen("hobo-kitchen-intro")
 })
 
-Dialog.onStart("hobo-study", async () => {
+Dialog.onStart("hobo-study", () => {
 	Fragment.showIf("hobo-study.option.booze", Inventory.has("mead") && Fragment.seen("hobo-kitchen.option.cut-chase"))
 	Fragment.showUnseenIf("hobo-study.option.mural", storage.maid.needsInscription)
 	Fragment.showUnseenIf("hobo-study.option.apprenticeship", Fragment.seen("hobo-study-pizza-part-2"))
 	if (Fragment.unseen("hobo-kitchen-intro")) {
 		// if we never talked to him in the kitchen before this is the only possible intro
-		return Fragment.executeIfUnseen("hobo-study-post-maid-intro")
+		Fragment.pushIfUnseen("hobo-study-post-maid-intro")
+		return
 	}
 	// check if we should show the spirit intro
 	if (Fragment.seen("hobo-study-pizza-part-1") && Fragment.unseen("hobo-study-pizza-part-2")) {
+		Fragment.pushIfUnseen("hobo-study-pizza-part-2")
 		if (Fragment.seen("hobo-kitchen.option.unmask")) {
 			// skip normal unmasked intro if not shown yet
 			Fragment.setSeen("hobo-study-intro-unmasked")
 		} else {
 			// show normal intro first
-			await Fragment.executeIfUnseen("hobo-study-intro")
+			Fragment.pushIfUnseen("hobo-study-intro")
 		}
-		return Fragment.execute("hobo-study-pizza-part-2")
+		return
 	}
 	// "normal" intros
-	return Fragment.executeIfUnseen(Fragment.seen("hobo-kitchen.option.unmask") ? "hobo-study-intro-unmasked" : "hobo-study-intro")
+	Fragment.pushIfUnseen(Fragment.seen("hobo-kitchen.option.unmask") ? "hobo-study-intro-unmasked" : "hobo-study-intro")
 })
 
 Fragment.onInvoke("hobo-kitchen.option.booze", async value => {

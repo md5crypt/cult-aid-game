@@ -43,11 +43,15 @@ Fragment.onInvoke("bosmer-main.option.mirror-2", value => {
 	}
 })
 
-Fragment.onAfter("bosmer-main.option.hair", () => Inventory.has("mirror") && Dialog.push("bosmer-post-hair"))
+Fragment.onAfter("bosmer-main.option.hair", () => {
+	if (Inventory.has("mirror")) {
+		Dialog.push("bosmer-post-hair")
+	}
+})
 
-Dialog.onStart("bosmer-info", () => Fragment.executeIfUnseen("bosmer-info-intro"))
+Dialog.onStart("bosmer-info", () => Fragment.pushIfUnseen("bosmer-info-intro"))
 
-Dialog.onStart("bosmer-board-main", () => Fragment.executeIfUnseen("bosmer-board-intro"))
+Dialog.onStart("bosmer-board-main", () => Fragment.pushIfUnseen("bosmer-board-intro"))
 
 Fragment.onInvoke("bosmer-board-main.option.take", Inventory.equipHandler("scribbles"))
 

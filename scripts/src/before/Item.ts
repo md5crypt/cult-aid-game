@@ -1,6 +1,6 @@
 class Item {
 	static get(item: keyof typeof ItemId) {
-		return context.map.getObject<"item">("item-" + item)
+		return context.map.getObject("item", item)
 	}
 
 	static show(item: keyof typeof ItemId) {
@@ -23,15 +23,15 @@ class Item {
 		return context.Item.create(texture)
 	}
 
-	static onEnter(item: keyof typeof ItemId, callback: Types.ScriptStorageMapping["itemEnterView"]) {
-		scripts.register("itemEnterView", "item-" + item, callback)
+	static onEnter(item: EventKeyArray<typeof ItemId>, callback: Types.ScriptStorageMapping["itemEnterView"]) {
+		scripts.register("itemEnterView", item, callback)
 	}
 
-	static onExit(item: keyof typeof ItemId, callback: Types.ScriptStorageMapping["itemExitView"]) {
-		scripts.register("itemExitView", "item-" + item, callback)
+	static onExit(item: EventKeyArray<typeof ItemId>, callback: Types.ScriptStorageMapping["itemExitView"]) {
+		scripts.register("itemExitView", item, callback)
 	}
 
-	static onUpdate(item: keyof typeof ItemId, callback: Types.ScriptStorageMapping["itemUpdate"]) {
-		scripts.register("itemUpdate", "item-" + item, callback)
+	static onUpdate(item: EventKeyArray<typeof ItemId>, callback: Types.ScriptStorageMapping["itemUpdate"]) {
+		scripts.register("itemUpdate", item, callback)
 	}
 }

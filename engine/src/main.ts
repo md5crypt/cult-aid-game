@@ -136,7 +136,7 @@ window.addEventListener("load", async () => {
 
 	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts.data)
-	void gameContext.map.loadMap("map-main")
+	void gameContext.map.loadMap("main")
 
 	app.ticker.add(() => {
 		stats.begin()

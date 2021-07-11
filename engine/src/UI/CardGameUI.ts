@@ -117,7 +117,9 @@ export class CardGameUI {
 		this.initStack("bottom")
 		this.root.getElement("buttons.rules").on("pointertap", () => {
 			this.root.interactiveChildren = false
-			void gameContext.speech.executeDialog("card-game-rules", "card-game-rules-intro").then(() => {
+			gameContext.speech.pushDialog("card-game-rules")
+			gameContext.speech.pushFragment("card-game-rules-intro")
+			void gameContext.speech.start().then(() => {
 				this.root.interactiveChildren = true
 			})
 		})

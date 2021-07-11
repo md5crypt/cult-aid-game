@@ -4,7 +4,7 @@ Fragment.onInvoke("librarian-enter-library", async () => {
 	Dialog.hidden = false
 })
 
-Dialog.onStart("librarian-body", () => Fragment.executeIfUnseen("librarian-body-intro"))
+Dialog.onStart("librarian-body", () => Fragment.pushIfUnseen("librarian-body-intro"))
 
 Fragment.onInvoke("librarian-body.option.take-map", Inventory.equipHandler("map"))
 
@@ -78,7 +78,7 @@ Dialog.onSelect("librarian-newspaper-select", async option => {
 	}
 })
 
-Dialog.onStart("librarian-main", async () => {
+Dialog.onStart("librarian-main", () => {
 	Fragment.setVisibilityIfUnseen("librarian-main.option.sweetroll", Inventory.has("sweetroll"))
 	Fragment.setVisibility("librarian-main.option.scribbles", Inventory.has("scribbles"))
 	Fragment.showIf("librarian-main.option.vampire", Fragment.seen("librarian-main.option.cultists", "librarian-main.option.live-here"))
@@ -86,7 +86,7 @@ Dialog.onStart("librarian-main", async () => {
 	Fragment.showUnseenIf("librarian-main.option.inscription", Fragment.seen("librarian-main.option.dwemer") && storage.maid.needsInscription)
 	Fragment.setVisibility("librarian-main.option.newspapers", Fragment.seen("librarian-main.option.scribbles"))
 	Fragment.setSeenIf("librarian-main.option.newspapers", Dialog.seen("librarian-fetch", ["librarian-fetch.option.back"]))
-	await Fragment.executeIfUnseen("librarian-intro")
+	Fragment.pushIfUnseen("librarian-intro")
 })
 
 Fragment.onInvoke("librarian-main.option.scribbles", Inventory.unEquipHandler("scribbles"))
@@ -133,7 +133,7 @@ Fragment.onInvoke("forbidden-section-enter", async () => {
 Zone.onEnter("library-darkness", async () => {
 	if (Inventory.has("map")) {
 		if (!storage.dialog.seen["forbidden-section-enter"]) {
-			await Fragment.execute("forbidden-section-enter")
+			Fragment.pushIfUnseen("forbidden-section-enter")
 		} else {
 			Player.lockInput()
 			await Player.executePath("library-darkness-entry")
@@ -142,9 +142,9 @@ Zone.onEnter("library-darkness", async () => {
 		}
 	} else {
 		if (!storage.dialog.seen["forbidden-section-enter-attempt"]) {
-			await Fragment.execute("forbidden-section-enter-attempt")
+			Fragment.pushIfUnseen("forbidden-section-enter-attempt")
 		} else {
-			await Fragment.execute("forbidden-section-enter-deny")
+			Fragment.pushIfUnseen("forbidden-section-enter-deny")
 		}
 	}
 })

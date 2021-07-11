@@ -53,26 +53,43 @@ class Fragment {
 		}
 	}
 
-	static execute(fragment: keyof typeof FragmentId) {
-		return context.speech.executeFragment(fragment)
+	static execute(fragment?: keyof typeof FragmentId) {
+		fragment && context.speech.pushFragment(fragment)
+		return context.speech.start()
 	}
 
-	static executeIfUnseen(fragment: keyof typeof FragmentId) {
+	static push(fragment: keyof typeof FragmentId) {
+		context.speech.pushFragment(fragment)
+	}
+
+	static pushIfUnseen(fragment: keyof typeof FragmentId) {
 		if (!storage.dialog.seen[fragment]) {
-			return context.speech.executeFragment(fragment)
+			context.speech.pushFragment(fragment)
 		}
-		return Promise.resolve()
 	}
 
-	static onBefore(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentBefore"]) {
+	static replace(fragment: keyof typeof FragmentId) {
+		context.speech.popFragment()
+		context.speech.pushFragment(fragment)
+	}
+
+	static pop(amount?: number) {
+		context.speech.popFragment(amount)
+	}
+
+	static get current() {
+		return context.speech.currentFragment as FragmentId | null
+	}
+
+	static onBefore(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentBefore"]) {
 		scripts.register("fragmentBefore", fragment, callback)
 	}
 
-	static onAfter(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentAfter"]) {
+	static onAfter(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentAfter"]) {
 		scripts.register("fragmentAfter", fragment, callback)
 	}
 
-	static onInvoke(fragment: keyof typeof FragmentId, callback: Types.ScriptStorageMapping["fragmentInvoke"]) {
+	static onInvoke(fragment: EventKeyArray<typeof FragmentId>, callback: Types.ScriptStorageMapping["fragmentInvoke"]) {
 		scripts.register("fragmentInvoke", fragment, callback)
 	}
 }

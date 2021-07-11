@@ -1,5 +1,7 @@
 @fragment inventory-inventory-full
+	%invoke open
 	khajiit: I can't take that, my hands are full at the moment.
+	%invoke close
 
 @fragment todo
 	khajiit: Placeholder action handler.

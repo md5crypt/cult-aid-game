@@ -439,7 +439,7 @@ khajiit: Right, sorry.
 
 %seen
 
-@option hidden apprenticeship: I had some time to think about the apprenticeship...
+@option hidden apprenticeship: About that apprenticeship...
 
 %push hobo-apprentice
 %seen
@@ -574,14 +574,19 @@ hobo: And then after a few hours that someone comes back with a perfectly functi
 khajiit: I... I need to think about it.
 
 %seen
+%push hobo-apprentice
 
 @dialog hobo-apprentice
 
 @prompt
 
+hobo: You probably have some questions to ask.
+
+@prompt revisit
+
 hobo: Have you made up your mind?
 
-@option accept: (Accept apprenticeship)
+@option hidden accept: (Accept apprenticeship)
 
 khajiit: I guess you shouldn't turn you back to fate the first time it actually smiles at you.
 
@@ -595,7 +600,7 @@ hobo: Humble I see. That's an excellent attitude to have, especially when learni
 
 %exit
 
-@option reject: (Reject apprenticeship)
+@option hidden reject: (Reject apprenticeship)
 
 khajiit: No, sorry, I will not join your cult. There is not a single reason why I should trust you, or whoever I met here.
 
@@ -615,12 +620,14 @@ khajiit: What if I change my mind midway?
 
 hobo: I will not hold you against your will, you will be free to leave whenever you like.
 
+%show accept
 %seen
 
 @option what-if-disagree: What will happen if I disagree?
 
 hobo: It will be unfortunate but I will wish you luck in finding a different path for your life. I will also be here if you ever change your mind.
 
+%show reject
 %seen
 
 @option think: I need more time to think.
@@ -632,4 +639,4 @@ khajiit: What I'm saying is that I need more time to think about it.
 hobo: I can respect that. Come to me when you make up your mind.
 
 %pop
-%seen
+%prompt revisit

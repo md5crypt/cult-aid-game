@@ -40,7 +40,7 @@ Dialog.onStart("thief-main", async () => {
 	Fragment.setVisibility("thief-main.option.sweetroll", Inventory.has("sweetroll"))
 	Fragment.setVisibility("thief-main.option.food", Inventory.has("food"))
 	Fragment.setVisibility("thief-main.option.shovel", Inventory.has("shovel") && Fragment.seen("thief-main.option.wrong"))
-	return Fragment.executeIfUnseen("thief-intro")
+	Fragment.pushIfUnseen("thief-intro")
 })
 
 Dialog.onStart("thief-fed", () => {
@@ -48,7 +48,7 @@ Dialog.onStart("thief-fed", () => {
 	Fragment.setVisibility("thief-fed.option.shovel-alt", Inventory.has("shovel") && Fragment.seen("thief-main.option.shovel"))
 })
 
-Dialog.onStart("thief-end", () => Fragment.executeIfUnseen("thief-end-intro"))
+Dialog.onStart("thief-end", () => Fragment.pushIfUnseen("thief-end-intro"))
 
 Fragment.onInvoke("thief-main.option.sweetroll", Inventory.unEquipHandler("sweetroll", value => {
 	switch (value) {

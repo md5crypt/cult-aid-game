@@ -4,6 +4,11 @@ Dialog.onSelect("test-give-item", id => {
 	}
 })
 
+Fragment.onAfter(["card-game-success", "card-game-fail"], () => {
+	context.camera.enabled = true
+	context.ui.cardGame.enabled = false
+})
+
 Dialog.onSelect("card-game-test", id => {
 	if (id != "exit") {
 		context.camera.enabled = false
@@ -11,12 +16,11 @@ Dialog.onSelect("card-game-test", id => {
 		context.ui.cardGame.interactive = false
 		void context.ui.dialog.ensureClosed().then(() => context.ui.cardGame.interactive = true)
 		void context.ui.cardGame.startGame(parseInt(id))
-			.then(result => context.speech.executeFragment(result ? FragmentId["card-game-success"] : FragmentId["card-game-fail"], true))
-			.then(() => {
-				context.camera.enabled = true
-				context.ui.cardGame.enabled = false
-				void context.speech.executeDialog(DialogId["card-game-test"], true)
-				context.speech.dialog.unshift(DialogId["test-main"])
+			.then(result => {
+				Fragment.push(result ? "card-game-success" : "card-game-fail")
+				Dialog.push("test-main")
+				Dialog.push("card-game-test")
+				Dialog.execute()
 			})
 	}
 })

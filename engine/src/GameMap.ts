@@ -8,13 +8,22 @@ import { NavMapRect } from "./NavMap"
 import { Listener } from "./Listener"
 import { modulo } from "./utils"
 
+type MapValueType<T> = T extends Map<any, infer T> ? T : never
+
+interface NamedObjects {
+	item: Map<string, Sprite.Item>
+	zone: Map<string, GameMap.Zone>
+	point: Map<string, GameData.PositionData>
+	path: Map<string, GameData.PathData>
+}
+
 export class GameMap {
 	private _cells: GameMap.Cell[] = []
 	private width: number = 0
 	private height: number = 0
 	private inViewList: Sprite.Item[]
 	private activeZoneList: GameMap.Zone[]
-	private namedObjects: Map<string, GameData.PathData | GameData.PositionData | Sprite.Item | GameMap.Zone>
+	private namedObjects: NamedObjects
 	private currentMap?: string
 
 	/** @internal */
@@ -30,7 +39,12 @@ export class GameMap {
 		this.activeZoneList = []
 		this.frame = 1
 		this.alwaysActiveList = new Set()
-		this.namedObjects = new Map()
+		this.namedObjects = {
+			item: new Map(),
+			path: new Map(),
+			point: new Map(),
+			zone: new Map()
+		}
 		this.maps = new Map()
 		this.mapStates = new Map()
 		for (const map of data.maps) {
@@ -56,28 +70,26 @@ export class GameMap {
 		this.activeZoneList = []
 		this.frame = 1
 		this.alwaysActiveList.clear()
-		this.namedObjects.clear()
+		for (const key in this.namedObjects) {
+			this.namedObjects[key as keyof NamedObjects].clear()
+		}
 		this._cells = []
 	}
 
-	private setObject(name: string, object: Sprite.Item | GameMap.Zone | GameData.PositionData | GameData.PathData) {
-		if (this.namedObjects.has(name)) {
-			throw new Error(`const not add ${name} of type ${typeof object}, object already exists with type ${typeof this.namedObjects.get(name)}`)
+	private setObject<T extends keyof NamedObjects>(type: T, name: string, object: MapValueType<NamedObjects[T]>) {
+		const map = this.namedObjects[type]
+		if (map.has(name)) {
+			throw new Error(`const not add object '${name}' of type '${type}', object already exists`)
 		}
-		this.namedObjects.set(name, object)
+		map.set(name, object as any)
 	}
 
-	public getObject<T extends "item" | "zone" | "point" | "path">(name: string) {
-		const object = this.namedObjects.get(name)
+	public getObject<T extends keyof NamedObjects>(type: T, name: string): MapValueType<NamedObjects[T]> {
+		const object = this.namedObjects[type].get(name)
 		if (!object) {
-			throw new Error(`object ${name} not found`)
+			throw new Error(`object '${name}' of type '${type}' not found`)
 		}
-		return object as ({
-			"item": Sprite.Item
-			"zone": GameMap.Zone
-			"point": GameData.PositionData
-			"path": GameData.PathData
-		}[T])
+		return object as MapValueType<NamedObjects[T]>
 	}
 
 	public get cells() {
@@ -128,17 +140,17 @@ export class GameMap {
 				case "item":
 					const item = Sprite.Item.createFromItemData(object)
 					if (object.name) {
-						this.setObject(object.name, item)
+						this.setObject("item", object.name, item)
 					}
 					break
 				case "path":
 				case "point":
-					this.setObject(object.name, object)
+					this.setObject(object.type, object.name, object)
 					break
 				case "zone":
 					const zone = GameMap.Zone.create(object)
 					if (object.name) {
-						this.setObject(object.name, zone)
+						this.setObject("zone", object.name, zone)
 					}
 					const xStop = Math.floor((object.position[0] + object.dimensions[0]) / CONST.GRID_BASE)
 					const yStop = Math.floor((object.position[1] + object.dimensions[1]) / CONST.GRID_BASE)

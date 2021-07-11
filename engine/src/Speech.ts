@@ -38,216 +38,258 @@ interface SpeechData {
 }
 
 interface SpeechStorage {
-	hidden: Record<string, boolean>
-	seen: Record<string, boolean>
-	prompts: Record<string, string>
+	hidden: Record<string, boolean | undefined>
+	seen: Record<string, boolean | undefined>
+	prompts: Record<string, string | undefined>
+}
+
+interface DialogStackItem {
+	id: string
+	lastSelection?: string
+}
+
+interface FragmentStackItem {
+	id: string
+	index?: number
 }
 
 export class Speech {
-	public readonly data: SpeechData
-	private _dialog: Dialog | null
+	private data: SpeechData
+	private dialogStack: DialogStackItem[]
+	private fragmentStack: FragmentStackItem[]
 	private audio?: any
+	private dirty: boolean
+	private _running: boolean
 
 	public constructor(data: SpeechData, audio?: any) {
 		this.data = data
-		this._dialog = null
 		this.audio = audio
+		this.dialogStack = []
+		this.fragmentStack = []
+		this.dirty = false
+		this._running = false
 		if (!gameContext.storage.dialog) {
 			gameContext.storage.dialog = {hidden: {}, seen: {}}
 		}
 	}
 
-	public get dialog() {
-		if (!this._dialog) {
-			throw new Error("dialog is not active")
+	private async executeDialog(element: DialogStackItem): Promise<void> {
+		const storage = gameContext.storage.dialog as SpeechStorage
+		const dialog = this.data.dialogs[element.id]
+
+		if (dialog.imports) {
+			for (const importId of dialog.imports) {
+				await gameContext.scripts.resolve("dialogStart", importId)?.(importId)
+				if (this.dirty) {
+					return
+				}
+			}
 		}
-		return this._dialog
+
+		await gameContext.scripts.resolve("dialogStart", element.id)?.(element.id)
+		if (this.dirty) {
+			return
+		}
+
+		const options = dialog.options.map(option => ({
+			dialog: option.import || element.id,
+			id: option.id,
+			text: option.text,
+			seen: storage.seen[`${option.import || element.id}.option.${option.id}`],
+			hidden: storage.hidden[`${option.import || element.id}.option.${option.id}`] ?? option.hidden
+		}))
+
+		let activeOption = 0
+		if (element.lastSelection) {
+			for (const option of options) {
+				activeOption += option.hidden ? 0 : 1
+				if (option.id == element.lastSelection) {
+					activeOption = Math.max(activeOption - 1, 0)
+					break
+				}
+			}
+		}
+
+		let prompt
+		let avatar
+
+		const promptFragment = this.data.fragments[`${element.id}.prompt.${storage.prompts[element.id] ?? "default"}`]
+		if (promptFragment) {
+			const speechFragment = promptFragment[0] as SpeechFragmentElement
+			const character = this.data.characters[speechFragment.character]
+			prompt = character.name ? `[color=${character.color}]${character.name}:[/color] ${speechFragment.text}` : speechFragment.text
+			avatar = character.avatars[speechFragment.avatar || "default"]
+		}
+
+		const filteredOptions = options.filter(option => !option.hidden)
+		const selected = filteredOptions[await gameContext.ui.dialog.renderOptions({
+			options: filteredOptions,
+			prompt,
+			avatar,
+			activeOption
+		})]
+
+		element.lastSelection = selected.id
+		if (!(await gameContext.scripts.resolve("dialogSelect", element.id)?.(selected.id, selected.dialog))) {
+			this.pushFragment(`${selected.dialog}.option.${selected.id}`)
+		}
+	}
+
+	private async executeFragment(element: FragmentStackItem): Promise<void> {
+		const storage = gameContext.storage.dialog as SpeechStorage
+		const fragment = this.data.fragments[element.id]
+		if (element.index === undefined) {
+			element.index = 0
+			await gameContext.scripts.resolve("fragmentBefore", element.id)?.(element.id)
+			if (this.dirty) {
+				return
+			}
+		}
+		if (element.index >= fragment.length) {
+			this.popFragment()
+			await gameContext.scripts.resolve("fragmentAfter", element.id)?.(element.id)
+			return
+		}
+		const item = fragment[element.index]
+		if ("function" in item) {
+			switch (item.function) {
+				case "seen":
+					storage.seen[item.argument || element.id] = true
+					break
+				case "hide":
+					storage.hidden[item.argument || element.id] = true
+					break
+				case "show":
+					storage.hidden[item.argument || element.id] = false
+					break
+				case "show-unseen":
+					if (!storage.seen[item.argument || element.id]) {
+						storage.hidden[item.argument || element.id] = false
+					}
+					break
+				case "exit":
+					this.exitDialog()
+					break
+				case "prompt": {
+					const data = item.argument!.split(".prompt.")
+					storage.prompts[data[0]] = data[1]
+					break
+				}
+				case "pop":
+					this.popDialog(item.argument ? parseInt(item.argument, 10) : 1)
+					break
+				case "call":
+					this.pushFragment(item.argument!)
+					break
+				case "invoke":
+					await gameContext.scripts.resolveOrThrow("fragmentInvoke", element.id)(item.argument, element.id)
+					break
+				case "push":
+					this.pushDialog(item.argument!)
+					break
+				case "replace":
+					this.replaceDialog(item.argument!)
+					break
+				case "restart":
+					this.restartDialog(item.argument!)
+					break
+				default:
+					throw new Error(`invalid dialog operation: ${item.function}`)
+			}
+		} else {
+			const character = this.data.characters[item.character]
+			const soundId = element.id + "." + element.index
+			if (this.audio && soundId in this.audio.sprites) {
+				void this.audio.play(soundId)
+			}
+			await gameContext.ui.dialog.renderSpeech(
+				character.name ? `[color=${character.color}]${character.name}:[/color] ${item.text}` : item.text,
+				character.avatars[item.avatar || "default"]
+			)
+			if (this.audio && soundId in this.audio.sprites) {
+				this.audio.stop()
+			}
+		}
+		element.index += 1
+	}
+
+	public get currentDialog() {
+		return this.dialogStack.length ? this.dialogStack[this.dialogStack.length - 1].id : null
+	}
+
+	public get currentFragment() {
+		return this.fragmentStack.length ? this.fragmentStack[this.fragmentStack.length - 1].id : null
 	}
 
 	public getDialogOptions(id: string) {
 		return this.data.dialogs[id].options.map(x => (x.import || id) + ".option." + x.id)
 	}
 
-	public async executeDialog(id: string, noClaim?: boolean): Promise<void>
-	public async executeDialog(id: string, intro?: string): Promise<void>
-	public async executeDialog(id: string, arg?: string | boolean): Promise<void> {
-		if (this._dialog != null) {
-			throw new Error("a dialog is already running!")
-		}
-		if (typeof arg == "string") {
-			await this.executeFragment(arg, true)
-		}
-		this._dialog = new Dialog(id)
-		return this._dialog.start(!!arg).then(() => {
-			this._dialog = null
-		})
+	public get running() {
+		return this._running
 	}
 
-	public async executeFragment(id: string, noRelease = false): Promise<void> {
-		const fragment = this.data.fragments[id]
-		if (await gameContext.scripts.resolve("fragmentBefore", id)?.(id)) {
-			return
+	public async start() {
+		if (this._running) {
+			throw new Error("speech already running")
 		}
+		this._running = true
 		gameContext.ui.dialog.claim()
-		loop: for (let i = 0; i < fragment.length; i++) {
-			const item = fragment[i]
-			if ("function" in item) {
-				switch (item.function) {
-					case "seen":
-						gameContext.storage.dialog.seen[item.argument || id] = true
-						break
-					case "hide":
-						gameContext.storage.dialog.hidden[item.argument || id] = true
-						break
-					case "show":
-						gameContext.storage.dialog.hidden[item.argument || id] = false
-						break
-					case "show-unseen":
-						if (!gameContext.storage.dialog.seen[item.argument || id]) {
-							gameContext.storage.dialog.hidden[item.argument || id] = false
-						}
-						break
-					case "exit":
-						this._dialog!.exit()
-						break
-					case "pop":
-						this._dialog!.pop(item.argument ? parseInt(item.argument, 10) : 1)
-						break
-					case "call":
-						await this.executeFragment(item.argument!)
-						break
-					case "invoke":
-						if (await gameContext.scripts.resolveOrThrow("fragmentInvoke", id)(item.argument, id)) {
-							break loop
-						}
-						break
-					case "push":
-					case "replace":
-					case "restart":
-						this._dialog![item.function](item.argument!)
-						break
-					default:
-						throw new Error(`invalid dialog operation: ${item.function}`)
-				}
-			} else {
-				const character = this.data.characters[item.character]
-				const soundId = id + "." + i
-				if (this.audio && soundId in this.audio.sprites) {
-					void this.audio.play(soundId)
-				}
-				await gameContext.ui.dialog.renderSpeech(
-					character.name ? `[color=${character.color}]${character.name}:[/color] ${item.text}` : item.text,
-					character.avatars[item.avatar || "default"]
-				)
-				if (this.audio && soundId in this.audio.sprites) {
-					this.audio.stop()
-				}
+		while (true) {
+			this.dirty = false
+			if (this.fragmentStack.length > 0) {
+				await this.executeFragment(this.fragmentStack[this.fragmentStack.length - 1])
+				continue
 			}
-		}
-		if (!noRelease) {
-			await gameContext.ui.dialog.release()
-		}
-		await gameContext.scripts.resolve("fragmentAfter", id)?.(id)
-	}
-}
-
-export class Dialog {
-	private stack: {dialog: string, lastSelection?: string}[]
-
-	public constructor(dialog: string) {
-		this.stack = [{dialog}]
-	}
-
-	public get id() {
-		return this.stack[this.stack.length - 1].dialog
-	}
-
-	/** @internal */
-	public async start(noClaim = false) {
-		if (!noClaim) {
-			gameContext.ui.dialog.claim()
-		}
-		const storage = gameContext.storage.dialog as SpeechStorage
-
-		while (this.stack.length > 0) {
-			const element = this.stack[this.stack.length - 1]
-			const data = gameContext.speech.data
-			const dialog = data.dialogs[element.dialog]
-
-			if (dialog.imports) {
-				for (const importId of dialog.imports) {
-					await gameContext.scripts.resolve("dialogStart", importId)?.(importId)
-				}
+			if (this.dialogStack.length > 0) {
+				await this.executeDialog(this.dialogStack[this.dialogStack.length - 1])
+				continue
 			}
-			await gameContext.scripts.resolve("dialogStart", element.dialog)?.(element.dialog)
-			if (this.stack.length == 0) {
-				// dialogStart script could have ended the dialog
-				break
-			}
-
-			const prompt = data.fragments[`${element.dialog}.prompt.${storage.prompts[element.dialog] ?? "default"}`][0] as SpeechFragmentElement
-			const character = data.characters[prompt.character]
-			const options = dialog.options.map(option => ({
-				dialog: option.import || element.dialog,
-				id: option.id,
-				text: option.text,
-				seen: storage.seen[`${option.import || element.dialog}.option.${option.id}`],
-				hidden: storage.hidden[`${option.import || element.dialog}.option.${option.id}`] ?? option.hidden
-			}))
-
-			let activeOption = 0
-			if (element.lastSelection) {
-				for (const option of options) {
-					activeOption += option.hidden ? 0 : 1
-					if (option.id == element.lastSelection) {
-						activeOption = Math.max(activeOption - 1, 0)
-						break
-					}
-				}
-			}
-
-			const filteredOptions = options.filter(option => !option.hidden)
-			const selected = filteredOptions[await gameContext.ui.dialog.renderOptions({
-				options: filteredOptions,
-				prompt: character.name ? `[color=${character.color}]${character.name}:[/color] ${prompt.text}` : prompt.text,
-				avatar: character.avatars[prompt.avatar || "default"],
-				activeOption
-			})]
-
-			element.lastSelection = selected.id
-			if (!(await gameContext.scripts.resolve("dialogSelect", element.dialog)?.(selected.id, selected.dialog))) {
-				await gameContext.speech.executeFragment(`${selected.dialog}.option.${selected.id}`)
-			}
+			break
 		}
 		await gameContext.ui.dialog.release()
+		this._running = false
 	}
 
-	public restart(dialog: string) {
-		this.stack = [{dialog}]
+	public restartDialog(dialog: string) {
+		this.dirty = true
+		this.dialogStack = [{id: dialog}]
 	}
 
-	public pop(amount = 1) {
+	public popDialog(amount = 1) {
+		this.dirty = true
 		for (let i = 0; i < amount; i++) {
-			this.stack.pop()
+			this.dialogStack.pop()
 		}
 	}
 
-	public push(dialog: string) {
-		this.stack.push({dialog})
+	public pushDialog(dialog: string) {
+		this.dirty = true
+		this.dialogStack.push({id: dialog})
 	}
 
-	public unshift(dialog: string) {
-		this.stack.unshift({dialog})
-	}
-
-	public replace(dialog: string) {
-		if (this.stack.length == 0) {
+	public replaceDialog(dialog: string) {
+		this.dirty = true
+		if (this.dialogStack.length == 0) {
 			throw new Error("can not replace dialog, stack empty")
 		}
-		this.stack[this.stack.length - 1] = {dialog}
+		this.dialogStack[this.dialogStack.length - 1] = {id: dialog}
 	}
 
-	public exit() {
-		this.stack = []
+	public exitDialog() {
+		this.dirty = true
+		this.dialogStack = []
+	}
+
+	public popFragment(amount = 1) {
+		this.dirty = true
+		for (let i = 0; i < amount; i++) {
+			this.fragmentStack.pop()
+		}
+	}
+
+	public pushFragment(fragment: string) {
+		this.dirty = true
+		this.fragmentStack.push({id: fragment})
 	}
 }

@@ -1,8 +1,8 @@
 class Debug {
 	static registerTestChest(name: string, items: InventoryItemName[]) {
 		const dialogId = name + "-test-chest" as DialogId
-		const itemId = "item-" + name + "-test-chest"
-		const zoneId = "zone-" + name + "-test-chest"
+		const itemId = name + "-test-chest" as ItemId
+		const zoneId = name + "-test-chest" as ZoneId
 		for (const item of items) {
 			scripts.register("fragmentInvoke", dialogId + ".option." + item, Inventory.equipHandler(item))
 		}
@@ -12,7 +12,7 @@ class Debug {
 			}
 		})
 		scripts.register("zoneUse", zoneId, async () => {
-			const chest = context.map.getObject<"item">(itemId)
+			const chest = context.map.getObject("item", itemId)
 			chest.setTexture(Resource.get("object-chest-open"))
 			await Dialog.execute(dialogId)
 			chest.setTexture(Resource.get("object-chest"))

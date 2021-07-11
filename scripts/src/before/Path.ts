@@ -1,6 +1,6 @@
 class Path {
 	static get(path: keyof typeof PathId) {
-		return context.map.getObject<"path">("path-" + path)
+		return context.map.getObject("path", path)
 	}
 
 	static getPoint(path: Types.GameData.PathData | keyof typeof PathId, index: number) {

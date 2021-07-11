@@ -37,9 +37,8 @@ function parseSpeech(speechPath) {
 	return data
 }
 
-function buildObjectEnums(maps) {
+function postProcessObjects(maps) {
 	fs.mkdirSync("scripts/src/types", {recursive: true})
-	const idSet = new Set()
 	const typeSets = new Map()
 	typeSets.set("map", new Set())
 	typeSets.set("class", new Set())
@@ -47,6 +46,7 @@ function buildObjectEnums(maps) {
 		if (!map.name.startsWith("map-")) {
 			throw new Error(`map '${map.name}' must start with 'map-'`)
 		}
+		map.name = map.name.slice(4)
 		typeSets.get("map").add(map.name)
 		for (const object of map.objects) {
 			if (object.class) {
@@ -55,17 +55,17 @@ function buildObjectEnums(maps) {
 			if (!object.name) {
 				continue
 			}
-			if (idSet.has(object.name)) {
-				throw new Error(`non-unique object name: ${object.name}`)
-			}
-			if (!object.name.startsWith(object.type + "-")) {
-				throw new Error(`${object.type} '${object.name}' must start with '${object.type}-'`)
-			}
-			idSet.add(object.name)
 			let set = typeSets.get(object.type)
 			if (!set) {
 				set = new Set()
 				typeSets.set(object.type, set)
+			}
+			if (!object.name.startsWith(object.type + "-")) {
+				throw new Error(`${object.type} '${object.name}' must start with '${object.type}-'`)
+			}
+			object.name = object.name.slice(object.type.length + 1)
+			if (set.has(object.name)) {
+				throw new Error(`non-unique object name: ${object.name}`)
 			}
 			set.add(object.name)
 		}
@@ -76,7 +76,7 @@ function buildObjectEnums(maps) {
 		}
 		fs.writeFileSync(
 			path.resolve("scripts/src/types", type + ".d.ts"),
-			`declare const enum ${type[0].toUpperCase() + type.slice(1)}Id { ` + Array.from(set.values()).map(x => JSON.stringify(x.replace(/^[^-]+-/, "")) + " = " + JSON.stringify(x)).join(", ") + "}"
+			`declare const enum ${type[0].toUpperCase() + type.slice(1)}Id { ` + Array.from(set.values()).map(x => JSON.stringify(x) + " = " + JSON.stringify(x)).join(", ") + "}"
 		)
 	}
 }
@@ -89,7 +89,7 @@ async function run() {
 	await navmap("build/navmap", "atlas/tiles")
 	const tilesets = tileParser.buildTilesets(glob.sync("tileset/tileset*.json"), atlas.tiles)
 	const maps = tileParser.buildMaps(glob.sync("map/map*.json"), tilesets)
-	buildObjectEnums(maps)
+	postProcessObjects(maps)
 	fs.writeFileSync(
 		path.resolve("scripts/src/types", "resources.d.ts"),
 		`declare const enum ResourceId {${tilesets.list.map(x => JSON.stringify(x.resource) + " = " + JSON.stringify(x.resource))}}`

@@ -20,7 +20,7 @@ Zone.onUse("boiler-atronach", () => {
 
 Dialog.onStart("atronach-initial", () => {
 	Fragment.setVisibility("atronach-initial.option.etch-a-sketch", Inventory.has("etchASketch"))
-	return Fragment.executeIfUnseen("atronach-intro")
+	Fragment.pushIfUnseen("atronach-intro")
 })
 
 Fragment.onInvoke("atronach-initial.option.etch-a-sketch", Inventory.unEquipHandler("etchASketch"))

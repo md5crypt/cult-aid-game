@@ -78,15 +78,12 @@ class Inventory {
 		context.ui.inventory.close()
 	}
 
-	static equipHandler(item: InventoryItemName, callback?: (value?: string) => void | boolean | Promise<boolean | void>) {
+	static equipHandler(item: InventoryItemName, callback?: (value?: string) => void | Promise<void>) {
 		return async (value?: string) => {
 			switch (value) {
 				case "test":
 					if (this.isFull) {
-						this.open()
-						await Fragment.execute("inventory-inventory-full")
-						this.close()
-						return true
+						Fragment.replace("inventory-inventory-full")
 					}
 					break
 				case "open":
@@ -104,11 +101,10 @@ class Inventory {
 					}
 					break
 			}
-			return false
 		}
 	}
 
-	static unEquipHandler(item: InventoryItemName, callback?: (value?: string) => void | boolean | Promise<boolean | void>) {
+	static unEquipHandler(item: InventoryItemName, callback?: (value?: string) => void | Promise<void>) {
 		return async (value?: string) => {
 			switch (value) {
 				case "open":
@@ -126,7 +122,6 @@ class Inventory {
 					}
 					break
 			}
-			return false
 		}
 	}
 
@@ -134,3 +129,11 @@ class Inventory {
 		return !!(storage.hands.left && storage.hands.right)
 	}
 }
+
+scripts.register("fragmentInvoke", FragmentId["inventory-inventory-full"], action => {
+	if (action == "open") {
+		Inventory.open()
+	} else {
+		Inventory.close()
+	}
+})

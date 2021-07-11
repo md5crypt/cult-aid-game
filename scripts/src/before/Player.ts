@@ -10,6 +10,9 @@ class Player {
 	static walkToPoint(point: keyof typeof PointId | readonly [number, number]) {
 		const position = typeof point == "string" ? Point.get(point).position : point
 		const origin = context.player.getAbsoluteLocation()
+		if ((position[0] == origin[0]) && (position[1] == origin[1])) {
+			return Promise.resolve()
+		}
 		context.player.lockInput()
 		return context.player.pushPath([
 			[0, 0],

@@ -308,7 +308,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -325,7 +325,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -988,7 +988,7 @@
                  "gid":103,
                  "height":32,
                  "id":297,
-                 "name":"",
+                 "name":"item-kitchen-hobo",
                  "properties":[
                         {
                          "name":"zOffset",
@@ -1624,7 +1624,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2108,7 +2108,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2125,7 +2125,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2142,7 +2142,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2159,7 +2159,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
@@ -2176,7 +2176,7 @@
                         {
                          "name":"class",
                          "type":"string",
-                         "value":"class-auto-reveal"
+                         "value":"auto-reveal"
                         }],
                  "rotation":0,
                  "type":"",
