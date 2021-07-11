@@ -4,7 +4,7 @@ class Debug {
 		const itemId = name + "-test-chest" as ItemId
 		const zoneId = name + "-test-chest" as ZoneId
 		for (const item of items) {
-			scripts.register("fragmentInvoke", dialogId + ".option." + item, Inventory.equipHandler(item))
+			scripts.register("fragmentInvoke", dialogId + ".option." + item, Inventory.equipHandler<any>(item))
 		}
 		scripts.register("dialogStart", dialogId, () => {
 			for (const item of items) {

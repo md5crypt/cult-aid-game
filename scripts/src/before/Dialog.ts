@@ -54,6 +54,3 @@ class Dialog {
 		context.ui.dialog.hidden = value
 	}
 }
-
-type Test = typeof scripts["register"]
-type Dupa = Test

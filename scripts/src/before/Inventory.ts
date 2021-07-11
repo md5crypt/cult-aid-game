@@ -78,8 +78,8 @@ class Inventory {
 		context.ui.inventory.close()
 	}
 
-	static equipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: T) => void | Promise<void>) {
-		return async (value: T) => {
+	static equipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: Exclude<T, "test" | "open" | "close">) => void | Promise<void>) {
+		return async (value: Exclude<"open" | "close" | "test", T> extends never ? T : "required invoke calls missing in fragment") => {
 			switch (value) {
 				case "test":
 					if (this.isFull) {
@@ -97,15 +97,15 @@ class Inventory {
 					break
 				default:
 					if (callback) {
-						return callback(value)
+						return callback(value as any)
 					}
 					break
 			}
 		}
 	}
 
-	static unEquipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: T) => void | Promise<void>) {
-		return async (value: T) => {
+	static unEquipHandler<T extends undefined | string>(item: InventoryItemName, callback?: (value: Exclude<T, "open" | "close">) => void | Promise<void>) {
+		return async (value: Exclude<"open" | "close", T> extends never ? T : "required invoke calls missing in fragment") => {
 			switch (value) {
 				case "open":
 					Dialog.hidden = true
@@ -118,7 +118,7 @@ class Inventory {
 					break
 				default:
 					if (callback) {
-						return callback(value)
+						return callback(value as any)
 					}
 					break
 			}
