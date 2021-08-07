@@ -6,6 +6,7 @@ const fontParser = require("./fontParser")
 const speechParser = require("./speechParser")
 const tileParser = require("./tileParser")
 const navmap = require("./navmap")
+const CliMan = require("climan").CliMan
 
 function parseFonts(fontsPath) {
 	return glob.sync(path.resolve(fontsPath, "*.fnt"))
@@ -94,27 +95,95 @@ function postProcessObjects(maps) {
 	}
 }
 
-async function run() {
-	const atlas = {}
-	for (const name of ["tiles", "ui"]) {
-		atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
+async function run(options) {
+	let atlas
+	if (Object.values(options).every(x => !x)) {
+		options.all = true
 	}
-	await navmap("build/navmap", "atlas/tiles")
-	const tilesets = tileParser.buildTilesets(glob.sync("tileset/tileset*.json"), atlas.tiles)
-	const maps = tileParser.buildMaps(glob.sync("map/map*.json"), tilesets)
-	postProcessObjects(maps)
-	fs.writeFileSync(
-		path.resolve("scripts/src/types", "resources.d.ts"),
-		`declare const enum ResourceId {${tilesets.list.map(x => JSON.stringify(x.resource) + " = " + JSON.stringify(x.resource))}}`
-	)
-	fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data: {sprites: tilesets.list, maps}}))
-	fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
-	fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))
+	if (options.atlas || options.all) {
+		console.log("processing atlas...")
+		atlas = {}
+		for (const name of ["tiles", "ui"]) {
+			atlas[name] = await texturePacker(`atlas/${name}.ftpp`)
+		}
+		fs.writeFileSync("build/atlas.cache.json", JSON.stringify(atlas))
+	} else if (options.map) {
+		if (!fs.existsSync("build/atlas.cache.json")) {
+			throw new Error("atlas cache file does not exist, rebuild atlas")
+		}
+		atlas = JSON.parse(fs.readFileSync("build/atlas.cache.json", "utf8"))
+	}
+	if (options.navmap || options.all) {
+		console.log("processing navmap...")
+		await navmap("build/navmap", "atlas/tiles")
+	}
+	if (options.map || options.all) {
+		console.log("processing map...")
+		const tilesets = tileParser.buildTilesets(glob.sync("tileset/tileset*.json"), atlas.tiles)
+		const maps = tileParser.buildMaps(glob.sync("map/map*.json"), tilesets)
+		postProcessObjects(maps)
+		fs.writeFileSync(
+			path.resolve("scripts/src/types", "resources.d.ts"),
+			`declare const enum ResourceId {${tilesets.list.map(x => JSON.stringify(x.resource) + " = " + JSON.stringify(x.resource))}}`
+		)
+		fs.writeFileSync("build/data.json", JSON.stringify({type: "gameData", data: {sprites: tilesets.list, maps}}))
+	}
+	if (options.fonts || options.all) {
+		console.log("processing fonts...")
+		fs.writeFileSync("build/fonts.json", JSON.stringify({type: "fontData", data: parseFonts("fonts")}))
+	}
+	if (options.speech || options.all) {
+		console.log("processing speech...")
+		fs.writeFileSync("build/speech.json", JSON.stringify({type: "speechData", data: parseSpeech("speech")}))
+	}
 }
-
-void run()
 
 process.on("unhandledRejection", error => {
 	console.error(error)
 	process.exit(1)
+})
+
+CliMan.run({
+	name: "preprocess",
+	help: "process games asset files",
+	options: [
+		{
+			name: "help",
+			symbol: "h",
+			help: "display help and exit",
+			boolean: true,
+			handler: CliMan.help
+		},
+		{
+			name: "all",
+			boolean: true,
+			help: "process everything"
+		},
+		{
+			name: "speech",
+			boolean: true,
+			help: "process speech"
+		},
+		{
+			name: "map",
+			boolean: true,
+			help: "process map"
+		},
+		{
+			name: "navmap",
+			boolean: true,
+			help: "process navmap"
+		},
+		{
+			name: "atlas",
+			boolean: true,
+			help: "process atlas"
+		},
+		{
+			name: "fonts",
+			boolean: true,
+			help: "process fonts"
+		}
+	],
+	handler: options => run(options)
 })

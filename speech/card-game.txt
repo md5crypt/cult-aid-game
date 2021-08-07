@@ -1,6 +1,605 @@
+
+
+@fragment cards-intro
+
+nord: Hey, take your eyes off the cards and take a look who paid us a visit.
+
+breton: You mean that living proof that nobody listens to what I have to say? I'm trying to ignore it.
+
+nord: Look how dumb that daedra costume is! How can it not bring a smile?
+
+breton: Yes, let us make fun of a Khajiit desperate enough to get paid for pretending to be a daedra. I bet it will be even funnier once he tells us how much he earns.
+
+nord: Bah! Why can't you ever just enjoy the moment?
+
+khajiit: Um...
+
+nord: Kahjiit, sit down with us! We don't bite.
+nord: At least I don't bite, can't really vouch for Mr. Killjoy here.
+nord: Or certain other... individuals.
+
+khajiit: You know what, on second thought you two seem busy. I'll just leave you to your game.
+
+nord: But we are bored out of our minds!
+
+breton: On that I must agree with the old geezer. He's not much of an opponent. You can't be much worse.
+
+khajiit: You know, I really don't think that playing cards with randomly met clutits is the smartest thing one can do.
+
+nord: Oh for the love of... Sit down with us or I'm throwing you into a cell.
+
+khajiit: Yes sir!
+
+// [animacja :P]
+
+%seen
+
+@dialog cards-main
+
+@prompt
+
+nord: Cat got your tongue?
+
+@option hidden take-mead: (Take mead)
+%invoke test
+
+khajiit: I'll take that mead I won.
+
+nord: Sure thing!
+
+%invoke open
+
+null: Item added: Genuine Nordic mead
+
+%invoke close
+
+%call cards-take-mead-outro
+
+%hide
+
+@option hidden leave: I'm ready to leave this place.
+
+%push cards-pre-finally
+
+@option cell: About that throwing me into a cell...
+
+khajiit: You won't throw me into a cell the moment I stand up from the table, right?
+
+nord: Nah, too much work.
+
+breton: But if you insist, I've got a few spells I wanted to try out.
+
+khajiit: I'm good, thanks.
+
+%hide
+
+@option who-are-you: You two are cultists?
+
+khajiit: So... who are exactly? Cultists?
+
+nord: It's a cultist cave and we are wearing cultist robes, what else would we be?
+
+khajiit: I don't know. I've just noticed that many things in this place are not as simple as they seem.
+
+breton: Ha, the Khajiit gets it. He would fit right in.
+
+nord: I guess it won't hurt to formally introduce ourselves.
+
+nord: Good 'old me holds the position of a senior cultist warrior and my Breton friend here...
+
+breton: Is a mage.
+
+nord: Is a junior magic user.
+
+breton: Yes, with the only other "magic user" being our glorious leader.
+
+nord: That still makes you a junior, doesn't it?
+
+breton: By this place's convoluted logic?
+
+// albo ultra crazy face albo ultra grumpy
+breton: It sure does!
+
+%hide
+%show backstory
+%show hoods
+
+@option hidden hoods: Aren't hoods an essential part of the cultist aesthetic?
+
+khajiit: Shouldn't you have hoods over your heads?
+
+nord: We should.
+
+breton: Got a problem with that?
+
+khajiit: No, no, just asking.
+
+%seen
+%hide
+
+@option hidden backstory: I have some doubts about your cultist-ness...
+
+khajiit: You two don't exactly strike me as your common everyday cultists.
+
+breton: Did you hear that? He finds us "uncommon". It must be your age showing up.
+
+nord: Ha! You know Khajiit, I'm so old that I was in the cult before it even existed!
+
+khajiit: How exactly does one join a cult that does not yet exist?
+
+nord: Boss pulled me out of the gutter when I was a wee lad. Asked me to be his bodyguard. I stuck around ever since.
+
+khajiit: And what does that have to do with the cult?
+
+breton: He identifies the cult with its leader, so by following the cult's leader before the said cult existed he sees himself as a member of a non-existing cult.
+
+khajiit: I won't even pretend I understood that.
+
+nord: Wait till you hear how we got our very first junior magic user.
+
+breton: Forget it, I'm not going to amuse some random Khajiit with my life story.
+
+nord: I mean, if you won't, I will.
+
+breton: Ugh, fine.
+
+breton: I'm actually a high ranking member of the mage's guild.
+
+nord: You WERE a high ranking member of the mages guild.
+
+breton: I don't recall quitting nor anyone telling me I've been thrown out.
+
+nord: Sure, sure. And you're hiding here because of how great friends you are with the other members.
+
+breton: I'm sure I'll regain my rightful position once I explain the misunderstanding.
+
+breton: They just need to stop trying to kill me on sight first.
+
+nord: You're still believing that? How many years has it been?
+
+breton: Hey, mind your own business, will you?
+
+%seen
+%show-unseen necromancy
+
+@option hidden necromancy: The mages guild wants you dead?
+
+khajiit: It's probably none of my business, but why does the mage's guild want to kill you?
+
+breton: I couldn't agree more, it's none of your business.
+
+nord: Don't worry, I'll tell you.
+
+nord: It was necromancy.
+
+breton: That's not true! I was trying to solve World Hunger!
+
+khajiit: With necromancy?
+
+breton: Yes! I mean no!
+
+breton: It's complicated!
+
+breton: Look, I was developing a spell to instantly re-grow crops after harvest. Sure, it had some necromancy elements in it, but it was meant to be cast on plants!
+
+khajiit: And that was enough to get you on the guild's kill list?
+
+breton: No, at least not directly. I tested the spell on a wheat field. How was I supposed to know that there was an ancient burial site underground?
+
+khajiit: What exactly happened?
+
+breton: Well, let's say that shouting "I'm not a necromancer" while being surrounded by an army of animated skeletons is not the most convincing thing one can do.
+
+%seen
+%hide
+
+@option game: What are you playing?
+
+khajiit: I guess I have to ask... so what game are you playing?
+
+nord: An old Altmer strategy game. Want to have a go?
+
+khajiit: Do I have to? I mean, currently I have a bit more pressing matters to attend to.
+
+khajiit: Like you know, not ending up on an altar?
+
+nord: What if I promise you a reward? If you beat me I'll give you a bottle of my Homemade Traditional Nord Mead.
+
+breton: You've brought inside a bottle of mead? Have you completely lost your mind?
+
+nord: Shush, it's fine, I was careful, don't interrupt me.
+
+nord: Like I said, you win with me - you get the mead.
+
+nord: And if you manage to whip that whiny mage's ass? I'll make sure you get out of this cave alive and in one piece, old man's promise.
+
+khajiit: And if I lose?
+
+breton: You end up on the nearest altar as an daedric appetizer.
+
+khajiit: ...
+
+breton: That was a joke. You can lose as much as you want.
+
+%hide
+%show mead
+%show really
+%show play
+
+@option hidden  really: You really will help me escape?
+
+khajiit: Just to be sure, did I understand correctly that you will give me back my freedom once I win a card game with the Mage?
+
+nord: Yep. No questions asked.
+
+khajiit: But... why?
+
+nord: I want that overconfident buffoon to taste defeat.
+
+breton: Right, because winning every single damn game is a clear sign of overconfidence.
+
+%seen
+
+@option hidden mead: Is there something special about that mead? 
+
+khajiit: What's so unusual in that bottle of mead that you have to be careful with it?
+
+breton: There's nothing unusual about it. It's just the maid gets very angry when she finds someone caring around any kind of alcohol.
+
+breton: And if there's anything you have to know about this place, it's to never anger the maid.
+
+nord: Ha! Ever wondered why she's so obsessed over keeping this place booze-free?
+
+breton: Actually, no. There is some kind of story behind that?
+
+nord: Can't tell you, promised I won't tell anyone from the cult.
+
+breton: Then why bring it up? To irritate me?
+
+khajiit: You know... I'm not from the cult.
+
+nord: See, the Khajiit is smart, not like a certain overeducated junior magic user.
+
+nord: I can't tell you, but I can obviously tell the Khajiit.
+
+breton: I won't even bother commenting on that. Please continue.
+
+nord: So it was somewhere around the very first years of the cult's operation. Boss took me out for a 'lil quest. We were to find a fire atronach and drag it back to HQ .
+
+breton: Drag it back? You mean like in a soul gem?
+
+nord: I'm bound by a promise that forbids me to answer that.
+
+breton: Oh for the love of... Khajiit would you mind?
+
+khajiit: What he said.
+
+nord: No, it was something different. I don't know what Boss did but the damn thing just followed us all the way back.
+
+breton: On its own?
+
+nord: Yep. Didn't look particularly happy about it, but it did.
+
+breton: That's... highly unusual.
+
+nord: But, that's not the important part.
+
+nord: The important part happened literally a few minutes after departing when Boss tripped over a completely smashed Argonian lying on the city street.
+
+nord: He casually leaned over and asked: "You seem to be an Argonian, and I read that Argonians make marvelous maids. Would you like to work for me?".
+
+nord: I thought it was a joke, but the Argoninan mumbled a barely intelligible "yes" and Boss turned over to me and said "we're taking her with us".
+
+breton: Wait, that drunk Argonian was the Maid?!
+
+nord: Boss ordered to lock her up as far away from booze as possible and we left to continue our little quest.
+
+nord: From what I've been told the next days were... brutal. She managed to make actual dents in the cell bars.
+
+khajiit: I don't think I want that mead...
+
+breton: So she was forced to work for the cult?
+
+nord: No, actually that's the part I don't really get. When we returned she was sitting in her cell all sobered up and surprisingly calm. Boss took her outside and asked if she had changed her mind.
+
+nord: And for some reason she just said "no".
+
+breton: Interesting... and the fire atronach?
+
+nord: Who knows. Never seen it again.
+
+breton: Well, you sure did give me a few things to think about.
+
+%hide
+
+@option hidden play: (Play card game)
+
+%push cards-game-select
+
+@option exit: (Exit)
+
+khajiit: This has been a very enlightening experience but I really have to go.
+
+%exit
+
+@fragment cards-game-select-intro
+
+khajiit: Fine, I'll play the game with you.
+
+nord: Well, that was easy, we didn't even have to tie you to the chair.
+
+khajiit: What are the rules?
+
+breton: I'll explain them to you mid game.
+
+%seen
+
+@dialog cards-game-select
+
+@prompt
+
+nord: Who do you want to play with?
+
+@option nord: (Play with the old man)
+
+khajiit: I'll take you on, old man.
+
+nord: You're on!
+
+%exit
+
+@option breton: (Play with the mage)
+
+khajiit: I think I'll try to win my freedom?
+
+breton: Good luck with that.
+
+%exit
+
+@option hidden breton-2: (Play with the mage)
+
+khajiit: You know what? Let's play again.
+
+breton: Interesting...
+
+breton: Well I won't say no, so let's get on with it.
+
+%exit
+
+@option exit: (Back) 
+
+khajiit: I think I have had enough for now.
+
+%pop
+
+
+@fragment cards-nord-lost
+
+nord: Ha! You have to do better than that, Khajiit!
+
+%push cards-main
+%push cards-game-select
+
+@fragment cards-nord-win
+
+khajiit: It seems I have won.
+
+breton: Indeed you did. I need to say that you grasped the basics of the game quite well.
+
+nord: And you earned your mead.
+
+%seen
+
+%push cards-main
+%push cards-game-select
+%push cards-take-mead
+
+@fragment cards-nord-win-again
+
+nord: Well, you won again.
+
+breton: Stop torturing the old man and play with me.
+
+%push cards-main
+%push cards-game-select
+
+@fragment cards-breton-lost
+
+khajiit: Well, that was embarrassing.
+
+breton: Indeed it was, but don't worry, a certain someone often does worse.
+
+%push cards-main
+%push cards-game-select
+
+@fragment cards-breton-win-again
+
+nord: Amazing, he's wiping the floor with you.
+
+breton: We might have created a monster.
+
+%push cards-main
+%push cards-game-select
+
+
+@fragment cards-breton-win
+
+breton: I... lost?
+
+nord: Ha! Finally something to wipe that smug smile from your face!
+
+breton: Khajiit, you really never played this game before?
+
+khajiit: I did not.
+
+breton: Then I'm impressed.
+breton: And that is not something I say lightly.
+
+nord: Bah, I was hoping for a more vivid reaction than that.
+
+breton: More importantly you promised him something didn't you?
+
+nord: Indeed I did!
+
+nord: Khajiit, you ready to leave this place? There will be no going back.
+
+%seen
+
+%hide cards-game-select.option.breton
+%show cards-game-select.option.breton-2
+%show cards-main.option.leave
+%push cards-main
+%push cards-game-select
+%push cards-pre-finally
+
+@fragment cards-take-mead-outro
+
+khajiit: Thanks.
+
+nord: It might be a good idea to keep it hidden.
+
+breton: I can't stress enough how important that would be.
+
+@dialog cards-take-mead
+
+@prompt
+    
+nord: You earned your mead
+
+@option take: (Take mead)
+
+%invoke test
+%invoke open
+
+null: Item added: Genuine Nordic mead
+
+%invoke close
+
+%call cards-take-mead-outro
+
+%pop
+
+@option back: (Back)
+
+khajiit: Thanks, I'll take it later.
+
+nord: It'll be waiting for you.
+
+%show cards-main.option.take-mead
+%pop
+
+
+@dialog cards-pre-finally
+
+@prompt
+    
+nord: You ready to leave this place?
+
+@prompt alt
+
+nord: Are you sure?
+
+@option yes: Yes!
+
+%exit
+%call cards-finale
+
+@option no: Give me a moment.
+
+khajiit: Actually, I would like to attend to some matters first.
+
+breton: And what exactly would these "matters" be?
+
+breton: I'm genuinely curious.
+
+nord: Ignore Mr. Loser, it's fine. Just let me know when you will be ready.
+
+%prompt alt
+%pop
+
+@fragment cards-finale
+
+khajiit: I do not see any reasons for staying in this place even for a second longer.
+
+breton: Wait, I just thought of something.
+
+%invoke write
+
+breton: Here, take this.
+
+// animacja
+
+khajiit: What am I looking at?
+
+breton: A mages's guild reference. Show it to anyone in the guild and they should take you for a no-questions-asked evaluation. They'll probably even overlook that whole being a Khajiit thing.
+
+khajiit: Sorry, you lost me there. Why should I do that?
+
+breton: To check if you have any affinity towards magica alongside that surprisingly analytical mind.
+
+khajiit: But why?
+
+breton: To get enrolled of course, why else?
+
+khajiit: Is this some kind of an elaborate way to make fun of me?
+
+breton: Look, just give it a try, it's not like you have anything to lose. Worst case scenario you'll waste a few hours of your life.
+
+breton: Just don't have your hopes too high.
+
+khajiit: You really are serious?
+
+breton: Of course.
+breton: And if by some bizarre chance you actually manage to rise in guild's ranks, remember about a certain Junior Magic User.
+
+khajiit: I... don't know what to say. Thanks?
+
+nord: You two are done chit-chatting?
+
+breton: Get him out of here, old man.
+
+nord: Allright, after me Khajiit.
+
+// some kind of animation here
+
+maid: Oh, I bet this is going to be good.
+
+nord: Say, you remember that one time you ate a bit too much on a Monday?
+
+maid: No.
+
+nord: You know, that one time you suddenly thought it would be hilarious to try on a maid's outfit?
+
+maid: No, not ringing a bell, sorry.
+
+nord: I have a photo.
+
+// [animacja, nord podaje zdjecie, miad bierze i je drze na pol (sfx zalatwi sprawe)]
+
+maid: Fine.
+maid: What do you want?
+
+nord: Let the Khajiit out.
+
+// [animacja, maid cos naciska, pilot albo na scianie, cokowiek, sciana obok sie otwiera odslaniajac schody]
+
+maid: There, now get out of my sight.
+
+khajiit: No need to say that twice.
+
+nord: Good luck to you Khajiit.
+
+// [animacja, kahjiit wychodzi]
+
+maid: So, where exactly did you get that photo?
+
+// [czarny ekrna, koniec]
+
+
+
 @fragment card-game-rules-intro
 
-khajiit: Could you explain the rules again?
+khajiit: Could you explain the rules?
 
 breton: Sure, what do you want to know?
 
@@ -12,17 +611,17 @@ breton: Which card would you want to hear about?
 
 @option altmer: [color=card-altmer]Altmer[/color] cards
 
-breton: [color=card-altmer]Altmer[/color] cards allow you to play or move more cards during your turn and are required to win the game. In order to stay on the table they have to consume resources. Each [color=card-altmer]Altmer[/color] card consumes one gold and one meat each turn. If there are not enough resources for an [color=card-altmer]Altmer[/color] card, that card returned to your hand.
+breton: [color=card-altmer]Altmer[/color] cards allow you to play or move more cards during your turn and are required to win the game. In order to stay on the table they have to consume resources. Each [color=card-altmer]Altmer[/color] card consumes one gold and one meat each turn. If there are not enough resources for an [color=card-altmer]Altmer[/color] card, that card is returned to your hand.
 
-@option mer: [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards
+@option mer: [color=card-dunmer]Dunmer[/color] and [color=card-bosmer]Bosmer[/color] cards
     
-breton: [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards limit the amount of [color=card-argonian]Argonian[/color] cards you can have assigned to each resource. [color=card-dunmer]Dunmer[/color] cards correspond to gold and [color=card-bosmer]Bosmer[/color] to meat.
+breton: [color=card-dunmer]Dunmer[/color] and [color=card-bosmer]Bosmer[/color] cards limit the amount of [color=card-argonian]Argonian[/color] cards you can have assigned to each resource. [color=card-dunmer]Dunmer[/color] cards correspond to gold and [color=card-bosmer]Bosmer[/color] to meat.
 
-breton: The limits are set in the following way: 0 cards = 1 Argonian; 1 cards = 2 Argonians; 2 cards = 4 Argonians; 3 cards = 8 Argonians
+breton: The limits are set in the following way: 0 cards = 1 Argonian; 1 card = 2 Argonians; 2 cards = 4 Argonians; 3 cards = 8 Argonians
 
 @option argonian: [color=card-argonian]Argonian[/color] cards
 
-breton:  [color=card-argonian]Argonian[/color] cards produce meat and gold when assigned to the given resource. The amount of [color=card-argonian]Argonian[/color] cards assigned to each resource is limited by the amount of [color=card-dunmer]Dunmer[/color] ans [color=card-bosmer]Bosmer[/color] cards you have in play.
+breton:  [color=card-argonian]Argonian[/color] cards produce meat and gold when assigned to the given resource. The amount of [color=card-argonian]Argonian[/color] cards assigned to each resource is limited by the amount of [color=card-dunmer]Dunmer[/color] and [color=card-bosmer]Bosmer[/color] cards you have in play.
 
 breton: [color=card-argonian]Argonian[/color] cards assigned to gold production have to consume meat to stay in play, one meat per card. If there is not enough meat, cards that were unable to consume meat are returned to your hand.
 
@@ -32,12 +631,11 @@ breton: [color=card-argonian]Argonian[/color] cards can also be moved between re
 
 breton: [color=card-khajiit]Khajiit[/color] cards can be assigned to enemy resources in order to consume them. One [color=card-khajiit]Khajiit[/color] card consumes one resource. If there are not enough resources for the cards to consume, the resource value stays at zero and the [color=card-khajiit]Khajiit[/color] cards remain in play.
 
-breton: [color=card-khajiit]Khajiit[/color] cards played by you can be moved between resources during your interaction phase.
+breton: [color=card-khajiit]Khajiit[/color] cards played by you can be moved between opponent resources during your interaction phase.
 
 @option back: (Back)
 
 %pop
-
 
 @dialog card-game-rules-phases
 
@@ -59,19 +657,24 @@ breton: After that one gold and one meat is taken for each [color=card-altmer]Al
 
 breton: Finally [color=card-argonian]Argonian[/color] cards assigned to gold production consume one meat per card. If there is not enough meat, [color=card-argonian]Argonian[/color] that were unable to consume it are returned to your hand.
 
+breton: It is very important to remember that [color=card-altmer]Altmer[/color] cards consume resources before [color=card-argonian]Argonian[/color] cards as that rule very often decides the outcome of the game.
+
 @option interaction: Interaction phase
 
-breton: The interaction phase is when you can actually do something by playing and moving cards.
+breton: During the interaction phase you can play and move cards.
 
-breton: You can play any card from your hand to your side of the table if the current card limit allows for it. [color=card-khajiit]Khajiit[/color] cards are an exception as you play them on your opponent's side.
+breton: You can play any card from your hand to your side of the table if the current card limit allows for it. [color=card-khajiit]Khajiit[/color] cards are an exception as you play them on your opponent's resources.
 
 breton: As for moving cards, you can move [color=card-argonian]Argonian[/color] and [color=card-khajiit]Khajiit[/color] cards between resources. You can only move cards that you have played.
 
-breton: You can always play one card and move one card. If you have [color=card-altmer]Altmer[/color] cards on the table during the start you interaction phase you can also play or move an amount of cards equal to the number of [color=card-altmer]Altmer[/color] cards plus one.
+breton: During your interaction phase you can always play one card and move one card. Additionally, If you have [color=card-altmer]Altmer[/color] cards on table during the start of your interaction phase you can also play or move an amount of cards equal to the number of [color=card-altmer]Altmer[/color] cards plus one.
 
 breton: Let's say you have zero [color=card-altmer]Altmer[/color] cards. Available combinations are (p - play, m - move): p, m, pm, mp. With one [color=card-altmer]Altmer[/color] card that changes to: p, m, pm, mp, mm, pp. With two [color=card-altmer]Altmer[/color] cards to: p, m, pm, mp, mm, pp, mmm, ppp.
 
 breton: If you have three [color=card-altmer]Altmer[/color] cards you won the game, so no point in discussing that.
+
+breton: One more important rule is the first interaction phase of the player that starts second. In his first move he is allowed to play two cards instead of one. One could say that the second player starts with a virtual altmer that immediately leaves the game.
+
     
 @option back: (Back)
 
@@ -103,7 +706,7 @@ breton: There are five types of cards: [color=card-altmer]Altmer[/color], [color
 
 khajiit: What cards do I have in my hand and when do I get them?
 
-breton: At the start of the game you draw 12 [color=card-argonian]Argonian[/color] cards, 4 [color=card-khajiit]Khajiit[/color] cards, 3 [color=card-dunmer]Dunmer[/color] cards, 3 [color=card-bosmer]Bosmer[/color] and 3 [color=card-altmer]Altmer[/color] cards. You don't get any more cards throughout the game but [color=card-argonian]Argonian[/color] and [color=card-altmer]Altmer[/color] cards can return from the table to your hand under certain circumstances.
+breton: At the start of the game you draw 8 [color=card-argonian]Argonian[/color] cards, 3 [color=card-khajiit]Khajiit[/color] cards, 3 [color=card-dunmer]Dunmer[/color] cards, 3 [color=card-bosmer]Bosmer[/color] and 3 [color=card-altmer]Altmer[/color] cards. You don't get any more cards throughout the game but [color=card-argonian]Argonian[/color] and [color=card-altmer]Altmer[/color] cards can return from the table to your hand under certain circumstances.
 
 @option flow: Game flow
 
@@ -124,5 +727,7 @@ breton: To say it in simpler words you have to have three [color=card-altmer]Alt
 @option exit: (Exit)
 
 khajiit: Let's say I understand a bit more than I did before asking.
+
+breton: That's always something.
 
 %exit

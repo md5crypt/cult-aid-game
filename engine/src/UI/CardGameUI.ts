@@ -42,10 +42,10 @@ class GameInstance {
 		}
 		this.depth = depth
 		this.undoStack = []
-		this.state.player.meat = 7
-		this.state.player.gold = 7
-		this.state.opponent.meat = 7
-		this.state.opponent.gold = 7
+		this.state.player.meat = 8
+		this.state.player.gold = 8
+		this.state.opponent.meat = 8
+		this.state.opponent.gold = 8
 		this.state.opponent.side = 1
 		this.promise = new Promise(resolve => this._resolve = resolve)
 	}
