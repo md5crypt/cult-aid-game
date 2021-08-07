@@ -26,7 +26,7 @@ class Region {
 		context.map.cells.forEach(cell => cell.visible = true)
 	}
 
-	static showCellGroup(cell?: Types.GameMap.Cell) {
+	static showCellGroup(cell?: Types.GameMapCell) {
 		(cell || context.player.cell).group.forEach(x => x.visible = true)
 	}
 }

@@ -3,7 +3,7 @@ class Path {
 		return context.map.getObject("path", path)
 	}
 
-	static getPoint(path: Types.GameData.PathData | keyof typeof PathId, index: number) {
+	static getPoint(path: Types.GameDataPath | keyof typeof PathId, index: number) {
 		const data = typeof path == "string" ? this.get(path) : path
 		return [
 			data.points[index][0] + data.position[0],

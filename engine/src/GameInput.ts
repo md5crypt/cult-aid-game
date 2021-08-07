@@ -49,3 +49,5 @@ export class GameInput {
 		this.handlers.forEach(handler => window.removeEventListener(handler[0], handler[1]))
 	}
 }
+
+export default GameInput

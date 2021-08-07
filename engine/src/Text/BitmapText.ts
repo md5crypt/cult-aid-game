@@ -47,10 +47,10 @@ export class BitmapText extends Container {
 			// nothing to do
 			return offset
 		}
-		const lines: {words: RichText.Word[], width: number}[] = []
+		const lines: {words: RichTextWord[], width: number}[] = []
 		let lineWidth = 0
 		let textHeight = text.lineHeight
-		let words: RichText.Word[] = []
+		let words: RichTextWord[] = []
 		let index = offset
 		while (true) {
 			const word = text.words[index]
@@ -180,8 +180,16 @@ export class BitmapText extends Container {
 	}
 }
 
+export interface RichTextWord {
+	text: string
+	color: number
+	width: number
+	data: TextCharInfo[]
+	noSpace: boolean
+}
+
 export class RichText {
-	public readonly words: readonly RichText.Word[]
+	public readonly words: readonly RichTextWord[]
 	public readonly lineHeight: number
 	public readonly lineSpacing: number
 	public readonly whitespace: number
@@ -193,7 +201,7 @@ export class RichText {
 		const options = resolveTextOptions(textOptions)
 		const re = /(?:\[(\w+)(?:=([^\]]+))?\])|(?:\[\/(\w+)\])|([\s]+)|([^\s\[]+)/g
 		const color = [options.color]
-		const words: RichText.Word[] = []
+		const words: RichTextWord[] = []
 		let match = re.exec(text)
 		let noSpace = false
 		while (match) {
@@ -279,15 +287,5 @@ export class RichText {
 			rectWidth = Math.max(rectWidth, lineWidth)
 		}
 		return [rectWidth, rectWidth ? rectHeight : 0]
-	}
-}
-
-export namespace RichText {
-	export interface Word {
-		text: string
-		color: number
-		width: number
-		data: TextCharInfo[]
-		noSpace: boolean
 	}
 }

@@ -105,3 +105,5 @@ export class PathFinder {
 		return null
 	}
 }
+
+export default PathFinder

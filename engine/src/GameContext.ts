@@ -3,7 +3,7 @@ import { GameData } from "./GameData"
 import { GameInput } from "./GameInput"
 import { GameCamera } from "./GameCamera"
 import { SimplePath } from "./Path"
-import { Sprite } from "./Sprite"
+import { Sprite, ItemSprite } from "./Sprite"
 import { ScriptStorage } from "./ScriptStorage"
 import { RectTileLayer } from "./RectTile/RectTileLayer"
 import { ScriptTimer } from "./ScriptTimer"
@@ -43,7 +43,7 @@ export interface GameContext {
 	speech: Speech
 	navMap: NavMap
 	Sprite: typeof Sprite
-	Item: typeof Sprite.Item
+	Item: typeof ItemSprite
 	Path: typeof SimplePath
 	Animation: typeof Animation
 	scripts: ScriptStorage
@@ -52,3 +52,5 @@ export interface GameContext {
 }
 
 export const gameContext = {} as GameContext
+
+export default gameContext

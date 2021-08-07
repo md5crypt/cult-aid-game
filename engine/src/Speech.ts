@@ -293,3 +293,5 @@ export class Speech {
 		this.fragmentStack.push({id: fragment})
 	}
 }
+
+export default Speech

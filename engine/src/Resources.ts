@@ -80,3 +80,5 @@ export class TextureStorage {
 		return (!flat && Array.isArray(result)) ? result[0] : result
 	}
 }
+
+export default TextureStorage

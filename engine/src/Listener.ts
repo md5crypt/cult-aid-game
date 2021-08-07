@@ -74,3 +74,5 @@ export class ListenerTracker {
 		this.map.clear()
 	}
 }
+
+export default Listener

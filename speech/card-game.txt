@@ -340,15 +340,15 @@ breton: I'll explain them to you mid game.
 
 nord: Who do you want to play with?
 
-@option nord: (Play with the old man)
+@option nord: (Play with the Old Man)
 
-khajiit: I'll take you on, old man.
+khajiit: Let's play, old man.
 
 nord: You're on!
 
 %exit
 
-@option breton: (Play with the mage)
+@option breton: (Play with the Mage)
 
 khajiit: I think I'll try to win my freedom?
 
@@ -356,13 +356,11 @@ breton: Good luck with that.
 
 %exit
 
-@option hidden breton-2: (Play with the mage)
+@option hidden breton-2: (Play with the Mage)
 
 khajiit: You know what? Let's play again.
 
-breton: Interesting...
-
-breton: Well I won't say no, so let's get on with it.
+breton: Interesting... I won't say no, so let's get on with it.
 
 %exit
 
@@ -669,11 +667,15 @@ breton: As for moving cards, you can move [color=card-argonian]Argonian[/color] 
 
 breton: During your interaction phase you can always play one card and move one card. Additionally, If you have [color=card-altmer]Altmer[/color] cards on table during the start of your interaction phase you can also play or move an amount of cards equal to the number of [color=card-altmer]Altmer[/color] cards plus one.
 
-breton: Let's say you have zero [color=card-altmer]Altmer[/color] cards. Available combinations are (p - play, m - move): p, m, pm, mp. With one [color=card-altmer]Altmer[/color] card that changes to: p, m, pm, mp, mm, pp. With two [color=card-altmer]Altmer[/color] cards to: p, m, pm, mp, mm, pp, mmm, ppp.
+breton: Let's say you have no [color=card-altmer]Altmer[/color] cards. You can play one card, you can move one card and you can do both.
+
+breton: If you have one [color=card-altmer]Altmer[/color] card you can additionally play two cards or move two cards.
+
+breton: If you have two [color=card-altmer]Altmer[/color] cards you can additionally play three cards or move three cards. Note that you can not play two cards and move one or move two and play one. If you decide to do three actions they have to be of the same type.
 
 breton: If you have three [color=card-altmer]Altmer[/color] cards you won the game, so no point in discussing that.
 
-breton: One more important rule is the first interaction phase of the player that starts second. In his first move he is allowed to play two cards instead of one. One could say that the second player starts with a virtual altmer that immediately leaves the game.
+breton: One more important rule is that the first interaction phase of the player that starts second is a bit different. In his first move he is allowed to play two cards instead of one. One could say that the second player starts with a virtual [color=card-altmer]Altmer[/color] card that immediately leaves the game.
 
     
 @option back: (Back)
@@ -710,7 +712,7 @@ breton: At the start of the game you draw 8 [color=card-argonian]Argonian[/color
 
 @option flow: Game flow
 
-khajiit: Remind me, what's the flow of this game?
+khajiit: What's the flow of this game?
 
 breton: We take our turns, one after another. Each turn is divided into three phases: production, consumption and interaction.
 
@@ -726,7 +728,7 @@ breton: To say it in simpler words you have to have three [color=card-altmer]Alt
 
 @option exit: (Exit)
 
-khajiit: Let's say I understand a bit more than I did before asking.
+khajiit: Let's say I know a bit more than I did before asking.
 
 breton: That's always something.
 

@@ -1,5 +1,5 @@
 import { SimplePath, Path } from "./Path"
-import { Sprite } from "./Sprite"
+import { ItemSprite } from "./Sprite"
 import { gameContext } from "./GameContext"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
@@ -23,7 +23,7 @@ export class GameCamera {
 
 	private _screen: readonly [number, number]
 
-	private lock: Sprite.Item | null
+	private lock: ItemSprite | null
 
 	private shaker?: Shaker
 
@@ -168,7 +168,7 @@ export class GameCamera {
 		]
 	}
 
-	public lockOn(target: Sprite.Item) {
+	public lockOn(target: ItemSprite) {
 		if (this.pivotPaths.length != 0) {
 			throw new Error("can not lock on target, path in progress")
 		}
@@ -211,3 +211,5 @@ export class GameCamera {
 		}
 	}
 }
+
+export default GameCamera

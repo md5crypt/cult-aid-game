@@ -25,7 +25,7 @@ class Player {
 		context.player.setMapPosition(position[0], position[1])
 	}
 
-	static executePath(path: Types.GameData.PathData | keyof typeof PathId, moveToPosition = false) {
+	static executePath(path: Types.GameDataPath | keyof typeof PathId, moveToPosition = false) {
 		const data = typeof path == "string" ? Path.get(path) : path
 		Player.lockInput()
 		if (moveToPosition) {

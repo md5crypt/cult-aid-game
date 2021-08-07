@@ -1,22 +1,32 @@
-import { GameMap } from "./GameMap"
+import type { GameMapCell, GameMapZone } from "./GameMap"
 import { Direction } from "./Path"
-import { Sprite } from "./Sprite"
+import { ItemSprite } from "./Sprite"
 import { gameContext } from "./GameContext"
 import { Listener } from "./Listener"
 
+export type mapCallback = (mapId: string) => void | Promise<void>
+export type zoneCallback = (zone: GameMapZone) => void | Promise<void>
+export type cellDynamicCallback = (cell: GameMapCell, direction: Direction) => void | Promise<void>
+export type cellStaticCallback = (cell: GameMapCell) => void | Promise<void>
+export type itemCallback = (item: ItemSprite) => void | Promise<void>
+export type dialogStartCallback = (dialogId: string) => void | Promise<void>
+export type dialogSelectCallback = (optionId: string, dialogId: string) => void | Promise<void> | Promise<boolean> | boolean
+export type fragmentCallback = (fragmentId: string) => void | Promise<void>
+export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | Promise<void>
+
 export interface Mapping {
-	"mapLoad": ScriptStorage.mapCallback
-	"zoneEnter": ScriptStorage.zoneCallback
-	"zoneExit": ScriptStorage.zoneCallback
-	"zoneUse": ScriptStorage.zoneCallback
-	"itemUpdate": ScriptStorage.itemCallback
-	"itemEnterView": ScriptStorage.itemCallback
-	"itemExitView": ScriptStorage.itemCallback
-	"fragmentBefore": ScriptStorage.fragmentCallback
-	"fragmentAfter": ScriptStorage.fragmentCallback
-	"fragmentInvoke": ScriptStorage.fragmentInvokeCallback
-	"dialogStart": ScriptStorage.dialogStartCallback
-	"dialogSelect": ScriptStorage.dialogSelectCallback
+	"mapLoad": mapCallback
+	"zoneEnter": zoneCallback
+	"zoneExit": zoneCallback
+	"zoneUse": zoneCallback
+	"itemUpdate": itemCallback
+	"itemEnterView": itemCallback
+	"itemExitView": itemCallback
+	"fragmentBefore": fragmentCallback
+	"fragmentAfter": fragmentCallback
+	"fragmentInvoke": fragmentInvokeCallback
+	"dialogStart": dialogStartCallback
+	"dialogSelect": dialogSelectCallback
 }
 
 export class ScriptStorage {
@@ -67,14 +77,4 @@ export class ScriptStorage {
 	}
 }
 
-export namespace ScriptStorage {
-	export type mapCallback = (mapId: string) => void | Promise<void>
-	export type zoneCallback = (zone: GameMap.Zone) => void | Promise<void>
-	export type cellDynamicCallback = (cell: GameMap.Cell, direction: Direction) => void | Promise<void>
-	export type cellStaticCallback = (cell: GameMap.Cell) => void | Promise<void>
-	export type itemCallback = (item: Sprite.Item) => void | Promise<void>
-	export type dialogStartCallback = (dialogId: string) => void | Promise<void>
-	export type dialogSelectCallback = (optionId: string, dialogId: string) => void | Promise<void> | Promise<boolean> | boolean
-	export type fragmentCallback = (fragmentId: string) => void | Promise<void>
-	export type fragmentInvokeCallback = (userData: string | undefined, fragmentId: string) => void | Promise<void>
-}
+export default ScriptStorage

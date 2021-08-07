@@ -4,7 +4,7 @@ import * as Stats from "stats.js"
 import { GameData } from "./GameData"
 import { GameInput } from "./GameInput"
 import { GameMap } from "./GameMap"
-import { Sprite } from "./Sprite"
+import { Sprite, ItemSprite, MovableItemSprite } from "./Sprite"
 import { modulo } from "./utils"
 import { CONST } from "./Constants"
 import { gameContext, GameContext } from "./GameContext"
@@ -40,7 +40,7 @@ declare global {
 }
 
 Object.assign(gameContext, {
-	Item: Sprite.Item,
+	Item: ItemSprite,
 	Path: SimplePath,
 	Animation,
 	Sprite
@@ -134,7 +134,7 @@ window.addEventListener("load", async () => {
 	bootstrap(app, resources)
 	resize(app)
 
-	gameContext.player = new Player(Sprite.WalkSequence.find("khajiit"), 25)
+	gameContext.player = new Player(MovableItemSprite.createWalkSequence("khajiit"), 25)
 	gameContext.scripts.load(resources.scripts.data)
 	void gameContext.map.loadMap("main")
 

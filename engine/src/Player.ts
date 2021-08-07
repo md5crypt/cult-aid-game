@@ -1,13 +1,13 @@
-import { Sprite } from "./Sprite"
+import { MovableItemSprite, WalkSequence } from "./Sprite"
 import { CONST } from "./Constants"
 import { gameContext } from "./GameContext"
 
-export class Player extends Sprite.MovableItem {
+export class Player extends MovableItemSprite {
 
 	private inputLock: number
 	private triggerActive: boolean
 
-	public constructor(walkSequence: Sprite.WalkSequence, speed = CONST.WALK_BASE_SPEED) {
+	public constructor(walkSequence: WalkSequence, speed = CONST.WALK_BASE_SPEED) {
 		super(walkSequence, speed)
 		this.onUpdate.add(() => this.checkInput())
 		this.alwaysUpdate = true
@@ -71,3 +71,5 @@ export class Player extends Sprite.MovableItem {
 		}
 	}
 }
+
+export default Player

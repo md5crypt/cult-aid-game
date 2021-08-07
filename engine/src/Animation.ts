@@ -2,10 +2,21 @@ import { Listener } from "./Listener"
 import { CONST } from "./Constants"
 
 interface StackFrame {
-	data: Animation.Definition
+	data: AnimationDefinition
 	position: number
 	counter: number
 }
+
+type DefenitionObject = Readonly<(
+	["delay", number] |
+	["frame", number, number?] |
+	["sequence", number, number, number?] |
+	["invoke", string | (() => boolean | void)] |
+	["loop", number?] |
+	AnimationDefinition
+)>
+
+export interface AnimationDefinition extends ReadonlyArray<DefenitionObject> {}
 
 export class Animation {
 	public frame: number
@@ -15,7 +26,7 @@ export class Animation {
 	private timer: number
 	private delay: number
 
-	constructor(defenition: Animation.Definition, delay = CONST.FALLBACK_DELAY) {
+	constructor(defenition: AnimationDefinition, delay = CONST.FALLBACK_DELAY) {
 		this.stack = [{data: defenition, position: 0, counter: 0}]
 		this.onEnd = new Listener()
 		this.onInvoke = new Listener()
@@ -98,7 +109,7 @@ export class Animation {
 				}
 			} else {
 				frame.position += 1
-				stack.push({data: item as Animation.Definition, position: 0, counter: 0})
+				stack.push({data: item as AnimationDefinition, position: 0, counter: 0})
 			}
 		}
 		if (stack.length == 0) {
@@ -107,14 +118,4 @@ export class Animation {
 	}
 }
 
-export namespace Animation {
-	type DefenitionObject = Readonly<(
-		["delay", number] |
-		["frame", number, number?] |
-		["sequence", number, number, number?] |
-		["invoke", string | (() => boolean | void)] |
-		["loop", number?] |
-		Definition
-	)>
-	export interface Definition extends ReadonlyArray<DefenitionObject> {}
-}
+export default Animation

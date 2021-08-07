@@ -1,9 +1,6 @@
-Dialog.onStart("cards-main", () => {
-	Fragment.pushIfUnseen("cards-intro")
-})
+Dialog.onStart("cards-main", () => Fragment.pushIfUnseen("cards-intro"))
 
-Fragment.onInvoke("cards-main.option.take-mead", Inventory.equipHandler("mead"))
-Fragment.onInvoke("cards-take-mead.option.take", Inventory.equipHandler("mead"))
+Fragment.onInvoke(["cards-main.option.take-mead", "cards-take-mead.option.take"], Inventory.equipHandler("mead"))
 
 Fragment.onAfter(
 	[
@@ -12,19 +9,20 @@ Fragment.onAfter(
 		"cards-game-select.option.breton-2"
 	],
 	fragment => {
+		const isNord = (fragment == "cards-game-select.option.nord")
 		context.camera.enabled = false
 		context.ui.cardGame.enabled = true
 		context.ui.cardGame.interactive = false
 		void context.ui.dialog.ensureClosed().then(() => context.ui.cardGame.interactive = true)
-		void context.ui.cardGame.startGame(fragment.endsWith("nord") ? 3 : 9).then(result => {
+		void context.ui.cardGame.startGame(isNord ? 3 : 9).then(result => {
 			if (result) {
-				if (fragment.endsWith("nord")) {
+				if (isNord) {
 					Fragment.execute(Fragment.seen("cards-nord-win") ? "cards-nord-win-again" : "cards-nord-win")
 				} else {
 					Fragment.execute(Fragment.seen("cards-breton-win") ? "cards-breton-win-again" : "cards-breton-win")
 				}
 			} else {
-				Fragment.execute(fragment.endsWith("nord") ? "cards-nord-lost" : "cards-breton-lost")
+				Fragment.execute(isNord ? "cards-nord-lost" : "cards-breton-lost")
 			}
 		})
 	}

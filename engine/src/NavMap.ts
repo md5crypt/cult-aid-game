@@ -98,3 +98,5 @@ export class NavMap {
 		return result
 	}
 }
+
+export default NavMapRect

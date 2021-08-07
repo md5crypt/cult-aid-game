@@ -3,8 +3,14 @@ import { Listener } from "./Listener"
 
 export type Direction = "up" | "down" | "left" | "right"
 
-export namespace Path {
-	export function updateArray(delta: number, paths: Path[], callback: (x: number, y: number, direction: Direction | null) => void) {
+export abstract class Path {
+	public abstract x: number
+	public abstract y: number
+	public abstract direction: Direction
+	public abstract update(delta: number): number
+	public abstract readonly onEnd: Listener<Path>
+
+	static updateArray(delta: number, paths: Path[], callback: (x: number, y: number, direction: Direction | null) => void) {
 		let diff = delta
 		let path = paths[0]
 		while (true) {
@@ -24,17 +30,6 @@ export namespace Path {
 			break
 		}
 	}
-}
-
-export interface Path {
-	x: number
-	y: number
-	direction: Direction
-	update(delta: number): number
-	// onEnd.invoke is called the object owner as it has to be
-	// called after the owner updates its position...
-	// ugly, I know
-	readonly onEnd: Listener<Path>
 }
 
 export class SimplePath implements Path {

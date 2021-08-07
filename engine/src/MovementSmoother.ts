@@ -60,3 +60,5 @@ export class MovementSmoother {
 		return this.currentY
 	}
 }
+
+export default MovementSmoother

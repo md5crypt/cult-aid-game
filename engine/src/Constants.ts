@@ -11,3 +11,5 @@ export const enum CONST {
 	CAMERA_SHAKE_DEFAULT_SPEED = 2,
 	SEARCH_DIAMOND_MAX_SIZE = 16
 }
+
+export default CONST

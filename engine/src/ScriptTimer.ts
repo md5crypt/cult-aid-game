@@ -23,3 +23,5 @@ export class ScriptTimer {
 		}
 	}
 }
+
+export default ScriptTimer
