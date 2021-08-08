@@ -143,47 +143,51 @@ process.on("unhandledRejection", error => {
 	process.exit(1)
 })
 
-CliMan.run({
-	name: "preprocess",
-	help: "process games asset files",
-	options: [
-		{
-			name: "help",
-			symbol: "h",
-			help: "display help and exit",
-			boolean: true,
-			handler: CliMan.help
-		},
-		{
-			name: "all",
-			boolean: true,
-			help: "process everything"
-		},
-		{
-			name: "speech",
-			boolean: true,
-			help: "process speech"
-		},
-		{
-			name: "map",
-			boolean: true,
-			help: "process map"
-		},
-		{
-			name: "navmap",
-			boolean: true,
-			help: "process navmap"
-		},
-		{
-			name: "atlas",
-			boolean: true,
-			help: "process atlas"
-		},
-		{
-			name: "fonts",
-			boolean: true,
-			help: "process fonts"
-		}
-	],
-	handler: options => run(options)
-})
+if (require.main === module) {
+	CliMan.run({
+		name: "preprocess",
+		help: "process games asset files",
+		options: [
+			{
+				name: "help",
+				symbol: "h",
+				help: "display help and exit",
+				boolean: true,
+				handler: CliMan.help
+			},
+			{
+				name: "all",
+				boolean: true,
+				help: "process everything"
+			},
+			{
+				name: "speech",
+				boolean: true,
+				help: "process speech"
+			},
+			{
+				name: "map",
+				boolean: true,
+				help: "process map"
+			},
+			{
+				name: "navmap",
+				boolean: true,
+				help: "process navmap"
+			},
+			{
+				name: "atlas",
+				boolean: true,
+				help: "process atlas"
+			},
+			{
+				name: "fonts",
+				boolean: true,
+				help: "process fonts"
+			}
+		],
+		handler: options => run(options)
+	})
+} else {
+	module.exports = run
+}

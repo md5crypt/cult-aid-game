@@ -1,6 +1,8 @@
 const path = require("path")
 const fs = require("fs")
 const WebpackBeforeBuildPlugin = require("before-build-webpack")
+const GameAssetPlugin = require("./GameAssetPlugin")
+
 const express = require("express")
 
 const scripts = env => ({
@@ -77,6 +79,9 @@ const engine = env => ({
 			}
 		]
 	},
+	plugins: [
+		new GameAssetPlugin()
+	],
 	performance: {
 		hints: false
 	}
