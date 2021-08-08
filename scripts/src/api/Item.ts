@@ -1,4 +1,6 @@
-class Item {
+import { EventKeyArray } from "./Utils"
+
+export class Item {
 	static get(item: keyof typeof ItemId) {
 		return context.map.getObject("item", item)
 	}
@@ -35,3 +37,5 @@ class Item {
 		scripts.register("itemUpdate", item, callback)
 	}
 }
+
+export default Item

@@ -1,6 +1,10 @@
-type InventoryItemName = keyof typeof inventoryItems
+import inventoryItems from "../inventoryItems"
+import Fragment from "./Fragment"
+import Dialog from "./Dialog"
 
-class Inventory {
+export type InventoryItemName = keyof typeof inventoryItems
+
+export class Inventory {
 	static has(item: InventoryItemName) {
 		return storage.hands.left == item || storage.hands.right == item
 	}
@@ -158,3 +162,5 @@ scripts.register("fragmentInvoke", FragmentId["inventory-inventory-full"], actio
 		Inventory.close()
 	}
 })
+
+export default Inventory

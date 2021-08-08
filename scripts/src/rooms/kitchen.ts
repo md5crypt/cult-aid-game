@@ -1,3 +1,12 @@
+import {
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Utils
+} from "../api"
+
 Zone.onUse("kitchen-chef", async () => {
 	await Player.walkToPoint("kitchen-chef")
 	return Dialog.execute("chef-main")

@@ -73,7 +73,7 @@ export class ScriptStorage {
 
 	/** @internal */
 	public load(source: string) {
-		(new Function(`"use strict";return function(context, scripts, storage){${source}}`))()(gameContext, this, gameContext.storage)
+		(new Function(`"use strict";return function(context, scripts, storage){${source}\n}`))()(gameContext, this, gameContext.storage)
 	}
 }
 

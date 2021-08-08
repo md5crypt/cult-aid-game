@@ -1,4 +1,4 @@
-class Dialog {
+export class Dialog {
 	static seen(dialog: keyof typeof DialogId, exclude: (keyof typeof FragmentId)[]) {
 		const excludeSet = new Set(exclude)
 		const options = context.speech.getDialogOptions(dialog) as (keyof typeof FragmentId)[]
@@ -54,3 +54,5 @@ class Dialog {
 		context.ui.dialog.hidden = value
 	}
 }
+
+export default Dialog

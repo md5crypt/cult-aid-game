@@ -1,3 +1,15 @@
+import {
+	Region,
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Utils,
+	Item,
+	Path
+} from "../api"
+
 Fragment.onInvoke("librarian-enter-library", async () => {
 	Dialog.hidden = true
 	await Player.executePath("library-retreat")

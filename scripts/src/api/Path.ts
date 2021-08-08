@@ -1,4 +1,4 @@
-class Path {
+export class Path {
 	static get(path: keyof typeof PathId) {
 		return context.map.getObject("path", path)
 	}
@@ -11,3 +11,5 @@ class Path {
 		] as const
 	}
 }
+
+export default Path

@@ -1,4 +1,6 @@
-class Zone {
+import { EventKeyArray } from "./Utils"
+
+export class Zone {
 	static get(zone: keyof typeof ZoneId) {
 		return context.map.getObject("zone", zone)
 	}
@@ -15,3 +17,5 @@ class Zone {
 		scripts.register("zoneUse", zone, callback)
 	}
 }
+
+export default Zone

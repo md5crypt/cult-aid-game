@@ -1,4 +1,7 @@
-class Player {
+import Path from "./Path"
+import Point from "./Point"
+
+export class Player {
 	static lockInput() {
 		context.player.lockInput()
 	}
@@ -34,3 +37,5 @@ class Player {
 		return context.player.pushPath(data.points).onEnd.promise().then(() => Player.unlockInput())
 	}
 }
+
+export default Player

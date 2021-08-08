@@ -1,3 +1,11 @@
+import {
+	Item,
+	Fragment,
+	Dialog,
+	Inventory,
+	Utils
+} from "../api"
+
 Dialog.onStart("hobo-common", () => {
 	Fragment.showUnseenIf("hobo-common.option.why-hobo", Fragment.seen("hobo-kitchen-intro"))
 	Fragment.showUnseenIf("hobo-common.option.chef", storage.plantation.visited)

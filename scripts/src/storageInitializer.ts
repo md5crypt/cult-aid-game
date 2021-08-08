@@ -1,3 +1,5 @@
+import type { InventoryItemName } from "./api"
+
 const storageInitializer = {
 	hands: {
 		left: null as (InventoryItemName | null),
@@ -35,8 +37,6 @@ const storageInitializer = {
 	}
 }
 
-type Storage = typeof storageInitializer
 Object.assign(storage, storageInitializer)
 
-// storage.dialog.seen["chef-intro"] = true
-// storage.dialog.seen["chef-post-intro"] = true
+export default storageInitializer

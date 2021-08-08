@@ -1,4 +1,4 @@
-class Fragment {
+export class Fragment {
 	static seen(...fragments: (keyof typeof FragmentId)[]) {
 		return fragments.every(fragment => storage.dialog.seen[fragment])
 	}
@@ -87,3 +87,5 @@ class Fragment {
 		scripts.register("fragmentInvoke", fragment, callback as Types.ScriptStorageMapping["fragmentInvoke"])
 	}
 }
+
+export default Fragment

@@ -1,3 +1,11 @@
+import {
+	Region,
+	Player,
+	Fragment,
+	Dialog,
+	Zone
+} from "../api"
+
 Region.onLoad("forbidden-section", () => {
 	Region.show()
 	return Player.executePath("forbidden-section-enter", true)

@@ -1,3 +1,13 @@
+import {
+	Region,
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Point
+} from "../api"
+
 Dialog.onSelect("test-give-item", id => {
 	if (id == "book" || id == "sweetroll") {
 		Inventory.add(id)
@@ -20,7 +30,7 @@ Dialog.onSelect("card-game-test", id => {
 				Fragment.push(result ? "card-game-success" : "card-game-fail")
 				Dialog.push("test-main")
 				Dialog.push("card-game-test")
-				Dialog.execute()
+				void Dialog.execute()
 			})
 	}
 })

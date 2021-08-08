@@ -1,3 +1,13 @@
+import {
+	Region,
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Debug
+} from "../api"
+
 Zone.onEnter("office-entrance", async () => {
 	Region.showCellGroup()
 	if (Fragment.unseen("bosmer-intro")) {

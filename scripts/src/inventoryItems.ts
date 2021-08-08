@@ -1,4 +1,4 @@
-const inventoryItems = {
+export default {
 	book: {
 		image: "item-lusty-argonian-maid"
 	},

@@ -1,3 +1,13 @@
+import {
+	Region,
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Debug
+} from "../api"
+
 Region.onLoad("boiler", () => {
 	Region.show()
 	Player.moveToPoint("boiler-spawn")

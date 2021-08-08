@@ -1,3 +1,9 @@
+import {
+	Fragment,
+	Dialog,
+	Inventory
+} from "../api"
+
 Dialog.onStart("maid-main", () => {
 	Fragment.pushIfUnseen("maid-main-intro")
 	Fragment.setVisibility("maid-main.option.article", Inventory.has("newspaper"))

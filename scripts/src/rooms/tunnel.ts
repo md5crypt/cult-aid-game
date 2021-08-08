@@ -1,3 +1,12 @@
+import {
+	Player,
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone,
+	Debug
+} from "../api"
+
 Zone.onEnter("tunnel", async () => {
 	if (Fragment.unseen("thief-pre-intro")) {
 		await Player.executePath("tunnel-entrance")

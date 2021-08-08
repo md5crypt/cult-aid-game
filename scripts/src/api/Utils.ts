@@ -1,6 +1,9 @@
-type EventKeyArray<T> = keyof T | (keyof T)[]
+import Player from "./Player"
+import Point from "./Point"
 
-class Utils {
+export type EventKeyArray<T> = keyof T | (keyof T)[]
+
+export class Utils {
 	static async reset() {
 		const {camera, map} = context
 		camera.enabled = false
@@ -28,3 +31,5 @@ class Utils {
 		return context.timer.wait(delay)
 	}
 }
+
+export default Utils

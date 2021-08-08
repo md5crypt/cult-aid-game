@@ -1,3 +1,10 @@
+import {
+	Fragment,
+	Dialog,
+	Inventory,
+	Zone
+} from "../api"
+
 Dialog.onStart("technician-main", () => {
 	Fragment.showIf("technician-main.option.book", Inventory.has("book") && Fragment.seen("technician-main.option.reading"))
 	Fragment.setVisibility("technician-main.option.sweetroll", Inventory.has("sweetroll"))

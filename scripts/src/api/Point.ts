@@ -1,4 +1,4 @@
-class Point {
+export class Point {
 	static get(point: keyof typeof PointId) {
 		return context.map.getObject("point", point)
 	}
@@ -8,3 +8,5 @@ class Point {
 		return context.map.resolvePosition(position[0], position[1])
 	}
 }
+
+export default Point

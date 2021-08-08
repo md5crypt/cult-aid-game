@@ -3,3 +3,5 @@ class Resource {
 		return context.Sprite.find(texture)
 	}
 }
+
+export default Resource

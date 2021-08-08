@@ -1,4 +1,4 @@
-class Region {
+export class Region {
 	private static loadCallbacks: Map<keyof typeof MapId, Types.ScriptStorageMapping["mapLoad"][]> = new Map()
 
 	public static onLoad<T extends keyof typeof MapId>(map: T, callback: (map: T) => void | Promise<void>) {
@@ -30,3 +30,5 @@ class Region {
 		(cell || context.player.cell).group.forEach(x => x.visible = true)
 	}
 }
+
+export default Region

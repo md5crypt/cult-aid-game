@@ -1,4 +1,9 @@
-class Debug {
+import Dialog from "./Dialog"
+import Fragment from "./Fragment"
+import Resource from "./Resources"
+import { Inventory, InventoryItemName } from "./Inventory"
+
+export class Debug {
 	static registerTestChest(name: string, items: InventoryItemName[]) {
 		const dialogId = name + "-test-chest" as DialogId
 		const itemId = name + "-test-chest" as ItemId
@@ -19,3 +24,5 @@ class Debug {
 		})
 	}
 }
+
+export default Debug
