@@ -1,14 +1,33 @@
 export class Path {
-	static get(path: keyof typeof PathId) {
-		return context.map.getObject("path", path)
+	public static get(path: keyof typeof PathId) {
+		return new this(context.map.getObject("path", path))
 	}
 
-	static getPoint(path: Types.GameDataPath | keyof typeof PathId, index: number) {
-		const data = typeof path == "string" ? this.get(path) : path
+	public readonly position: readonly [number, number]
+	public readonly points: readonly (readonly [number, number])[]
+
+	private constructor(path: Types.GameDataPath) {
+		this.position = path.position
+		this.points = path.points
+	}
+
+	public get length() {
+		return this.points.length
+	}
+
+	public getPoint(index: number) {
 		return [
-			data.points[index][0] + data.position[0],
-			data.points[index][1] + data.position[1]
+			this.points[index][0] + this.position[0],
+			this.points[index][1] + this.position[1]
 		] as const
+	}
+
+	public get firstPoint() {
+		return this.getPoint(0)
+	}
+
+	public get lastPoint() {
+		return this.getPoint(this.points.length - 1)
 	}
 }
 

@@ -3,7 +3,10 @@ import {
 	Fragment,
 	Dialog,
 	Inventory,
-	Utils
+	Utils,
+	Zone,
+	Path,
+	Player
 } from "../api"
 
 Dialog.onStart("hobo-common", () => {
@@ -86,3 +89,13 @@ Fragment.onInvoke("hobo-study.option.booze", async value => {
 })
 
 Fragment.onInvoke("hobo-study.option.medallion", Inventory.equipHandler("medallion"))
+
+Zone.onUse("study-desk-front", async () => {
+	await Player.walkToPoint(Path.get("study-desk").lastPoint)
+	void Dialog.execute("hobo-study")
+})
+
+Zone.onUse("study-desk-back", async () => {
+	await Player.executePath("study-desk", "walk")
+	void Dialog.execute("hobo-study")
+})

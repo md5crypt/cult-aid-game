@@ -6,7 +6,7 @@ export default {
 		image: "item-sweetroll"
 	},
 	scribbles: {
-		image: ""
+		image: "item-bosmer-notes"
 	},
 	newspaper: {
 		image: "item-lusty-argonian-maid"

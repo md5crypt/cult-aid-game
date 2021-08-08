@@ -16,7 +16,7 @@
  "margin":0,
  "name":"objects",
  "spacing":0,
- "tilecount":50,
+ "tilecount":51,
  "tiledversion":"1.4.3",
  "tileheight":240,
  "tiles":[
@@ -401,6 +401,18 @@
          "image":"object-office-board.png",
          "imageheight":87,
          "imagewidth":106
+        }, 
+        {
+         "id":72,
+         "image":"object-study-hobo.png",
+         "imageheight":128,
+         "imagewidth":179,
+         "properties":[
+                {
+                 "name":"scale",
+                 "type":"float",
+                 "value":0.5
+                }]
         }],
  "tilewidth":240,
  "type":"tileset",

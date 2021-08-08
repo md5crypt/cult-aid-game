@@ -164,7 +164,7 @@ Zone.onEnter("library-darkness", async () => {
 })
 
 Zone.onUse("library-librarian", async () => {
-	await Player.walkToPoint(Path.getPoint("library-newspapers", 0))
+	await Player.walkToPoint(Path.get("library-newspapers").firstPoint)
 	if (Fragment.seen("librarian-sweetroll.option.do-nothing")) {
 		await Dialog.execute("librarian-body")
 	} else {

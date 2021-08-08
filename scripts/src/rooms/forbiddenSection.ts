@@ -8,14 +8,14 @@ import {
 
 Region.onLoad("forbidden-section", () => {
 	Region.show()
-	return Player.executePath("forbidden-section-enter", true)
+	return Player.executePath("forbidden-section-enter", "move")
 })
 
 Zone.onEnter("forbidden-section-exit", async () => {
 	Player.lockInput()
 	await Player.executePath("forbidden-section-exit")
 	await Region.load("main")
-	await Player.executePath("library-darkness-exit", true)
+	await Player.executePath("library-darkness-exit", "move")
 	Player.unlockInput()
 })
 

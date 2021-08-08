@@ -489,7 +489,7 @@ export class MovableItemSprite extends ItemSprite {
 	}
 
 	public pushPath(path: readonly (readonly [number, number])[], speed?: number) {
-		const object = new SimplePath(path.map(point => [point[0] + this.movementSmoother.x, point[1] + this.movementSmoother.y]), speed || this.speed)
+		const object = new SimplePath(path.map(point => [point[0] + this.movementSmoother.tX, point[1] + this.movementSmoother.tY]), speed || this.speed)
 		this.path.push(object)
 		return object
 	}

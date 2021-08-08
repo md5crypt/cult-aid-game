@@ -28,11 +28,13 @@ export class Player {
 		context.player.setMapPosition(position[0], position[1])
 	}
 
-	static executePath(path: Types.GameDataPath | keyof typeof PathId, moveToPosition = false) {
+	static async executePath(path: Types.GameDataPath | keyof typeof PathId | Path, moveToPosition?: "move" | "walk") {
 		const data = typeof path == "string" ? Path.get(path) : path
 		Player.lockInput()
-		if (moveToPosition) {
+		if (moveToPosition == "move") {
 			Player.moveToPoint(data.position)
+		} else if (moveToPosition == "walk") {
+			await Player.walkToPoint(data.position)
 		}
 		return context.player.pushPath(data.points).onEnd.promise().then(() => Player.unlockInput())
 	}
